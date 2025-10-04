@@ -24,20 +24,17 @@ const Signup = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
         
-        // Validação básica
         if (formData.password !== formData.confirmPassword) {
             alert('As senhas não coincidem!');
             return;
         }
         
-        // Aqui você adiciona a lógica de cadastro
         console.log(formData);
     };
 
     return (
         <div className="flex flex-col justify-center items-center min-h-screen bg-gray-50 p-4">
             <Card className="max-w-md shadow-2xl rounded-2xl overflow-hidden">
-                {/* Header do Card com gradiente */}
                 <div className="bg-gradient-to-r from-orange-500 to-orange-600 p-6 -mt-4 -mx-4 mb-6">
                     <div className="flex justify-center mb-3">
                         <div className="bg-white rounded-full p-4 shadow-lg">
@@ -81,8 +78,6 @@ const Signup = () => {
                             </div>
                         </div>
                     </div>
-
-                    {/* Campo de Nome */}
                     <div className="flex flex-col gap-2">
                         <InputText
                             id="nome"
@@ -93,8 +88,6 @@ const Signup = () => {
                             required
                         />
                     </div>
-
-                    {/* Campo de E-mail */}
                     <div className="flex flex-col gap-2">
                         <InputText
                             id="email"
@@ -107,8 +100,6 @@ const Signup = () => {
                             required
                         />
                     </div>
-
-                    {/* Campo de Telefone */}
                     <div className="flex flex-col gap-2">
                         <InputText
                             id="telefone"
@@ -120,7 +111,6 @@ const Signup = () => {
                         />
                     </div>
 
-                    {/* Campo de Senha */}
                     <div className="flex flex-col gap-2">
                         <Password
                             id="password"
@@ -139,7 +129,6 @@ const Signup = () => {
                         />
                     </div>
 
-                    {/* Campo de Confirmar Senha */}
                     <div className="flex flex-col gap-2">
                         <Password
                             id="confirmPassword"
@@ -159,7 +148,6 @@ const Signup = () => {
                         />
                     </div>
 
-                    {/* Botão de Cadastro */}
                     <Button
                         label="Cadastrar"
                         icon="pi pi-check"
@@ -172,7 +160,6 @@ const Signup = () => {
                         type="submit"
                     />
 
-                    {/* Link de Login */}
                     <div className="text-center mt-2 mb-4">
                         <span className="text-gray-600 text-sm">
                             Já tem uma conta?{' '}
