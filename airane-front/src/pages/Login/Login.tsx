@@ -14,7 +14,6 @@ const Login = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        // Aqui você adiciona a lógica de autenticação
         console.log({ email, password, role });
     };
 
@@ -63,8 +62,6 @@ const Login = () => {
                             </div>
                         </div>
                     </div>
-
-                    {/* Campo de E-mail */}
                     <div className="flex flex-col gap-2">
                         <InputText
                             id="email"
@@ -77,7 +74,6 @@ const Login = () => {
                         />
                     </div>
 
-                    {/* Campo de Senha */}
                     <div className="flex flex-col gap-2">
                         <Password
                             id="password"
@@ -97,7 +93,6 @@ const Login = () => {
                         />
                     </div>
 
-                    {/* Link Esqueceu a Senha */}
                     <div className="flex justify-end -mt-2">
                         <Button
                             label="Esqueceu a senha?"
@@ -108,7 +103,6 @@ const Login = () => {
                         />
                     </div>
 
-                    {/* Botão de Login */}
                     <Button
                         label="Entrar"
                         icon="pi pi-sign-in"
@@ -121,7 +115,6 @@ const Login = () => {
                         type="submit"
                     />
 
-                    {/* Link de Cadastro */}
                     <div className="text-center mt-2 mb-4">
                         <span className="text-gray-600 text-sm">
                             Não tem uma conta?{' '}
