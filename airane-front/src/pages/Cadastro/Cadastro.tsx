@@ -5,6 +5,9 @@ import { Card } from 'primereact/card';
 import { InputText } from 'primereact/inputtext';
 import { Password } from 'primereact/password';
 import { RadioButton } from 'primereact/radiobutton';
+import { Divider } from 'primereact/divider';
+import { InputTextarea } from 'primereact/inputtextarea';
+import Fields from './fields';
 
 const Signup = () => {
     const navigate = useNavigate();
@@ -14,7 +17,12 @@ const Signup = () => {
         telefone: '',
         password: '',
         confirmPassword: '',
-        role: 'musico'
+        role: 'musico',
+        nomeArtistico: '',
+        biografia: '',
+        cidade: '',
+        estado: '',
+        generoMusical: '',
     });
 
     const handleChange = (field, value) => {
@@ -46,8 +54,7 @@ const Signup = () => {
                 </div>
 
                 <form onSubmit={handleSubmit} className="flex flex-col gap-6 px-2">
-                    {/* Seleção de Perfil */}
-                    <div className="bg-orange-50 rounded-lg p-4 border border-orange-200">
+                    <div className="bg-orange-50 rounded-lg p-4">
                         <p className="text-sm font-semibold text-gray-700 mb-3 text-center">Cadastrar como:</p>
                         <div className="flex justify-center gap-8">
                             <div className="flex items-center">
@@ -78,16 +85,13 @@ const Signup = () => {
                             </div>
                         </div>
                     </div>
-                    <div className="flex flex-col gap-2">
-                        <InputText
-                            id="nome"
-                            value={formData.nome}
-                            onChange={(e) => handleChange('nome', e.target.value)}
-                            className="w-full"
-                            placeholder="Nome completo"
-                            required
-                        />
-                    </div>
+
+                    <Divider />
+
+                    <Fields mode={formData.role} formData={formData} handleChange={handleChange} />
+
+                    <Divider />
+
                     <div className="flex flex-col gap-2">
                         <InputText
                             id="email"
@@ -160,7 +164,7 @@ const Signup = () => {
                         type="submit"
                     />
 
-                    <div className="text-center mt-2 mb-4">
+                    <div>
                         <span className="text-gray-600 text-sm">
                             Já tem uma conta?{' '}
                             <Button
