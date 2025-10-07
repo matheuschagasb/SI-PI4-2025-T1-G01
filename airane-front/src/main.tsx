@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
 import Login from './pages/Login/Login'
 import Signup from './pages/Cadastro/Cadastro';
+import ForgotPassword from './pages/Login/ForgotPassword';
 import { PrimeReactProvider } from 'primereact/api';
 
 // Theme
@@ -28,6 +29,10 @@ const router = createBrowserRouter([
     path: '/signup',
     element: <Signup />,
   },
+  {
+    path : '/forgot-password',
+    element: <ForgotPassword />,
+  }
 ]);
 
 createRoot(document.getElementById('root')!).render(
