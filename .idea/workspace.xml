@@ -4,18 +4,47 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="82488310-9a6a-49ef-ae41-e446dbcb8bb6" name="Changes" comment="" />
+    <list default="true" id="82488310-9a6a-49ef-ae41-e446dbcb8bb6" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/cliente/cliente.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cliente/src/Comunicado.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cliente/src/ComunicadoDeDesligamento.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cliente/src/Parceiro.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cliente/src/PedidoDeOperacao.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cliente/src/PedidoDeResultado.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cliente/src/PedidoParaSair.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cliente/src/Resultado.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cliente/src/Teclado.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/servidor/servidor.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/airane-back/.gitattributes" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/airane-back/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/airane-back/.mvn/wrapper/maven-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/airane-back/mvnw" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/airane-back/mvnw.cmd" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/airane-back/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/airane-back/src/main/java/com/pi4/airane_back/AiraneBackApplication.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/airane-back/src/main/java/com/pi4/airane_back/controller/HelloWordController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/airane-back/src/main/resources/application.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/airane-back/src/test/java/com/pi4/airane_back/AiraneBackApplicationTests.java" beforeDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 6
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 6
+}</component>
   <component name="ProjectId" id="33AJM2IqXBZSViRVCwwPZav782M" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -27,9 +56,11 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "git-widget-placeholder": "main",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "/home/marcos-junior/Documentos/PUC/airane/airane-back"
+    "last_opened_file_path": "/home/marcos-junior/Documentos/PUC/airane",
+    "onboarding.tips.debug.path": "/home/marcos-junior/Documentos/PUC/airane/cliente/src/Main.java"
   }
 }]]></component>
   <component name="TaskManager">
