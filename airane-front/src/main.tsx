@@ -4,6 +4,7 @@ import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom'
 import Login from './pages/Login/Login'
 import Signup from './pages/Cadastro/Cadastro';
 import ForgotPassword from './pages/Login/ForgotPassword';
+import { Home } from './pages/Home/Home';
 import { PrimeReactProvider } from 'primereact/api';
 
 // Theme
@@ -32,6 +33,10 @@ const router = createBrowserRouter([
   {
     path : '/forgot-password',
     element: <ForgotPassword />,
+  },
+  {
+    path: '/home',
+    element: <Home />,
   }
 ]);
 
