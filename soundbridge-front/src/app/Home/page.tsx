@@ -1,8 +1,9 @@
-import { useState } from "react";
+'use client'
 import { InputText } from "primereact/inputtext";
 import { Avatar } from "primereact/avatar";
-import { GenreFilters } from "../Home/GenreFilters";
-import { MusicianCard } from "../Home/MusicianCard";
+import { GenreFilters } from "./GenreFilters";
+import { MusicianCard } from "./MusicianCard";
+import { useState } from "react";
 
 interface Musician {
   id: number;
@@ -14,7 +15,7 @@ interface Musician {
   image: string;
 }
 
-export const Home = () => {
+export default function Home (){
   const [search, setSearch] = useState("");
   const [selectedGenre, setSelectedGenre] = useState<string | null>(null);
 

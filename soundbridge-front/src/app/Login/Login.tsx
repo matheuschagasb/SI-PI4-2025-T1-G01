@@ -1,16 +1,16 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
 import { InputText } from 'primereact/inputtext';
 import { Password } from 'primereact/password';
 import { RadioButton } from 'primereact/radiobutton';
+import { useRouter } from 'next/router';
 
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [role, setRole] = useState('musico');
-    const navigate = useNavigate();
+  const router = useRouter();
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -97,7 +97,7 @@ const Login = () => {
                         <Button
                             label="Esqueceu a senha?"
                             className="p-button-link p-0 text-orange-600 text-sm"
-                            onClick={() => navigate('/forgot-password')}
+                             onClick={() => router.push('/forgot-password')}
                             type="button"
                             tabIndex={-1}
                         />
@@ -121,7 +121,7 @@ const Login = () => {
                             <Button
                                 label="Cadastre-se"
                                 className="p-button-link p-0 text-orange-600 font-semibold"
-                                onClick={() => navigate('/signup')}
+                                    onClick={() => router.push('/signup')}
                                 type="button"
                                 tabIndex={-1}
                             />
