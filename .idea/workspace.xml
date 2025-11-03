@@ -5,27 +5,22 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="82488310-9a6a-49ef-ae41-e446dbcb8bb6" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/cliente/cliente.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cliente/src/Comunicado.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cliente/src/ComunicadoDeDesligamento.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cliente/src/Parceiro.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cliente/src/PedidoDeOperacao.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cliente/src/PedidoDeResultado.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cliente/src/PedidoParaSair.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cliente/src/Resultado.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cliente/src/Teclado.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/servidor/servidor.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Servidor/Servidor.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cliente/src/Cliente.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/airane-back/.gitattributes" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/airane-back/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/airane-back/.mvn/wrapper/maven-wrapper.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/airane-back/mvnw" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/airane-back/mvnw.cmd" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/airane-back/pom.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/airane-back/src/main/java/com/pi4/airane_back/AiraneBackApplication.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/airane-back/src/main/java/com/pi4/airane_back/controller/HelloWordController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/airane-back/src/main/resources/application.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/airane-back/src/test/java/com/pi4/airane_back/AiraneBackApplicationTests.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cliente/src/Comunicado.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cliente/src/ComunicadoDeDesligamento.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cliente/src/Main.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cliente/src/Parceiro.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cliente/src/PedidoDeOperacao.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cliente/src/PedidoDeResultado.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cliente/src/PedidoParaSair.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cliente/src/Resultado.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cliente/src/Teclado.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servidor/servidor.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servidor/src/Main.java" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -42,6 +37,18 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "devMarcos12"
+  }
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "git@github.com:matheuschagasb/airane.git",
+    "accountId": "16f2ba60-e9af-4518-b735-4f7f8d913668"
+  }
+}]]></component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 6
 }</component>
@@ -60,7 +67,7 @@
     "git-widget-placeholder": "main",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "/home/marcos-junior/Documentos/PUC/airane",
-    "onboarding.tips.debug.path": "/home/marcos-junior/Documentos/PUC/airane/cliente/src/Main.java"
+    "onboarding.tips.debug.path": "/home/marcos-junior/Documentos/PUC/airane/Servidor/src/Main.java"
   }
 }]]></component>
   <component name="TaskManager">
