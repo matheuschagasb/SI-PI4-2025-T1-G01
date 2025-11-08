@@ -1,4 +1,4 @@
-import { Button } from "primereact/button";
+import React, { useRef } from "react";
 
 interface GenreFiltersProps {
   onSelectGenre: (genre: string | null) => void;
@@ -6,39 +6,71 @@ interface GenreFiltersProps {
 }
 
 const genres = [
-  { label: "Todos", icon: "pi pi-filter" }, 
-  { label: "Samba", icon: "pi pi-volume-up" },
-  { label: "Rock", icon: "pi pi-bolt" },
-  { label: "Pop", icon: "pi pi-star" },
-  { label: "Sertanejo", icon: "pi pi-star" },
-  { label: "Jazz", icon: "pi pi-music" },
-  { label: "MPB", icon: "pi pi-heart" },
-  { label: "Forró", icon: "pi pi-gift" },
-  { label: "Rap", icon: "pi pi-microphone" },
-  { label: "Blues", icon: "pi pi-headphones" },
+  { label: "Samba", icon: "/icons/samba.png" },
+  { label: "Rock Clássico", icon: "/icons/rock-classico.png" }, 
+  { label: "Pop", icon: "/icons/pop.png" },
+  { label: "Sertanejo Raiz", icon: "/icons/sertanejo-raiz.png" }, 
+  { label: "Jazz", icon: "/icons/jazz.png" },
+  { label: "Sertanejo Universitário", icon: "/icons/sertanejo-universitario.png" }, 
+  { label: "MPB", icon: "/icons/mpb.png" },
+  { label: "Bossa nova", icon: "/icons/bossa-nova.png" },
+  { label: "Axé", icon: "/icons/axe.png" }, 
+  { label: "Rap", icon: "/icons/rap.png" }, 
+  { label: "Blues", icon: "/icons/blues.png" },
+  { label: "Funk", icon: "/icons/funk.png" }, 
+  { label: "Música Eletrônica", icon: "/icons/musica-eletronica.png" },
+  { label: "Pagode", icon: "/icons/pagode.png" },
+  { label: "Forró", icon: "/icons/forro.png" }, 
+  { label: "Reggae", icon: "/icons/reggae.png" },
+  { label: "Clássica", icon: "/icons/classica.png" },
+  { label: "Indie", icon: "/icons/indie.png" },
+  { label: "Gospel", icon: "/icons/gospel.png" },
+
 ];
 
 export const GenreFilters = ({ onSelectGenre, selectedGenre }: GenreFiltersProps) => {
+  const scrollContainerRef = useRef<HTMLUListElement>(null);
+
+  const scrollLeft = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: -200, behavior: 'smooth' });
+    }
+  };
+
+  const scrollRight = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: 200, behavior: 'smooth' });
+    }
+  };
+
   return (
-    <div className="flex flex-wrap justify-center gap-3">
-      {genres.map((genre) => (
-        <Button
-          key={genre.label}
-          label={genre.label}
-          icon={genre.icon}
-          onClick={() =>
-            genre.label === "Todos"
-              ? onSelectGenre(null)
-              : onSelectGenre(selectedGenre === genre.label ? null : genre.label)
-          }
-          className={`px-4 py-2 border-none ${
-            (selectedGenre === null && genre.label === "Todos") ||
-            selectedGenre === genre.label
-              ? "bg-sky-600 text-white"
-              : "bg-gray-100 text-gray-700"
-          } rounded-full shadow-sm hover:shadow-md transition-all duration-200`}
-        />
-      ))}
-    </div>
+    <nav className="category-nav">
+      <div className="category-nav-inner container">
+        <button className="nav-arrow prev" onClick={scrollLeft}>
+          <img src="/icons/details/seta-esquerda.png" alt="Previous" />
+        </button>
+        <ul className="category-list" ref={scrollContainerRef}>
+          {genres.map((genre) => (
+            <li
+              key={genre.label}
+              className={`category-item ${selectedGenre === genre.label ? 'active' : ''}`}
+              onClick={() => onSelectGenre(selectedGenre === genre.label ? null : genre.label)}
+            >
+              {genre.icon.endsWith('.svg') ? (
+                <div className="merged-icon">
+                  <img src={genre.icon} alt={`${genre.label} icon`} />
+                </div>
+              ) : (
+                <img src={genre.icon} alt={`${genre.label} icon`} />
+              )}
+              <span>{genre.label}</span>
+            </li>
+          ))}
+        </ul>
+        <button className="nav-arrow next" onClick={scrollRight}>
+          <img src="/icons/details/seta-direita.png" alt="Next" />
+        </button>
+      </div>
+    </nav>
   );
 };
