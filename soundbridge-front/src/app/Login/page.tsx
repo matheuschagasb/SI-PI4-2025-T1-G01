@@ -1,18 +1,19 @@
+'use client';
 import { useState } from 'react';
 import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
 import { InputText } from 'primereact/inputtext';
 import { Password } from 'primereact/password';
 import { RadioButton } from 'primereact/radiobutton';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 
-const Login = () => {
+export default function LoginPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [role, setRole] = useState('musico');
   const router = useRouter();
 
-    const handleSubmit = (e) => {
+    const handleSubmit = (e: any) => {
         e.preventDefault();
         console.log({ email, password, role });
     };
@@ -121,7 +122,7 @@ const Login = () => {
                             <Button
                                 label="Cadastre-se"
                                 className="p-button-link p-0 text-orange-600 font-semibold"
-                                    onClick={() => router.push('/signup')}
+                                    onClick={() => router.push('/Cadastro')}
                                 type="button"
                                 tabIndex={-1}
                             />
@@ -131,6 +132,4 @@ const Login = () => {
             </Card>
         </div>
     );
-};
-
-export default Login;   
+}
