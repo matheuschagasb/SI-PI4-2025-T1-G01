@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/v1/musicos")
+@RequestMapping("/v1/musico")
 public class MusicoController {
     @Autowired
     private MusicoService musicoService;
