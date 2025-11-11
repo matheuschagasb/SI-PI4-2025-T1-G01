@@ -55,7 +55,7 @@ export default function Signup() {
     let payload: any = {};
 
     if (formData.role === 'musico') {
-      url = 'http://localhost:8080/v1/musicos';
+      url = 'http://localhost:8080/v1/musico';
       payload = {
         nome: formData.nomeArtistico,
         biografia: formData.biografia,
@@ -63,22 +63,17 @@ export default function Signup() {
         estado: formData.estado,
         generoMusical: formData.generoMusical,
         email: formData.email,
-        telefone: cleanedPhoneNumber, // Use the cleaned phone number for the payload
+        telefone: cleanedPhoneNumber,
         senha: formData.password,
       };
     } else if (formData.role === 'contratante') {
-      // TODO: Implementar endpoint para contratante
-      alert('O cadastro para contratante ainda não foi implementado.');
-      return;
-      /*
-      url = 'http://localhost:8080/v1/contratantes'; // Exemplo
+      url = 'http://localhost:8080/v1/contratante';
       payload = {
         nome: formData.nome,
         email: formData.email,
-        telefone: cleanedPhoneNumber, // Use the cleaned phone number for the payload
+        telefone: cleanedPhoneNumber, 
         senha: formData.password,
       };
-      */
     }
 
     try {
