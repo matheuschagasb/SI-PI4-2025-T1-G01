@@ -32,16 +32,70 @@ export default function Signup() {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
+
+    if (!formData.email.includes('@')) {
+      alert('Por favor, insira um e-mail válido.');
+      return;
+    }
+
+    const cleanedPhoneNumber = formData.telefone.replace(/\D/g, '')
+    if (cleanedPhoneNumber.length < 10 || cleanedPhoneNumber.length > 11) {
+      alert('Por favor, insira um número de telefone válido (10 ou 11 dígitos com DDD).');
+      return;
+    }
 
     if (formData.password !== formData.confirmPassword) {
       alert('As senhas não coincidem!');
       return;
     }
 
-    // Aqui você pode chamar uma API route de Next.js, ex: fetch('/api/signup', { method: 'POST', body: JSON.stringify(formData) })
-    console.log(formData);
+    let url = '';
+    let payload: any = {};
+
+    if (formData.role === 'musico') {
+      url = 'http://localhost:8080/v1/musico';
+      payload = {
+        nome: formData.nomeArtistico,
+        biografia: formData.biografia,
+        cidade: formData.cidade,
+        estado: formData.estado,
+        generoMusical: formData.generoMusical,
+        email: formData.email,
+        telefone: cleanedPhoneNumber,
+        senha: formData.password,
+      };
+    } else if (formData.role === 'contratante') {
+      url = 'http://localhost:8080/v1/contratante';
+      payload = {
+        nome: formData.nome,
+        email: formData.email,
+        telefone: cleanedPhoneNumber, 
+        senha: formData.password,
+      };
+    }
+
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (response.ok) {
+        alert('Cadastro realizado com sucesso!');
+        router.push('/Login');
+      } else {
+        const errorData = await response.json().catch(() => ({ message: 'Não foi possível ler a resposta do servidor.' }));
+        alert(`Erro no cadastro: ${errorData.message || 'Ocorreu um erro desconhecido.'}`);
+      }
+    } catch (error) {
+      console.error('Erro de rede:', error);
+      alert('Não foi possível conectar ao servidor. Verifique sua conexão e tente novamente.');
+    }
   };
 
   return (
@@ -176,7 +230,7 @@ export default function Signup() {
               <Button
                 label="Entrar"
                 className="p-button-link p-0 text-orange-600 font-semibold"
-                onClick={() => router.push('/login')}
+                onClick={() => router.push('/Login')}
                 type="button"
                 tabIndex={-1}
               />
