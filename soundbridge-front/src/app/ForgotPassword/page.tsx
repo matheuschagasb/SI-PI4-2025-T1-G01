@@ -1,14 +1,16 @@
+"use client";
+
 import { useState } from 'react';
 import { Card } from 'primereact/card';
 import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
 import { Message } from 'primereact/message';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 
 const ForgotPassword = () => {
     const [email, setEmail] = useState('');
     const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
-    const navigate = useNavigate();
+    const router = useRouter();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -87,7 +89,7 @@ const ForgotPassword = () => {
                     <Button
                         label="Voltar ao login"
                         className="p-button-link text-orange-600 font-semibold"
-                        onClick={() => navigate('/')}
+                        onClick={() => router.push('/')}
                         type="button"
                     />
                 </div>

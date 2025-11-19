@@ -98,7 +98,7 @@ export default function LoginPage() {
                         <Button
                             label="Esqueceu a senha?"
                             className="p-button-link p-0 text-orange-600 text-sm"
-                             onClick={() => router.push('/forgot-password')}
+                             onClick={() => router.push('/ForgotPassword')}
                             type="button"
                             tabIndex={-1}
                         />
