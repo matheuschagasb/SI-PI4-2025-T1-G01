@@ -45,7 +45,6 @@ const Fields = ({ mode, formData, handleChange }) => {
         { label: 'Tocantins', value: 'TO' },
     ];
 
-    // mesma base de estilo do campo de e-mail
     const inputClass =
         'w-full h-10 px-4 border border-gray-200 rounded-[999px] text-[12px] focus:border-blue-400 focus:ring-0';
     const inputStyle = { boxShadow: 'none', backgroundColor: '#fafafa' };

@@ -31,16 +31,7 @@ const ForgotPassword = () => {
 
     return (
         <div className="flex flex-col justify-center items-center min-h-screen bg-white p-4 relative text-[13px]">
-            {/* X no canto superior esquerdo */}
-            <button
-                className="absolute top-4 left-4 text-gray-300 hover:text-gray-500"
-                type="button"
-                onClick={() => router.push('/')}
-            >
-                <i className="pi pi-times text-base" />
-            </button>
 
-            {/* CARD CINZA */}
             <div className="w-full max-w-md bg-gray-50 rounded-[30px] shadow-sm px-8 py-8 border border-gray-100">
                 <h1 className="text-center text-gray-800 mb-2 font-semibold text-[15px]">
                     Recuperar senha
