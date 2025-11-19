@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from 'react';
-import { Card } from 'primereact/card';
 import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
 import { Message } from 'primereact/message';
@@ -26,42 +25,47 @@ const ForgotPassword = () => {
         }
     };
 
-    return (
-        <div className="flex flex-col justify-center items-center min-h-screen bg-gray-50 p-4">
-            <Card className="max-w-md shadow-2xl rounded-2xl overflow-hidden">
-                <div className="bg-gradient-to-r from-orange-500 to-orange-600 p-6 -mt-4 -mx-4 mb-6">
-                    <div className="flex justify-center mb-3">
-                        <div className="bg-white rounded-full p-4 shadow-lg">
-                            <i className="pi pi-lock text-orange-600 text-4xl"></i>
-                        </div>
-                    </div>
-                    <h1 className="text-3xl font-bold text-center text-white mb-2">
-                        Recuperar senha
-                    </h1>
-                    <p className="text-center text-orange-50 text-sm">
-                        Informe o e-mail cadastrado para receber o link de redefinição
-                    </p>
-                </div>
+    const inputClass =
+        'w-full h-10 px-4 border border-gray-200 rounded-[999px] text-[12px] focus:border-blue-400 focus:ring-0';
+    const inputStyle = { boxShadow: 'none', backgroundColor: '#fafafa' };
 
-                <form onSubmit={handleSubmit} className="flex flex-col gap-4 px-4 pb-6">
-                    <div className="flex flex-col gap-1">
-                        <label htmlFor="forgot-email" className="text-sm text-gray-700 font-medium">
-                            E-mail
-                        </label>
-                        <InputText
-                            id="forgot-email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            placeholder="nome@dominio.com"
-                            autoComplete="email"
-                            required
-                        />
-                    </div>
+    return (
+        <div className="flex flex-col justify-center items-center min-h-screen bg-white p-4 relative text-[13px]">
+            {/* X no canto superior esquerdo */}
+            <button
+                className="absolute top-4 left-4 text-gray-300 hover:text-gray-500"
+                type="button"
+                onClick={() => router.push('/')}
+            >
+                <i className="pi pi-times text-base" />
+            </button>
+
+            {/* CARD CINZA */}
+            <div className="w-full max-w-md bg-gray-50 rounded-[30px] shadow-sm px-8 py-8 border border-gray-100">
+                <h1 className="text-center text-gray-800 mb-2 font-semibold text-[15px]">
+                    Recuperar senha
+                </h1>
+                <p className="text-center text-gray-500 text-[11px] mb-6">
+                    Informe o e-mail cadastrado para receber o link de redefinição
+                </p>
+
+                <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+                    <InputText
+                        id="forgot-email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className={inputClass}
+                        placeholder="nome@dominio.com"
+                        autoComplete="email"
+                        required
+                        style={inputStyle}
+                    />
 
                     {status === 'success' && (
                         <Message
                             severity="success"
                             text="Se o e-mail estiver cadastrado, você receberá o link em instantes."
+                            className="text-[11px]"
                         />
                     )}
 
@@ -69,31 +73,35 @@ const ForgotPassword = () => {
                         <Message
                             severity="error"
                             text="Não foi possível enviar o e-mail agora. Tente novamente."
+                            className="text-[11px]"
                         />
                     )}
 
                     <Button
                         label="Enviar link"
                         icon={status === 'loading' ? 'pi pi-spin pi-spinner' : 'pi pi-envelope'}
+                        iconPos="right"
                         disabled={status === 'loading'}
-                        className="w-full p-button-lg font-semibold"
+                        className="w-full h-10 text-white text-[11px] font-semibold pr-5 gap-1"
                         style={{
-                            background: 'linear-gradient(to right, #FF7A29, #FF9A56)',
-                            border: 'none'
+                            background: '#1379E6',
+                            border: 'none',
+                            borderRadius: '999px',
+                            letterSpacing: '0.5px',
                         }}
                         type="submit"
                     />
-                </form>
 
-                <div className="text-center pb-4">
-                    <Button
-                        label="Voltar ao login"
-                        className="p-button-link text-orange-600 font-semibold"
-                        onClick={() => router.push('/')}
-                        type="button"
-                    />
-                </div>
-            </Card>
+                    <div className="text-center mt-3">
+                        <Button
+                            label="Voltar ao login"
+                            className="p-button-link p-0 text-blue-500 font-semibold text-[11px]"
+                            onClick={() => router.push('/')}
+                            type="button"
+                        />
+                    </div>
+                </form>
+            </div>
         </div>
     );
 };

@@ -3,13 +3,11 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from 'primereact/button';
-import { Card } from 'primereact/card';
 import { InputText } from 'primereact/inputtext';
 import { Password } from 'primereact/password';
 import { RadioButton } from 'primereact/radiobutton';
 import { Divider } from 'primereact/divider';
-import { InputTextarea } from 'primereact/inputtextarea';
-import Fields from './fields'; // garanta que este componente também seja client ("use client") se usar hooks
+import Fields from './fields';
 
 export default function Signup() {
   const router = useRouter();
@@ -40,7 +38,7 @@ export default function Signup() {
       return;
     }
 
-    const cleanedPhoneNumber = formData.telefone.replace(/\D/g, '')
+    const cleanedPhoneNumber = formData.telefone.replace(/\D/g, '');
     if (cleanedPhoneNumber.length < 10 || cleanedPhoneNumber.length > 11) {
       alert('Por favor, insira um número de telefone válido (10 ou 11 dígitos com DDD).');
       return;
@@ -71,7 +69,7 @@ export default function Signup() {
       payload = {
         nome: formData.nome,
         email: formData.email,
-        telefone: cleanedPhoneNumber, 
+        telefone: cleanedPhoneNumber,
         senha: formData.password,
       };
     }
@@ -89,7 +87,9 @@ export default function Signup() {
         alert('Cadastro realizado com sucesso!');
         router.push('/Login');
       } else {
-        const errorData = await response.json().catch(() => ({ message: 'Não foi possível ler a resposta do servidor.' }));
+        const errorData = await response
+          .json()
+          .catch(() => ({ message: 'Não foi possível ler a resposta do servidor.' }));
         alert(`Erro no cadastro: ${errorData.message || 'Ocorreu um erro desconhecido.'}`);
       }
     } catch (error) {
@@ -98,138 +98,132 @@ export default function Signup() {
     }
   };
 
+  const inputClass =
+    'w-full h-10 px-4 border border-gray-200 rounded-[999px] text-[12px] focus:border-blue-400 focus:ring-0';
+  const inputStyle = { boxShadow: 'none', backgroundColor: '#fafafa' };
+
   return (
-    <div className="flex flex-col justify-center items-center min-h-screen bg-gray-50 p-4">
-      <Card className="max-w-md shadow-2xl rounded-2xl overflow-hidden w-full">
-        <div className="bg-gradient-to-r from-orange-500 to-orange-600 p-6 -mt-4 -mx-4 mb-6">
-          <div className="flex justify-center mb-3">
-            <div className="bg-white rounded-full p-4 shadow-lg">
-              <i className="pi pi-user-plus text-orange-600 text-4xl"></i>
-            </div>
+    <div className="flex flex-col justify-center items-center min-h-screen bg-white p-4 relative text-[13px]">
+
+      <div className="w-full max-w-md bg-gray-50 rounded-[30px] shadow-sm px-8 py-8 border border-gray-100">
+        <h1 className="text-center text-gray-800 mb-1 font-semibold text-[15px]">
+          Criar conta
+        </h1>
+        <p className="text-center text-gray-500 text-[11px] mb-6">
+          Preencha os dados para se cadastrar
+        </p>
+
+        <div className="flex justify-center mb-4">
+          <div className="flex items-center gap-10 px-6 py-2 bg-white rounded-full border border-gray-200">
+            <label className="flex items-center cursor-pointer text-gray-700 text-[11px]">
+              <RadioButton
+                inputId="musico"
+                name="role"
+                value="musico"
+                onChange={(e) => handleChange('role', e.value)}
+                checked={formData.role === 'musico'}
+                className="mr-2"
+              />
+              Músico
+            </label>
+            <label className="flex items-center cursor-pointer text-gray-700 text-[11px]">
+              <RadioButton
+                inputId="contratante"
+                name="role"
+                value="contratante"
+                onChange={(e) => handleChange('role', e.value)}
+                checked={formData.role === 'contratante'}
+                className="mr-2"
+              />
+              Contratante
+            </label>
           </div>
-          <h1 className="text-3xl font-bold text-center text-white mb-2">Criar Conta</h1>
-          <p className="text-center text-orange-50 text-sm">Preencha os dados para se cadastrar</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-6 px-2">
-          <div className="bg-orange-50 rounded-lg p-4">
-            <p className="text-sm font-semibold text-gray-700 mb-3 text-center">Cadastrar como:</p>
-            <div className="flex justify-center gap-8">
-              <div className="flex items-center">
-                <RadioButton
-                  inputId="musico"
-                  name="role"
-                  value="musico"
-                  onChange={(e) => handleChange('role', e.value)}
-                  checked={formData.role === 'musico'}
-                />
-                <label htmlFor="musico" className="ml-2 text-orange-700 font-medium cursor-pointer">
-                  <i className="pi pi-user mr-1"></i>
-                  Músico
-                </label>
-              </div>
-              <div className="flex items-center">
-                <RadioButton
-                  inputId="contratante"
-                  name="role"
-                  value="contratante"
-                  onChange={(e) => handleChange('role', e.value)}
-                  checked={formData.role === 'contratante'}
-                />
-                <label htmlFor="contratante" className="ml-2 text-orange-700 font-medium cursor-pointer">
-                  <i className="pi pi-briefcase mr-1"></i>
-                  Contratante
-                </label>
-              </div>
-            </div>
-          </div>
+        <Divider className="my-4" />
 
-          <Divider />
-
-          {/* Campos dinâmicos conforme o papel selecionado */}
+        <form onSubmit={handleSubmit} className="flex flex-col gap-3">
           <Fields mode={formData.role} formData={formData} handleChange={handleChange} />
 
-          <Divider />
+          <Divider className="my-4" />
 
-          <div className="flex flex-col gap-2">
-            <InputText
-              id="email"
-              type="email"
-              value={formData.email}
-              onChange={(e) => handleChange('email', e.target.value)}
-              className="w-full"
-              placeholder="E-mail"
-              autoComplete="email"
-              required
-            />
-          </div>
+          <InputText
+            id="email"
+            type="email"
+            value={formData.email}
+            onChange={(e) => handleChange('email', e.target.value)}
+            className={inputClass}
+            placeholder="E-mail"
+            autoComplete="email"
+            required
+            style={inputStyle}
+          />
 
-          <div className="flex flex-col gap-2">
-            <InputText
-              id="telefone"
-              value={formData.telefone}
-              onChange={(e) => handleChange('telefone', e.target.value)}
-              className="w-full"
-              placeholder="Telefone"
-              required
-            />
-          </div>
+          <InputText
+            id="telefone"
+            value={formData.telefone}
+            onChange={(e) => handleChange('telefone', e.target.value)}
+            className={inputClass}
+            placeholder="Telefone"
+            required
+            style={inputStyle}
+          />
 
-          <div className="flex flex-col gap-2">
-            <Password
-              id="password"
-              value={formData.password}
-              onChange={(e) => handleChange('password', e.target.value)}
-              className="w-full"
-              inputClassName="w-full"
-              placeholder="Senha"
-              pt={{
-                root: { className: 'w-full' },
-                input: { className: 'w-full' },
-              }}
-              toggleMask
-              autoComplete="new-password"
-              required
-            />
-          </div>
+          <Password
+            id="password"
+            value={formData.password}
+            onChange={(e) => handleChange('password', e.target.value)}
+            className="w-full"
+            inputClassName={inputClass}
+            placeholder="Senha"
+            pt={{
+              root: { className: 'w-full' },
+              input: { className: inputClass },
+            }}
+            toggleMask
+            autoComplete="new-password"
+            required
+            inputStyle={inputStyle}
+          />
 
-          <div className="flex flex-col gap-2">
-            <Password
-              id="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={(e) => handleChange('confirmPassword', e.target.value)}
-              className="w-full"
-              inputClassName="w-full"
-              placeholder="Confirmar senha"
-              pt={{
-                root: { className: 'w-full' },
-                input: { className: 'w-full' },
-              }}
-              feedback={false}
-              toggleMask
-              autoComplete="new-password"
-              required
-            />
-          </div>
+          <Password
+            id="confirmPassword"
+            value={formData.confirmPassword}
+            onChange={(e) => handleChange('confirmPassword', e.target.value)}
+            className="w-full"
+            inputClassName={inputClass}
+            placeholder="Confirmar senha"
+            pt={{
+              root: { className: 'w-full' },
+              input: { className: inputClass },
+            }}
+            feedback={false}
+            toggleMask
+            autoComplete="new-password"
+            required
+            inputStyle={inputStyle}
+          />
 
           <Button
-            label="Cadastrar"
+            label="CADASTRAR"
             icon="pi pi-check"
-            className="w-full p-button-lg"
+            iconPos="right"
+            className="w-full h-10 text-white text-[11px] font-semibold pr-5 gap-1"
             style={{
-              background: 'linear-gradient(to right, #FF7A29, #FF9A56)',
+              background: '#1379E6',
               border: 'none',
-              fontWeight: 'bold',
+              borderRadius: '999px',
+              letterSpacing: '0.5px',
             }}
             type="submit"
           />
 
-          <div>
-            <span className="text-gray-600 text-sm">
+          <div className="text-center mt-3">
+            <span className="text-gray-500 text-[11px]">
               Já tem uma conta?{' '}
               <Button
                 label="Entrar"
-                className="p-button-link p-0 text-orange-600 font-semibold"
+                className="p-button-link p-0 text-blue-500 font-semibold text-[11px]"
                 onClick={() => router.push('/Login')}
                 type="button"
                 tabIndex={-1}
@@ -237,7 +231,7 @@ export default function Signup() {
             </span>
           </div>
         </form>
-      </Card>
+      </div>
     </div>
   );
 }

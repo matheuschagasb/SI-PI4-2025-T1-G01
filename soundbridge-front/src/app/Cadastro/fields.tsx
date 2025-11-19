@@ -3,7 +3,6 @@ import { InputTextarea } from 'primereact/inputtextarea';
 import { Dropdown } from 'primereact/dropdown';
 
 const Fields = ({ mode, formData, handleChange }) => {
-
     const genres = [
         { label: 'Rock', value: 'rock' },
         { label: 'Pop', value: 'pop' },
@@ -43,20 +42,26 @@ const Fields = ({ mode, formData, handleChange }) => {
         { label: 'Santa Catarina', value: 'SC' },
         { label: 'São Paulo', value: 'SP' },
         { label: 'Sergipe', value: 'SE' },
-        { label: 'Tocantins', value: 'TO' }
+        { label: 'Tocantins', value: 'TO' },
     ];
+
+    // mesma base de estilo do campo de e-mail
+    const inputClass =
+        'w-full h-10 px-4 border border-gray-200 rounded-[999px] text-[12px] focus:border-blue-400 focus:ring-0';
+    const inputStyle = { boxShadow: 'none', backgroundColor: '#fafafa' };
 
     return (
         <>
             {mode === 'contratante' && (
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-0">
                     <InputText
                         id="nome"
                         value={formData.nome}
                         onChange={(e) => handleChange('nome', e.target.value)}
-                        className="w-full"
+                        className={inputClass}
                         placeholder="Nome completo"
                         required
+                        style={inputStyle}
                     />
                 </div>
             )}
@@ -68,33 +73,39 @@ const Fields = ({ mode, formData, handleChange }) => {
                             id="nomeArtistico"
                             value={formData.nomeArtistico}
                             onChange={(e) => handleChange('nomeArtistico', e.target.value)}
-                            className="w-full"
+                            className={inputClass}
                             placeholder="Nome Artístico"
                             required
+                            style={inputStyle}
                         />
                     </div>
+
                     <div className="flex flex-col gap-2">
                         <InputTextarea
                             id="biografia"
                             value={formData.biografia}
                             onChange={(e) => handleChange('biografia', e.target.value)}
-                            className="w-full"
+                            className="w-full px-4 border border-gray-200 rounded-[20px] text-[12px] focus:border-blue-400 focus:ring-0"
+                            style={inputStyle}
                             placeholder="Biografia"
-                            rows={5}
+                            rows={4}
                             autoResize
                             required
                         />
                     </div>
+
                     <div className="flex flex-col gap-2">
                         <InputText
                             id="cidade"
                             value={formData.cidade}
                             onChange={(e) => handleChange('cidade', e.target.value)}
-                            className="w-full"
+                            className={inputClass}
                             placeholder="Cidade"
                             required
+                            style={inputStyle}
                         />
                     </div>
+
                     <div className="flex flex-col gap-2">
                         <Dropdown
                             id="estado"
@@ -102,25 +113,30 @@ const Fields = ({ mode, formData, handleChange }) => {
                             onChange={(e) => handleChange('estado', e.value)}
                             options={states}
                             placeholder="Estado"
-                            className="w-full"
+                            className={inputClass}
+                            panelClassName="text-[12px]"
                             required
+                            style={inputStyle}
                         />
                     </div>
+
                     <div className="flex flex-col gap-2">
                         <Dropdown
                             id="generoMusical"
                             value={formData.generoMusical}
                             onChange={(e) => handleChange('generoMusical', e.value)}
-                            className="w-full"
-                            placeholder="Gênero Musical"
-                            required
                             options={genres}
+                            placeholder="Gênero Musical"
+                            className={inputClass}
+                            panelClassName="text-[12px]"
+                            required
+                            style={inputStyle}
                         />
                     </div>
                 </>
             )}
         </>
     );
-}
+};
 
 export default Fields;
