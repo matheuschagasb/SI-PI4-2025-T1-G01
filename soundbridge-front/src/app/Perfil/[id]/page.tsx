@@ -14,16 +14,30 @@ import { Tag } from 'primereact/tag';
 type Musico = {
   id: string;
   nome: string;
-  rating: number; // 0..5
+  nomeArtistico?: string;
+  email?: string;
+  telefone?: string;
+  generoMusical?: string;
+  subgenero?: string;
+  cidade?: string;
+  estado?: string;
+  biografia?: string;
+  rating: number;
   reviews: number;
   categorias: string[];
   local: string;
   precoHora: number;
-  fotos: string[]; // [main, ...4 thumbs]
+  fotos: string[];
   descricao: string;
   habilidades: string[];
   equipamentos: string[];
   disponibilidade: string[];
+};
+
+type Avaliacao = {
+  nome: string;
+  data: string;
+  texto: string;
 };
 
 export default function Perfil() {
@@ -31,48 +45,129 @@ export default function Perfil() {
 
   const [musico, setMusico] = useState<Musico | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const [dataReserva, setDataReserva] = useState<Date | null>(null);
   const [horaReserva, setHoraReserva] = useState<Date | null>(null);
   const [calendarioInline, setCalendarioInline] = useState<Date | null>(new Date());
 
-  // Troque o mock por sua API: fetch(`/api/musicos/${id}`)
+  // Fetch dados do backend com fallback para mock
   useEffect(() => {
-    const demo: Musico = {
-      id: id ?? '1',
-      nome: 'Thiago Marques',
-      rating: 4.5,
-      reviews: 450,
-      categorias: ['Acústico', 'Casamentos', 'Pop/Rock', 'Eventos', 'MPB'],
-      local: 'Campina do Simão, Paraná - Brasil',
-      precoHora: 250,
-      fotos: [
-        '/images/hero.jpg',
-        '/images/thumb-1.jpg',
-        '/images/thumb-2.jpg',
-        '/images/thumb-3.jpg',
-        '/images/thumb-4.jpg'
-      ],
-      descricao:
-        'Repertório versátil, carisma e voz cativante. Atuo em casamentos, eventos corporativos e bares. Equipamento próprio e repertório personalizável conforme o público.',
-      habilidades: [
-        'Voz e Violão',
-        'Pop, Rock, MPB e Internacional',
-        'Set acústico / pocket show',
-        'Repertório sob medida'
-      ],
-      equipamentos: ['Som próprio', 'Microfones', 'Iluminação básica'],
-      disponibilidade: ['Sex à noite', 'Sáb à tarde e noite', 'Dom à tarde']
-    };
-    setMusico(demo);
-    setLoading(false);
+    async function carregarMusico() {
+      try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+        const response = await fetch(`${apiUrl}/v1/musico/${id}`, {
+          cache: 'no-store',
+        });
+
+        if (!response.ok) {
+          throw new Error(`Erro ${response.status}: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        
+        // Mapear dados do backend para o formato da UI
+        const musicoData: Musico = {
+          id: data.id || id,
+          nome: data.nome || data.nomeArtistico || 'Músico',
+          nomeArtistico: data.nomeArtistico,
+          email: data.email,
+          telefone: data.telefone,
+          generoMusical: data.generoMusical,
+          subgenero: data.subgenero,
+          cidade: data.cidade,
+          estado: data.estado,
+          biografia: data.biografia,
+          rating: data.rating || 4.5,
+          reviews: data.reviews || 0,
+          categorias: data.categorias || [data.generoMusical, data.subgenero].filter(Boolean),
+          local: data.local || `${data.cidade}, ${data.estado}` || 'Brasil',
+          precoHora: data.precoHora || 250,
+          fotos: data.fotos || [],
+          descricao: data.biografia || data.descricao || 'Sem descrição disponível',
+          habilidades: data.habilidades || [],
+          equipamentos: data.equipamentos || [],
+          disponibilidade: data.disponibilidade || [],
+        };
+
+        setMusico(musicoData);
+        setError(null);
+      } catch (err: any) {
+        console.error('Erro ao carregar músico:', err);
+        setError(err.message);
+        
+        // Fallback para dados mock em caso de erro
+        const demo: Musico = {
+          id: id ?? '1',
+          nome: 'Thiago Marques',
+          nomeArtistico: 'Thiago Marques',
+          rating: 4.83,
+          reviews: 450,
+          categorias: ['Acústico', 'Casamentos', 'Pop/Rock', 'Eventos', 'MPB'],
+          local: 'Campinas, São Paulo - Brasil',
+          cidade: 'Campinas',
+          estado: 'São Paulo',
+          generoMusical: 'MPB',
+          subgenero: 'Samba',
+          precoHora: 250,
+          fotos: [
+            '/images/hero.jpg',
+            '/images/thumb-1.jpg',
+            '/images/thumb-2.jpg',
+            '/images/thumb-3.jpg',
+            '/images/thumb-4.jpg'
+          ],
+          descricao:
+            'Sou Thiago Marques, cantor e violonista apaixonado por Música Popular Brasileira. Meu repertório passeia por nomes como Djavan, Caetano Veloso, Gilberto Gil e outros grandes artistas que fazem parte da história da música brasileira. Atuo em bares, restaurantes e eventos particulares, sempre buscando criar um clima acolhedor e agradável com uma apresentação leve e cheia de emoção. Trabalho com voz e violão em formato solo ou duo acústico, oferecendo uma experiência musical autêntica e próxima do público.',
+          biografia:
+            'Sou Thiago Marques, cantor e violonista apaixonado por Música Popular Brasileira. Meu repertório passeia por nomes como Djavan, Caetano Veloso, Gilberto Gil e outros grandes artistas que fazem parte da história da música brasileira.',
+          habilidades: [
+            'Voz e Violão',
+            'Pop, Rock, MPB e Internacional',
+            'Set acústico / pocket show',
+            'Repertório sob medida'
+          ],
+          equipamentos: ['Som próprio', 'Microfones', 'Iluminação básica'],
+          disponibilidade: ['Sex à noite', 'Sáb à tarde e noite', 'Dom à tarde']
+        };
+        setMusico(demo);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    carregarMusico();
   }, [id]);
+
+  // Mock de avaliações - futuramente virá de /v1/musico/${id}/avaliacoes
+  const avaliacoes: Avaliacao[] = [
+    { nome: 'Mikasa', data: 'Abril 2025', texto: 'Thiago tem uma voz incrível e um repertório de muito bom gosto. A noite ficou perfeita com o show dele.' },
+    { nome: 'Eren', data: 'Abril 2025', texto: 'Excelente profissional, pontual e super simpático com o público.' },
+    { nome: 'Gaby', data: 'Abril 2025', texto: 'Repertório variado e execução impecável. Recomendamos sempre no nosso bar.' },
+    { nome: 'Hang', data: 'Abril 2025', texto: 'Músico de qualidade e presença de palco cativante. Todo mundo elogiou!' },
+    { nome: 'Low Tha Khong', data: 'Abril 2025', texto: 'Além de cantar muito bem, sabe como envolver o público sem exageros.' },
+    { nome: 'Samuel', data: 'Abril 2025', texto: 'Som agradável, repertório equilibrado e uma vibe muito boa. Voltaremos a contratar.' },
+  ];
+
+  const handleReservar = () => {
+    if (!dataReserva || !horaReserva) {
+      alert('Por favor, selecione data e horário para continuar.');
+      return;
+    }
+    console.log('Reserva solicitada:', { musicoId: id, dataReserva, horaReserva });
+    // Futuramente: navegar para página de checkout ou abrir modal de confirmação
+    alert(`Reserva solicitada para ${musico?.nome} em ${dataReserva.toLocaleDateString()} às ${horaReserva.toLocaleTimeString()}`);
+  };
 
   if (loading) {
     return (
       <div className="max-w-6xl mx-auto px-4 py-6">
         <Card className="shadow-sm">
           <div className="h-40 animate-pulse bg-slate-100 rounded-lg" />
+          <div className="mt-4 space-y-3">
+            <div className="h-6 animate-pulse bg-slate-100 rounded w-1/3" />
+            <div className="h-4 animate-pulse bg-slate-100 rounded w-2/3" />
+          </div>
         </Card>
       </div>
     );
@@ -88,6 +183,13 @@ export default function Perfil() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-6">
+      {/* Aviso de fallback (apenas para desenvolvimento) */}
+      {error && (
+        <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800">
+          <strong>Modo desenvolvimento:</strong> Exibindo dados de exemplo. Erro ao conectar com backend: {error}
+        </div>
+      )}
+
       {/* Título + meta */}
       <div className="mb-4">
         <h1 className="text-2xl md:text-3xl font-semibold">{musico.nome}</h1>
@@ -185,13 +287,7 @@ export default function Perfil() {
             <h2 className="text-xl font-semibold">★ {musico.rating.toFixed(2)} · {musico.reviews} Avaliações</h2>
 
             <div className="grid md:grid-cols-2 gap-4 mt-3">
-              {[
-                { nome: 'Mônica', data: 'Mar 2025', texto: 'Voz linda e repertório cativante. Nosso evento ganhou vida!' },
-                { nome: 'Diego', data: 'Fev 2025', texto: 'Pontual, atencioso e som de qualidade. Recomendo!' },
-                { nome: 'Lary', data: 'Jan 2025', texto: 'Energia lá em cima e repertório na medida.' },
-                { nome: 'Ben', data: 'Dez 2024', texto: 'Entrega excelente. Convidados adoraram.' },
-                { nome: 'Aparecida', data: 'Dez 2024', texto: 'Organização, simpatia e som agradável. Ótima escolha.' }
-              ].map((r, i) => (
+              {avaliacoes.map((r, i) => (
                 <div key={i} className="flex gap-3 p-3 border rounded-xl">
                   <Avatar label={r.nome.charAt(0)} className="bg-slate-200 text-slate-700" shape="circle" />
                   <div>
@@ -206,8 +302,7 @@ export default function Perfil() {
             </div>
 
             <div className="flex gap-2 mt-4">
-              <Button label="Ler mais avaliações" outlined className="w-full" />
-              <Button label="Adicionar avaliação" outlined className="w-full" />
+              <Button label="Mostrar mais" outlined className="flex-1" />
             </div>
           </Card>
         </div>
@@ -237,7 +332,7 @@ export default function Perfil() {
                 </div>
               </div>
 
-              <Button label="Reservar" className="w-full mt-3" />
+              <Button label="Reservar" className="w-full mt-3" onClick={handleReservar} />
               <p className="text-xs text-slate-500 mt-2">
                 Total inicial sem descontos. Valores finais podem variar conforme duração e extras.
               </p>
