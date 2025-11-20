@@ -31,7 +31,15 @@ body {
   font-family: Arial, Helvetica, sans-serif;
   margin: 0;
 }
+:root {
+  /* Garante que o esquema de cores seja light */
+  color-scheme: light;
+}
 
+body {
+  background-color: #ffffff; /* Força fundo branco */
+  color: #334155; /* Força texto escuro (slate-700) */
+}
 .container {
   max-width: 1440px;
   margin: 0 auto;
