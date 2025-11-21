@@ -10,11 +10,39 @@ export default function LoginPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [role, setRole] = useState<'musico' | 'contratante'>('musico');
+    const [error, setError] = useState<string | null>(null);
+    const [loading, setLoading] = useState<boolean>(false);
     const router = useRouter();
 
-    const handleSubmit = (e: any) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log({ email, password, role });
+        setLoading(true);
+        setError(null);
+
+        try {
+            const response = await fetch('http://localhost:8080/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, senha: password, role }),
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                localStorage.setItem('token', data.token);
+                router.push('/Home');
+            } else if (response.status === 401) {
+                setError('Email, senha ou perfil inválidos.');
+            } else {
+                setError('Ocorreu um erro. Tente novamente mais tarde.');
+            }
+        } catch (error) {
+            setError('Não foi possível conectar ao servidor. Verifique sua conexão.');
+            console.error('Login error:', error);
+        } finally {
+            setLoading(false);
+        }
     };
 
     const inputClass =
@@ -98,8 +126,15 @@ export default function LoginPage() {
                         />
                     </div>
 
+                    {error && (
+                        <div className="text-red-500 text-center text-xs mb-2">
+                            {error}
+                        </div>
+                    )}
+
                     <Button
-                        label="LOG IN"
+                        label={loading ? 'ENTRANDO...' : 'LOG IN'}
+                        disabled={loading}
                         className="w-full h-10 text-white text-[11px] font-semibold"
                         style={{
                             background: '#1379E6',
