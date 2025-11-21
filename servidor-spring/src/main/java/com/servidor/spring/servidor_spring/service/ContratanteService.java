@@ -1,20 +1,24 @@
 package com.servidor.spring.servidor_spring.service;
 
 import com.servidor.spring.servidor_spring.model.Contratante;
-import com.servidor.spring.servidor_spring.repository.ContratanteRespository;
+import com.servidor.spring.servidor_spring.repository.ContratanteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class ContratanteService {
     @Autowired
-    private ContratanteRespository contratanteRespository;
+    private ContratanteRepository contratanteRepository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     public Contratante createContratante(Contratante contratante) {
-        return contratanteRespository.save(contratante);
+        contratante.setSenha(passwordEncoder.encode(contratante.getSenha()));
+        return contratanteRepository.save(contratante);
     }
 
     public java.util.List<Contratante> getAllContratante() {
-        return contratanteRespository.findAll();
+        return contratanteRepository.findAll();
     }
 }
