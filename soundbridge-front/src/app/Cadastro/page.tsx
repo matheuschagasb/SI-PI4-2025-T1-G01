@@ -20,6 +20,7 @@ export default function Signup() {
     confirmPassword: '',
     role: 'musico',
     nomeArtistico: '',
+    cpf: '',
     biografia: '',
     cidade: '',
     estado: '',
@@ -56,6 +57,7 @@ export default function Signup() {
       url = 'http://localhost:8080/v1/musico';
       payload = {
         nome: formData.nomeArtistico,
+        cpf: formData.cpf,
         biografia: formData.biografia,
         cidade: formData.cidade,
         estado: formData.estado,
