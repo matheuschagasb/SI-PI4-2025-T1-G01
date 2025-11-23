@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { InputText } from 'primereact/inputtext';
 import { Avatar } from 'primereact/avatar';
 import { GenreFilters } from './GenreFilters';
@@ -110,10 +111,12 @@ export default function Home() {
             <button className="action-btn">
               <img src="/icons/language.svg" alt="Languages" />
             </button>
-            <button className="profile-btn">
-              <img src="/icons/details/menu.png" alt="Menu" />
-              <Avatar icon="pi pi-user" shape="circle" />
-            </button>
+            <Link href="/Contratante">
+              <button className="profile-btn">
+                <img src="/icons/details/menu.png" alt="Menu" />
+                <Avatar icon="pi pi-user" shape="circle" />
+              </button>
+            </Link>
           </div>
         </div>
         <GenreFilters
