@@ -17,7 +17,7 @@ interface MusicianCardProps {
 
 export const MusicianCard = ({ musician }: MusicianCardProps) => {
   return (
-    <Link href={`/Perfil/${musician.id}`} className="block">
+    <Link href={`/perfil/${musician.id}`} className="block">
       <Card className="shadow-md hover:shadow-lg transition-shadow duration-200 rounded-xl overflow-hidden cursor-pointer">
         <img
           src={musician.image}
