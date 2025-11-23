@@ -34,6 +34,8 @@ export default function LoginPage() {
                 if (role === 'contratante') {
                     router.push('/Home');
                 } else {
+                    localStorage.setItem('soundbridge/cpf', data.cpf);
+                    localStorage.setItem('soundbridge/id', data.id);
                     router.push('/Musico/Home');
                 }
             } else if (response.status === 401) {

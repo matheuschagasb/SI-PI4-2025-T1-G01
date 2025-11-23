@@ -80,6 +80,18 @@ const Fields = ({ mode, formData, handleChange }) => {
                     </div>
 
                     <div className="flex flex-col gap-2">
+                        <InputText
+                            id="cpf"
+                            value={formData.cpf}
+                            onChange={(e) => handleChange('cpf', e.target.value)}
+                            className={inputClass}
+                            placeholder="CPF"
+                            required
+                            style={inputStyle}
+                        />
+                    </div>
+
+                    <div className="flex flex-col gap-2">
                         <InputTextarea
                             id="biografia"
                             value={formData.biografia}
