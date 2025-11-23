@@ -27,6 +27,9 @@ public class Contratante implements UserDetails {
     private String nomeEstabelecimento;
     private String tipoEstabelecimento;
 
+    @Column(columnDefinition = "TEXT") // Importante para o Postgres aceitar Base64 grande
+    private String fotoPerfil;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_CONTRATANTE"));

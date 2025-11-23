@@ -32,6 +32,9 @@ public class ContratanteService {
         if (dados.telefone() != null) contratante.setTelefone(dados.telefone());
         if (dados.nomeEstabelecimento() != null) contratante.setNomeEstabelecimento(dados.nomeEstabelecimento());
         if (dados.tipoEstabelecimento() != null) contratante.setTipoEstabelecimento(dados.tipoEstabelecimento());
+        if (dados.fotoPerfil() != null) {
+            contratante.setFotoPerfil(dados.fotoPerfil().isEmpty() ? null : dados.fotoPerfil());
+        }
 
         return contratanteRepository.save(contratante);
     }

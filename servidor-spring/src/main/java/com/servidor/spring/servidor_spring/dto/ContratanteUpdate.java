@@ -4,5 +4,6 @@ public record ContratanteUpdate(
         String nome,
         String telefone,
         String nomeEstabelecimento,
-        String tipoEstabelecimento
+        String tipoEstabelecimento,
+        String fotoPerfil
 ) {}

@@ -34,6 +34,37 @@ export default function ContratanteProfile() {
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
+    const convertToBase64 = (file) => {
+        return new Promise((resolve, reject) => {
+            const fileReader = new FileReader();
+            fileReader.readAsDataURL(file);
+            fileReader.onload = () => {
+                resolve(fileReader.result);
+            };
+            fileReader.onerror = (error) => {
+                reject(error);
+            };
+        });
+    };
+
+    const handleImageUpload = async (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            try {
+                const base64 = await convertToBase64(file);
+                setFormData((prev) => ({ ...prev, fotoPerfil: base64 }));
+            } catch (error) {
+                console.error("Erro ao converter imagem:", error);
+            }
+        }
+    };
+
+    const handleRemovePhoto = () => {
+        setFormData((prev) => ({ ...prev, fotoPerfil: "" }));
+        const fileInput = document.getElementById('upload-foto');
+        if(fileInput) fileInput.value = "";
+    };
+
     const handleSave = async () => {
         try {
             const token = localStorage.getItem("token");
@@ -42,7 +73,8 @@ export default function ContratanteProfile() {
                 nome: formData.nome,
                 telefone: formData.telefone,
                 nomeEstabelecimento: formData.nomeEstabelecimento,
-                tipoEstabelecimento: formData.tipoEstabelecimento
+                tipoEstabelecimento: formData.tipoEstabelecimento,
+                fotoPerfil: formData.fotoPerfil
             };
 
             const response = await fetch(`http://localhost:8080/v1/contratante/${usuario.id}`, {
@@ -91,7 +123,22 @@ export default function ContratanteProfile() {
                 <div className="w-full h-24 rounded-lg bg-gradient-to-r from-blue-200 via-gray-200 to-yellow-100" />
 
                 <div className="mt-8 flex items-center gap-6">
-                    <img src="/perfil.png" alt="Foto" className="w-20 h-20 rounded-full object-cover" />
+                    <div className="relative">
+                        <img 
+                            src={formData.fotoPerfil || "/perfil.png"} 
+                            alt="Foto" 
+                            className="w-20 h-20 rounded-full object-cover border-2 border-gray-200" 
+                        />
+                        
+                        <input 
+                            id="upload-foto"
+                            type="file" 
+                            accept="image/*" 
+                            onChange={handleImageUpload} 
+                            className="hidden" 
+                            disabled={!isEditing}
+                        />
+                    </div>
                     <div>
                         <h3 className="text-lg font-semibold">{usuario.nome}</h3>
                         <p className="text-sm text-gray-500">{usuario.email}</p>
@@ -110,7 +157,6 @@ export default function ContratanteProfile() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
                     
-                    {/* Nome */}
                     <div className="flex flex-col">
                         <label className="font-medium">Nome Completo</label>
                         <input 
@@ -123,7 +169,6 @@ export default function ContratanteProfile() {
                         />
                     </div>
 
-                    {/* Email (Sempre ReadOnly e cinza) */}
                     <div className="flex flex-col">
                         <label className="font-medium text-gray-500">E-mail (Não editável)</label>
                         <input 
@@ -135,7 +180,6 @@ export default function ContratanteProfile() {
                         />
                     </div>
 
-                    {/* Telefone */}
                     <div className="flex flex-col">
                         <label className="font-medium">Telefone</label>
                         <input 
@@ -148,7 +192,6 @@ export default function ContratanteProfile() {
                         />
                     </div>
 
-                    {/* Nome Estabelecimento */}
                     <div className="flex flex-col">
                         <label className="font-medium">Nome do estabelecimento</label>
                         <input 
@@ -162,7 +205,6 @@ export default function ContratanteProfile() {
                         />
                     </div>
 
-                    {/* Tipo Estabelecimento */}
                     <div className="flex flex-col">
                         <label className="font-medium">Tipo de estabelecimento</label>
                         <select 
@@ -178,6 +220,36 @@ export default function ContratanteProfile() {
                             <option value="Restaurante">Restaurante</option>
                         </select>
                     </div>
+
+                    <div className="flex flex-col">
+                        <label className="font-medium">Foto de Perfil</label>
+                        {isEditing ? (
+                            <div className="flex gap-2">
+                                <label 
+                                    htmlFor="upload-foto" 
+                                    className="mt-1 flex-1 p-2 border rounded-md bg-white text-left cursor-pointer border-blue-400 text-blue-600 hover:bg-blue-50 flex justify-between items-center"
+                                >
+                                    <span>Anexar nova foto</span>
+                                    <span>📎</span>
+                                </label>
+
+                                {formData.fotoPerfil && (
+                                    <button 
+                                        onClick={handleRemovePhoto}
+                                        className="mt-1 p-2 border border-red-400 text-red-600 rounded-md hover:bg-red-50"
+                                        title="Remover foto"
+                                    >
+                                        🗑️
+                                    </button>
+                                )}
+                            </div>
+                        ) : (
+                            <div className="mt-1 p-2 border rounded-md w-full bg-gray-100 text-gray-500">
+                                {usuario.fotoPerfil ? "Foto definida" : "Sem foto"}
+                            </div>
+                        )}
+                    </div>
+
                 </div>
             </main>
         </div>
