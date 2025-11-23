@@ -5,11 +5,11 @@ import { InputText } from 'primereact/inputtext';
 import { Avatar } from 'primereact/avatar';
 import { GenreFilters } from './GenreFilters';
 import { MusicianCard } from './MusicianCard';
-import { useState, useEffect } from 'react'; // Added useEffect
+import { useState, useEffect } from 'react';
 
 // Interface for API response structure
 interface ApiMusician {
-  id: string; // UUID string
+  id: string;
   nome: string;
   biografia: string;
   cidade: string;
@@ -24,19 +24,19 @@ interface Musician {
   id: string;
   name: string;
   genre: string;
-  subgenre: string; // Placeholder or derived
-  rating: number; // Placeholder
-  price: number; // Placeholder
-  image: string; // Placeholder
-  cidade: string; // Added for search
+  subgenre: string;
+  rating: number;
+  price: number;
+  image: string;
+  cidade: string;
 }
 
 export default function Home() {
   const [search, setSearch] = useState('');
   const [selectedGenre, setSelectedGenre] = useState<string | null>(null);
-  const [musicians, setMusicians] = useState<Musician[]>([]); // State for fetched musicians
-  const [loading, setLoading] = useState<boolean>(true); // Loading state
-  const [error, setError] = useState<string | null>(null); // Error state
+  const [musicians, setMusicians] = useState<Musician[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchMusicians = async () => {
@@ -53,88 +53,123 @@ export default function Home() {
           id: apiMusician.id,
           name: apiMusician.nome,
           genre: apiMusician.generoMusical,
-          subgenre: '', // Default value as API does not provide it
-          rating: 0, // Default value as API does not provide it
-          price: 0, // Default value as API does not provide it
-          image: '/default-musician.jpg', // Placeholder image
-          cidade: apiMusician.cidade, // Mapped from API
+          subgenre: '',
+          rating: 0,
+          price: 0,
+          image: '/default-musician.jpg',
+          cidade: apiMusician.cidade,
         }));
         setMusicians(mappedMusicians);
       } catch (err: any) {
         setError(err.message || 'Error fetching musicians');
-        setMusicians([]); // Clear musicians on error
+        setMusicians([]);
       } finally {
         setLoading(false);
       }
     };
 
     fetchMusicians();
-  }, [selectedGenre]); // Refetch when selectedGenre changes
+  }, [selectedGenre]);
 
-  // Filtering for search input (genre filtering is now handled by API query)
   const filteredMusicians = musicians.filter((m) => {
     const matchSearch =
       m.name.toLowerCase().includes(search.toLowerCase()) ||
       m.genre.toLowerCase().includes(search.toLowerCase()) ||
-      m.cidade.toLowerCase().includes(search.toLowerCase()); // Search by city
+      m.cidade.toLowerCase().includes(search.toLowerCase());
 
     return matchSearch;
   });
 
   return (
-    <div>
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Header */}
-      <header className="site-header">
-        <div className="top-banner">
-          <p className="top-banner-text">Bem-Vindo!</p>
-          <button className="close-button">
-            <img src="/icons/close.svg" alt="Close" />
+      <header className="bg-white shadow-sm sticky top-0 z-50">
+        {/* Top Banner */}
+        <div className="bg-gray-900 text-white px-4 py-2 flex justify-between items-center text-sm">
+          <p className="font-medium">Bem-Vindo!</p>
+          <button className="text-white hover:text-gray-300 transition-colors">
+            <i className="pi pi-times"></i>
           </button>
         </div>
-        <div className="main-nav-wrapper container">
-          <a href="#" className="logo">
-            SoundBridge
-          </a>
-          <div className="search-bar">
-            <span className="p-input-icon-right w-full">
-              <i className="pi pi-search" />
-              <InputText
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Buscar por nome, cidade ou estilo..."
-                className="w-full"
-              />
-            </span>
-          </div>
-          <div className="user-actions">
-            <span className="user-name">Guilherme</span>
-            <button className="action-btn">
-              <img src="/icons/language.svg" alt="Languages" />
-            </button>
-            <Link href="/Contratante">
-              <button className="profile-btn">
-                <img src="/icons/details/menu.png" alt="Menu" />
-                <Avatar icon="pi pi-user" shape="circle" />
-              </button>
+
+        {/* Main Nav */}
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            {/* Logo */}
+            <Link href="#" className="text-2xl font-bold text-blue-600 no-underline hover:text-blue-700 transition-colors">
+              SoundBridge
             </Link>
+
+            {/* Search Bar */}
+            <div className="flex-1 w-full max-w-xl mx-4">
+              <span className="p-input-icon-right w-full">
+                <i className="pi pi-search text-gray-400" />
+                <InputText
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Buscar por nome, cidade ou estilo..."
+                  className="w-full p-inputtext-sm"
+                />
+              </span>
+            </div>
+
+            {/* User Actions */}
+            <div className="flex items-center gap-4">
+              <span className="font-medium text-gray-700 hidden sm:block">Guilherme</span>
+              
+              <button className="p-2 text-gray-600 hover:bg-gray-100 rounded-full transition-colors" title="Idioma">
+                <i className="pi pi-globe text-xl"></i>
+              </button>
+              
+              <Link href="/Contratante">
+                <div className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 p-1 pr-2 rounded-full border border-gray-200 transition-all shadow-sm hover:shadow-md">
+                  <i className="pi pi-bars text-lg ml-2 text-gray-600"></i>
+                  <Avatar icon="pi pi-user" shape="circle" className="bg-blue-600 text-white" />
+                </div>
+              </Link>
+            </div>
+          </div>
+
+          {/* Genre Filters */}
+          <div className="mt-6 border-t border-gray-100 pt-4">
+             {/* Envolvendo o componente de filtros para garantir espaçamento */}
+            <GenreFilters
+              onSelectGenre={setSelectedGenre}
+              selectedGenre={selectedGenre}
+            />
           </div>
         </div>
-        <GenreFilters
-          onSelectGenre={setSelectedGenre}
-          selectedGenre={selectedGenre}
-        />
       </header>
 
       {/* Cards de músicos */}
-      <main id="section-artists" className="container">
-        {loading && <p className="text-center text-lg mt-8">Carregando músicos...</p>}
-        {error && <p className="text-center text-red-500 text-lg mt-8">Erro: {error}</p>}
-        {!loading && !error && filteredMusicians.length === 0 && (
-          <p className="text-center text-lg mt-8">Nenhum músico encontrado.</p>
+      <main className="container mx-auto px-4 py-8 flex-grow">
+        {loading && (
+            <div className="flex justify-center items-center py-12">
+                <i className="pi pi-spin pi-spinner text-4xl text-blue-500"></i>
+                <span className="ml-3 text-lg text-gray-600">Carregando músicos...</span>
+            </div>
         )}
-        <div className="artist-grid">
+        
+        {error && (
+            <div className="bg-red-50 border border-red-200 text-red-600 p-4 rounded-lg text-center mt-8">
+                <i className="pi pi-exclamation-circle mr-2"></i>
+                Erro: {error}
+            </div>
+        )}
+        
+        {!loading && !error && filteredMusicians.length === 0 && (
+          <div className="text-center py-12 text-gray-500">
+            <i className="pi pi-search text-4xl mb-3 block opacity-20"></i>
+            <p className="text-lg">Nenhum músico encontrado.</p>
+          </div>
+        )}
+
+        {/* Grid Layout Corrigido */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {!loading && !error && filteredMusicians.map((musician) => (
-            <MusicianCard key={musician.id} musician={musician} />
+            <div key={musician.id} className="h-full">
+                <MusicianCard musician={musician} />
+            </div>
           ))}
         </div>
       </main>
