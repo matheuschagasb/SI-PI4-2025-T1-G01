@@ -24,6 +24,8 @@ public class Contratante implements UserDetails {
     private String email;
     private String telefone;
     private String senha;
+    private String nomeEstabelecimento;
+    private String tipoEstabelecimento;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

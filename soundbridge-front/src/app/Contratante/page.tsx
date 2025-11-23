@@ -5,125 +5,180 @@ import { useEffect, useState } from "react";
 
 export default function ContratanteProfile() {
     const [usuario, setUsuario] = useState(null);
+    const [formData, setFormData] = useState({});
+    const [isEditing, setIsEditing] = useState(false);
 
     useEffect(() => {
-        async function carregarDados() {
-            try {
-                const token = localStorage.getItem("token");
-
-                const response = await fetch("http://localhost:8080/v1/contratante/me", {
-                    method: "GET",
-                    headers: {
-                        "Authorization": `Bearer ${token}`,
-                        "Content-Type": "application/json",
-                    },
-                });
-
-                if (!response.ok) {
-                    throw new Error("Erro ao buscar dados");
-                }
-
-                const data = await response.json();
-                setUsuario(data);
-
-            } catch (err) {
-                console.error("Erro ao carregar usuário:", err);
-            }
-        }
-
         carregarDados();
     }, []);
 
-    if (!usuario) {
-        return <p className="p-10">Carregando...</p>;
+    async function carregarDados() {
+        try {
+            const token = localStorage.getItem("token");
+            const response = await fetch("http://localhost:8080/v1/contratante/me", {
+                headers: { "Authorization": `Bearer ${token}` },
+            });
+
+            if (!response.ok) throw new Error("Erro ao buscar dados");
+
+            const data = await response.json();
+            setUsuario(data);
+            setFormData(data); 
+        } catch (err) {
+            console.error(err);
+        }
     }
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormData((prev) => ({ ...prev, [name]: value }));
+    };
+
+    const handleSave = async () => {
+        try {
+            const token = localStorage.getItem("token");
+            
+            const payload = {
+                nome: formData.nome,
+                telefone: formData.telefone,
+                nomeEstabelecimento: formData.nomeEstabelecimento,
+                tipoEstabelecimento: formData.tipoEstabelecimento
+            };
+
+            const response = await fetch(`http://localhost:8080/v1/contratante/${usuario.id}`, {
+                method: "PUT",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) throw new Error("Erro ao atualizar");
+
+            const dataAtualizada = await response.json();
+            setUsuario(dataAtualizada);
+            setIsEditing(false);
+            alert("Perfil atualizado com sucesso!");
+
+        } catch (err) {
+            alert("Erro ao salvar alterações.");
+        }
+    };
+
+    const handleCancel = () => {
+        setFormData(usuario); 
+        setIsEditing(false);
+    };
+
+    if (!usuario) return <p className="p-10">Carregando...</p>;
+
+    const inputClass = (editavel) => 
+        `mt-1 p-2 border rounded-md w-full transition-colors ${editavel ? 'bg-white border-blue-400' : 'bg-gray-100 text-gray-600'}`;
 
     return (
         <div className="min-h-screen w-full bg-white">
-            {/* Header */}
             <header className="w-full flex justify-between items-center px-8 py-4 border-b">
-                <Link href="/Home" className="text-2xl font-bold text-blue-600 no-underline hover:text-blue-700 transition-colors">
-                    SoundBridge
-                </Link>
-
+                <Link href="/Home" className="text-2xl font-bold text-blue-600 no-underline">SoundBridge</Link>
                 <div className="flex items-center gap-6">
                     <span className="text-sm text-gray-700">{usuario.nome}</span>
-                    <button className="w-6 h-6 rounded-full bg-gray-300" />
+                    <div className="w-6 h-6 rounded-full bg-gray-300" />
                 </div>
             </header>
 
-            <main className="max-w-6xl mx-auto mt-10 px-4">
+            <main className="max-w-6xl mx-auto mt-10 px-4 pb-10">
                 <h2 className="text-2xl font-semibold mb-6">Perfil</h2>
-
-                {/* Faixa colorida */}
                 <div className="w-full h-24 rounded-lg bg-gradient-to-r from-blue-200 via-gray-200 to-yellow-100" />
 
-                {/* Card do perfil */}
                 <div className="mt-8 flex items-center gap-6">
-                    <img
-                        src="/perfil.png"
-                        alt="Foto"
-                        className="w-20 h-20 rounded-full object-cover"
-                    />
-
+                    <img src="/perfil.png" alt="Foto" className="w-20 h-20 rounded-full object-cover" />
                     <div>
                         <h3 className="text-lg font-semibold">{usuario.nome}</h3>
                         <p className="text-sm text-gray-500">{usuario.email}</p>
                     </div>
-
-                    <button className="ml-auto bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
-                        Editar
-                    </button>
+                    <div className="ml-auto flex gap-2">
+                        {!isEditing ? (
+                            <button onClick={() => setIsEditing(true)} className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Editar</button>
+                        ) : (
+                            <>
+                                <button onClick={handleCancel} className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600">Cancelar</button>
+                                <button onClick={handleSave} className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700">Salvar</button>
+                            </>
+                        )}
+                    </div>
                 </div>
 
-                {/* Formulário */}
-                <div className="grid grid-cols-2 gap-6 mt-10">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
+                    
+                    {/* Nome */}
                     <div className="flex flex-col">
                         <label className="font-medium">Nome Completo</label>
-                        <input
-                            type="text"
-                            value={usuario.nome}
-                            className="mt-1 p-2 border rounded-md bg-gray-100"
-                            readOnly
+                        <input 
+                            type="text" 
+                            name="nome" 
+                            value={formData.nome || ""} 
+                            onChange={handleInputChange} 
+                            className={inputClass(isEditing)} 
+                            readOnly={!isEditing} 
                         />
                     </div>
 
+                    {/* Email (Sempre ReadOnly e cinza) */}
                     <div className="flex flex-col">
-                        <label className="font-medium">Anexar fotos</label>
-                        <button className="mt-1 p-2 border rounded-md bg-gray-100 text-left">
-                            Anexar fotos
-                        </button>
+                        <label className="font-medium text-gray-500">E-mail (Não editável)</label>
+                        <input 
+                            type="email" 
+                            value={usuario.email || ""} 
+                            className="mt-1 p-2 border rounded-md w-full bg-gray-200 text-gray-500 cursor-not-allowed" 
+                            readOnly 
+                            disabled
+                        />
                     </div>
 
-                    
+                    {/* Telefone */}
                     <div className="flex flex-col">
-                        <label className="font-medium">Gênero</label>
-                        <select
-                            className="mt-1 p-2 border rounded-md bg-gray-100"
-                            value={usuario.genero ?? ""}
-                            readOnly
-                        >
-                            <option>Masculino</option>
-                            <option>Feminino</option>
-                            <option>Outro</option>
-                        </select>
+                        <label className="font-medium">Telefone</label>
+                        <input 
+                            type="text" 
+                            name="telefone" 
+                            value={formData.telefone || ""} 
+                            onChange={handleInputChange} 
+                            className={inputClass(isEditing)} 
+                            readOnly={!isEditing} 
+                        />
                     </div>
 
+                    {/* Nome Estabelecimento */}
+                    <div className="flex flex-col">
+                        <label className="font-medium">Nome do estabelecimento</label>
+                        <input 
+                            type="text" 
+                            name="nomeEstabelecimento" 
+                            value={formData.nomeEstabelecimento || ""} 
+                            onChange={handleInputChange} 
+                            className={inputClass(isEditing)} 
+                            readOnly={!isEditing} 
+                            placeholder="Digite o nome do estabelecimento" 
+                        />
+                    </div>
+
+                    {/* Tipo Estabelecimento */}
                     <div className="flex flex-col">
                         <label className="font-medium">Tipo de estabelecimento</label>
-                        <select
-                            className="mt-1 p-2 border rounded-md bg-gray-100"
-                            value={usuario.tipoEstabelecimento ?? ""}
-                            readOnly
+                        <select 
+                            name="tipoEstabelecimento" 
+                            value={formData.tipoEstabelecimento || ""} 
+                            onChange={handleInputChange} 
+                            className={inputClass(isEditing)} 
+                            disabled={!isEditing}
                         >
-                            <option>Barzinho</option>
-                            <option>Casa de Show</option>
-                            <option>Restaurante</option>
+                            <option value="">Selecione...</option>
+                            <option value="Barzinho">Barzinho</option>
+                            <option value="Casa de Show">Casa de Show</option>
+                            <option value="Restaurante">Restaurante</option>
                         </select>
                     </div>
-                    
                 </div>
-
             </main>
         </div>
     );
