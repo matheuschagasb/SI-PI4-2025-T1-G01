@@ -27,4 +27,8 @@ public class MusicoService {
         }
         return musicoRepository.findAll();
     }
+
+    public Musico getMusicoById(String id) {
+        return musicoRepository.findById(id).orElse(null);
+    }
 }

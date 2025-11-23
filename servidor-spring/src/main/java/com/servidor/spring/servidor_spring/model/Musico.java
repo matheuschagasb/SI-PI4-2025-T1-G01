@@ -29,6 +29,8 @@ public class Musico implements UserDetails {
     private String generoMusical;
     private String email;
     private String telefone;
+    @Column(unique = true)
+    private String cpf;
     private String senha;
 
     @Override

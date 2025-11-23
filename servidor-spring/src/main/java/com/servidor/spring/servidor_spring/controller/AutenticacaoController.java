@@ -3,14 +3,14 @@ package com.servidor.spring.servidor_spring.controller;
 import com.servidor.spring.servidor_spring.dto.DadosLogin;
 import com.servidor.spring.servidor_spring.dto.DadosTokenJWT;
 import com.servidor.spring.servidor_spring.infra.security.TokenService;
-import com.servidor.spring.servidor_spring.repository.ContratanteRepository;
-import com.servidor.spring.servidor_spring.repository.MusicoRepository;
+import com.servidor.spring.servidor_spring.model.Contratante;
+import com.servidor.spring.servidor_spring.model.Musico;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,8 +30,22 @@ public class AutenticacaoController {
         var authenticationToken = new UsernamePasswordAuthenticationToken(username, dados.senha());
         var authentication = manager.authenticate(authenticationToken);
 
-        var tokenJWT = tokenService.gerarToken((UserDetails) authentication.getPrincipal());
+        var principal = authentication.getPrincipal();
+        var tokenJWT = tokenService.gerarToken((org.springframework.security.core.userdetails.UserDetails) principal);
 
-        return ResponseEntity.ok(new DadosTokenJWT(tokenJWT));
+        String id = null;
+        String cpf = null;
+        String role = dados.role();
+
+        if (principal instanceof Musico) {
+            Musico musico = (Musico) principal;
+            id = musico.getId();
+            cpf = musico.getCpf();
+        } else if (principal instanceof Contratante) {
+            Contratante contratante = (Contratante) principal;
+            id = contratante.getId();
+        }
+
+        return ResponseEntity.ok(new DadosTokenJWT(tokenJWT, id, role, cpf));
     }
 }
