@@ -5,14 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="82488310-9a6a-49ef-ae41-e446dbcb8bb6" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/servidor-spring/src/main/java/com/servidor/spring/servidor_spring/controller/MusicoController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/servidor-spring/src/main/java/com/servidor/spring/servidor_spring/model/Musico.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/servidor-spring/src/main/java/com/servidor/spring/servidor_spring/repository/MusicoRepository.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/soundbridge-front/src/app/Cadastro/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/soundbridge-front/src/app/Cadastro/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/soundbridge-front/src/app/Login/Login.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/soundbridge-front/src/app/layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/soundbridge-front/src/app/layout.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/soundbridge-front/src/app/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/soundbridge-front/src/app/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/servidor-spring/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/servidor-spring/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/servidor-spring/src/main/java/com/servidor/spring/servidor_spring/infra/security/TokenService.java" beforeDir="false" afterPath="$PROJECT_DIR$/servidor-spring/src/main/java/com/servidor/spring/servidor_spring/infra/security/TokenService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/servidor-spring/src/main/java/com/servidor/spring/servidor_spring/model/Contratante.java" beforeDir="false" afterPath="$PROJECT_DIR$/servidor-spring/src/main/java/com/servidor/spring/servidor_spring/model/Contratante.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/servidor-spring/src/main/java/com/servidor/spring/servidor_spring/model/Musico.java" beforeDir="false" afterPath="$PROJECT_DIR$/servidor-spring/src/main/java/com/servidor/spring/servidor_spring/model/Musico.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/servidor-spring/src/main/java/com/servidor/spring/servidor_spring/repository/ContratanteRespository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/servidor-spring/src/main/java/com/servidor/spring/servidor_spring/repository/MusicoRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/servidor-spring/src/main/java/com/servidor/spring/servidor_spring/repository/MusicoRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/servidor-spring/src/main/java/com/servidor/spring/servidor_spring/service/ContratanteService.java" beforeDir="false" afterPath="$PROJECT_DIR$/servidor-spring/src/main/java/com/servidor/spring/servidor_spring/service/ContratanteService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/servidor-spring/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/servidor-spring/src/main/resources/application.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

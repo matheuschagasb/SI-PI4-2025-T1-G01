@@ -4,15 +4,15 @@ import { Dropdown } from 'primereact/dropdown';
 
 const Fields = ({ mode, formData, handleChange }) => {
     const genres = [
-        { label: 'Rock', value: 'rock' },
-        { label: 'Pop', value: 'pop' },
-        { label: 'Jazz', value: 'jazz' },
-        { label: 'Clássica', value: 'classica' },
-        { label: 'Sertanejo', value: 'sertanejo' },
-        { label: 'Funk', value: 'funk' },
-        { label: 'Eletrônica', value: 'eletronica' },
-        { label: 'Hip Hop', value: 'hiphop' },
-        { label: 'Reggae', value: 'reggae' },
+        { label: 'Rock', value: 'Rock' },
+        { label: 'Pop', value: 'Pop' },
+        { label: 'Jazz', value: 'Jazz' },
+        { label: 'Clássica', value: 'Classica' },
+        { label: 'Sertanejo', value: 'Sertanejo' },
+        { label: 'Funk', value: 'Funk' },
+        { label: 'Eletrônica', value: 'Eletronica' },
+        { label: 'Hip Hop', value: 'Hiphop' },
+        { label: 'Reggae', value: 'Reggae' },
     ];
 
     const states = [

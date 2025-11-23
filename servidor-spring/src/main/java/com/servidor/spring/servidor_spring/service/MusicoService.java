@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class MusicoService {
 
@@ -19,7 +21,10 @@ public class MusicoService {
         return musicoRepository.save(musico);
     }
 
-    public java.util.List<Musico> getAllMusicos() {
+    public List<Musico> getAllMusicos(String generoMusical) {
+        if (generoMusical != null && !generoMusical.isEmpty()) {
+            return musicoRepository.findByGeneroMusical(generoMusical);
+        }
         return musicoRepository.findAll();
     }
 }

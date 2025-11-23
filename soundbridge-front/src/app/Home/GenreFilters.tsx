@@ -6,26 +6,15 @@ interface GenreFiltersProps {
 }
 
 const genres = [
-  { label: "Samba", icon: "/icons/samba.png" },
-  { label: "Rock Clássico", icon: "/icons/rock-classico.png" }, 
-  { label: "Pop", icon: "/icons/pop.png" },
-  { label: "Sertanejo Raiz", icon: "/icons/sertanejo-raiz.png" }, 
-  { label: "Jazz", icon: "/icons/jazz.png" },
-  { label: "Sertanejo Universitário", icon: "/icons/sertanejo-universitario.png" }, 
-  { label: "MPB", icon: "/icons/mpb.png" },
-  { label: "Bossa nova", icon: "/icons/bossa-nova.png" },
-  { label: "Axé", icon: "/icons/axe.png" }, 
-  { label: "Rap", icon: "/icons/rap.png" }, 
-  { label: "Blues", icon: "/icons/blues.png" },
-  { label: "Funk", icon: "/icons/funk.png" }, 
-  { label: "Música Eletrônica", icon: "/icons/musica-eletronica.png" },
-  { label: "Pagode", icon: "/icons/pagode.png" },
-  { label: "Forró", icon: "/icons/forro.png" }, 
-  { label: "Reggae", icon: "/icons/reggae.png" },
-  { label: "Clássica", icon: "/icons/classica.png" },
-  { label: "Indie", icon: "/icons/indie.png" },
-  { label: "Gospel", icon: "/icons/gospel.png" },
-
+  { label: 'Rock', icon: '/icons/rock-classico.png' },
+  { label: 'Pop', icon: '/icons/pop.png' },
+  { label: 'Jazz', icon: '/icons/jazz.png' },
+  { label: 'Clássica', icon: '/icons/classica.png' },
+  { label: 'Sertanejo', icon: '/icons/sertanejo-raiz.png' }, // Using sertanejo-raiz for general Sertanejo
+  { label: 'Funk', icon: '/icons/funk.png' },
+  { label: 'Eletrônica', icon: '/icons/musica-eletronica.png' },
+  { label: 'Hip Hop', icon: '/icons/rap.png' }, // Using rap as a close alternative
+  { label: 'Reggae', icon: '/icons/reggae.png' },
 ];
 
 export const GenreFilters = ({ onSelectGenre, selectedGenre }: GenreFiltersProps) => {

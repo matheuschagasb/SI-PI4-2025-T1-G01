@@ -4,110 +4,80 @@ import { InputText } from 'primereact/inputtext';
 import { Avatar } from 'primereact/avatar';
 import { GenreFilters } from './GenreFilters';
 import { MusicianCard } from './MusicianCard';
-import { useState } from 'react';
+import { useState, useEffect } from 'react'; // Added useEffect
 
+// Interface for API response structure
+interface ApiMusician {
+  id: string; // UUID string
+  nome: string;
+  biografia: string;
+  cidade: string;
+  estado: string;
+  generoMusical: string;
+  email: string;
+  telefone: string;
+}
+
+// Interface for the Musician data used in the frontend
 interface Musician {
-  id: number;
+  id: string;
   name: string;
   genre: string;
-  subgenre: string;
-  rating: number;
-  price: number;
-  image: string;
+  subgenre: string; // Placeholder or derived
+  rating: number; // Placeholder
+  price: number; // Placeholder
+  image: string; // Placeholder
+  cidade: string; // Added for search
 }
 
 export default function Home() {
   const [search, setSearch] = useState('');
   const [selectedGenre, setSelectedGenre] = useState<string | null>(null);
+  const [musicians, setMusicians] = useState<Musician[]>([]); // State for fetched musicians
+  const [loading, setLoading] = useState<boolean>(true); // Loading state
+  const [error, setError] = useState<string | null>(null); // Error state
 
-  // Mock de músicos
-  const musicians: Musician[] = [
-    {
-      id: 1,
-      name: 'Lucas Moraes',
-      genre: 'Pop',
-      subgenre: 'R&B',
-      rating: 2.58,
-      price: 250,
-      image: '/musicians/lucas.jpg',
-    },
-    {
-      id: 2,
-      name: 'Banda Horizonte Azul',
-      genre: 'Rock',
-      subgenre: 'Alternativo',
-      rating: 4.89,
-      price: 320,
-      image: '/musicians/horizonte.jpg',
-    },
-    {
-      id: 3,
-      name: 'DJ Lunna',
-      genre: 'Techno',
-      subgenre: 'House',
-      rating: 4.57,
-      price: 280,
-      image: '/musicians/lunna.jpg',
-    },
-    {
-      id: 4,
-      name: 'Maria Luiza & Os Ventos',
-      genre: 'MPB',
-      subgenre: 'Samba',
-      rating: 4.78,
-      price: 300,
-      image: '/musicians/maria.jpg',
-    },
-    {
-      id: 5,
-      name: 'Thiago Costa',
-      genre: 'Trap',
-      subgenre: 'Hip-hop',
-      rating: 4.81,
-      price: 560,
-      image: '/musicians/thiago.jpg',
-    },
-    {
-      id: 6,
-      name: 'Clara Mendes',
-      genre: 'Indie',
-      subgenre: 'Pop',
-      rating: 4.89,
-      price: 240,
-      image: '/musicians/clara.jpg',
-    },
-    {
-      id: 7,
-      name: 'Grupo Som da Terra',
-      genre: 'Forró',
-      subgenre: 'Sertanejo',
-      rating: 5.0,
-      price: 260,
-      image: '/musicians/terra.jpg',
-    },
-    {
-      id: 8,
-      name: 'Pedro Nunes',
-      genre: 'Jazz',
-      subgenre: 'Soul',
-      rating: 4.88,
-      price: 270,
-      image: '/musicians/pedro.jpg',
-    },
-  ];
+  useEffect(() => {
+    const fetchMusicians = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const genreQuery = selectedGenre ? `?genero=${selectedGenre}` : '';
+        const response = await fetch(`http://localhost:8080/v1/musico${genreQuery}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch musicians');
+        }
+        const data: ApiMusician[] = await response.json();
+        const mappedMusicians: Musician[] = data.map((apiMusician: ApiMusician) => ({
+          id: apiMusician.id,
+          name: apiMusician.nome,
+          genre: apiMusician.generoMusical,
+          subgenre: '', // Default value as API does not provide it
+          rating: 0, // Default value as API does not provide it
+          price: 0, // Default value as API does not provide it
+          image: '/default-musician.jpg', // Placeholder image
+          cidade: apiMusician.cidade, // Mapped from API
+        }));
+        setMusicians(mappedMusicians);
+      } catch (err: any) {
+        setError(err.message || 'Error fetching musicians');
+        setMusicians([]); // Clear musicians on error
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  // Filtragem
+    fetchMusicians();
+  }, [selectedGenre]); // Refetch when selectedGenre changes
+
+  // Filtering for search input (genre filtering is now handled by API query)
   const filteredMusicians = musicians.filter((m) => {
     const matchSearch =
       m.name.toLowerCase().includes(search.toLowerCase()) ||
       m.genre.toLowerCase().includes(search.toLowerCase()) ||
-      m.subgenre.toLowerCase().includes(search.toLowerCase());
+      m.cidade.toLowerCase().includes(search.toLowerCase()); // Search by city
 
-    const matchGenre = selectedGenre
-      ? m.genre.toLowerCase() === selectedGenre.toLowerCase()
-      : true;
-
-    return matchSearch && matchGenre;
+    return matchSearch;
   });
 
   return (
@@ -154,8 +124,13 @@ export default function Home() {
 
       {/* Cards de músicos */}
       <main id="section-artists" className="container">
+        {loading && <p className="text-center text-lg mt-8">Carregando músicos...</p>}
+        {error && <p className="text-center text-red-500 text-lg mt-8">Erro: {error}</p>}
+        {!loading && !error && filteredMusicians.length === 0 && (
+          <p className="text-center text-lg mt-8">Nenhum músico encontrado.</p>
+        )}
         <div className="artist-grid">
-          {filteredMusicians.map((musician) => (
+          {!loading && !error && filteredMusicians.map((musician) => (
             <MusicianCard key={musician.id} musician={musician} />
           ))}
         </div>

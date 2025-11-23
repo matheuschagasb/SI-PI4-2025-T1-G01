@@ -31,7 +31,11 @@ export default function LoginPage() {
             if (response.ok) {
                 const data = await response.json();
                 localStorage.setItem('token', data.token);
-                router.push('/Home');
+                if (role === 'contratante') {
+                    router.push('/Home');
+                } else {
+                    router.push('/Musico/Home');
+                }
             } else if (response.status === 401) {
                 setError('Email, senha ou perfil inválidos.');
             } else {

@@ -14,8 +14,8 @@ public class MusicoController {
     private MusicoService musicoService;
 
     @GetMapping
-    public List<Musico> getAllMusciso() {
-        return musicoService.getAllMusicos();
+    public List<Musico> getAllMusciso(@RequestParam(name = "genero", required = false) String generoMusical) {
+        return musicoService.getAllMusicos(generoMusical);
     }
 
     @PostMapping
