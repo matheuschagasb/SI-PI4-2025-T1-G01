@@ -115,7 +115,7 @@ export default function Home() {
 
             {/* User Actions */}
             <div className="flex items-center gap-4">
-              <span className="font-medium text-gray-700 hidden sm:block">Guilherme</span>
+              <span className="font-medium text-gray-700 hidden sm:block"></span>
               
               <button className="p-2 text-gray-600 hover:bg-gray-100 rounded-full transition-colors" title="Idioma">
                 <i className="pi pi-globe text-xl"></i>
