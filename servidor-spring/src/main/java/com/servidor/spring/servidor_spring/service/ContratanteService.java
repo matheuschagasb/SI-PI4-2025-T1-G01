@@ -18,6 +18,11 @@ public class ContratanteService {
         return contratanteRepository.save(contratante);
     }
 
+    public Contratante findByEmail(String email) {
+        return (Contratante) contratanteRepository.findByEmail(email);
+    }
+
+
     public java.util.List<Contratante> getAllContratante() {
         return contratanteRepository.findAll();
     }
