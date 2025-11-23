@@ -1,5 +1,6 @@
 "use client";
 
+import Link from 'next/link';
 import { useEffect, useState } from "react";
 
 export default function ContratanteProfile() {
@@ -41,7 +42,9 @@ export default function ContratanteProfile() {
         <div className="min-h-screen w-full bg-white">
             {/* Header */}
             <header className="w-full flex justify-between items-center px-8 py-4 border-b">
-                <h1 className="text-xl font-bold text-[#0A66C2]">SoundBridge</h1>
+                <Link href="/Home" className="text-2xl font-bold text-blue-600 no-underline hover:text-blue-700 transition-colors">
+                    SoundBridge
+                </Link>
 
                 <div className="flex items-center gap-6">
                     <span className="text-sm text-gray-700">{usuario.nome}</span>
@@ -92,7 +95,7 @@ export default function ContratanteProfile() {
                         </button>
                     </div>
 
-                    {/*
+                    
                     <div className="flex flex-col">
                         <label className="font-medium">Gênero</label>
                         <select
@@ -118,7 +121,7 @@ export default function ContratanteProfile() {
                             <option>Restaurante</option>
                         </select>
                     </div>
-                    */}
+                    
                 </div>
 
             </main>
