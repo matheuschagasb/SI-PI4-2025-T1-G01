@@ -1,117 +1,142 @@
 'use client';
-import { Avatar } from 'primereact/avatar';
-import { Button } from 'primereact/button';
-import { InputText } from 'primereact/inputtext';
-import { InputTextarea } from 'primereact/inputtextarea';
-import { Dropdown } from 'primereact/dropdown';
-import { Password } from 'primereact/password';
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { ProgressSpinner } from 'primereact/progressspinner';
+import { Button } from 'primereact/button';
+import Image from 'next/image';
 
-interface Musician {
+interface Contrato {
     id: string;
-    cpf: string;
-    nome: string;
-    email: string;
-    biografia: string;
-    genero: string;
-    generoMusical: string;
-    senha: string;
-    chavePix: string;
-    telefone: string;
+    musicoId: string;
+    contratanteId: string;
+    nomeMusico: string;
+    nomeContratante: string;
+    localApresentacao: string;
+    dataPagamento: string;
+    dataServico: string;
+    contratoAtivo: boolean;
+    valorContrato: number;
+    horasDuracao: number;
+    comprovantePagamento: string | null;
 }
 
 export default function MusicoHomePage() {
-    const [musicianData, setMusicianData] = useState<Musician | null>(null);
-    const [originalMusicianData, setOriginalMusicianData] = useState<Musician | null>(null);
-    const [editing, setEditing] = useState(false);
+    const [contratos, setContratos] = useState<Contrato[]>([]);
     const [loading, setLoading] = useState(true);
-
-    const fetchMusicianData = async () => {
-        setLoading(true);
-        try {
-            const id = localStorage.getItem('soundbridge/id');
-            const response = await fetch(`http://localhost:8080/v1/musico/${id}`);
-            if (!response.ok) {
-                throw new Error(`Failed to fetch musician data. Status: ${response.status}`);
-            }
-            
-            const responseText = await response.text();
-            try {
-                const data = JSON.parse(responseText);
-                setMusicianData(data);
-                setOriginalMusicianData(data);
-            } catch (parseError) {
-                throw new Error("Failed to parse JSON response.");
-            }
-        } catch (error) {
-            console.error("Error fetching data:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
+    const [nomeMusico, setNomeMusico] = useState<string>('');
+    const router = useRouter();
 
     useEffect(() => {
-        fetchMusicianData();
+        const fetchData = async () => {
+            setLoading(true);
+            try {
+                const id = localStorage.getItem('soundbridge/id');
+                const nomeArmazenado = localStorage.getItem('soundbridge/nome');
+                
+                if (nomeArmazenado) {
+                    setNomeMusico(nomeArmazenado);
+                } else {
+                    // Buscar nome do músico se não estiver no localStorage
+                    const responseName = await fetch(`http://localhost:8080/v1/musico/${id}`);
+                    if (responseName.ok) {
+                        const musicoData = await responseName.json();
+                        setNomeMusico(musicoData.nome || 'Músico');
+                        localStorage.setItem('soundbridge/nome', musicoData.nome);
+                    }
+                }
+
+                // TODO: Futuramente substituir por fetch real: GET /v1/contratos?musicoId=${id}
+                // Mock de contratos ordenados por dataPagamento (mais recente primeiro)
+                const mockContratos: Contrato[] = [
+                    {
+                        id: '1',
+                        musicoId: id || '',
+                        contratanteId: 'c1',
+                        nomeMusico: 'Thiago Marques',
+                        nomeContratante: 'Guilherme Padilha',
+                        localApresentacao: 'Avenida Sergio Pique, 324, Campinas',
+                        dataPagamento: '2025-10-29',
+                        dataServico: '2025-10-30',
+                        contratoAtivo: true,
+                        valorContrato: 500.00,
+                        horasDuracao: 3,
+                        comprovantePagamento: 'comprovante_001.pdf'
+                    },
+                    {
+                        id: '2',
+                        musicoId: id || '',
+                        contratanteId: 'c1',
+                        nomeMusico: 'Thiago Marques',
+                        nomeContratante: 'Guilherme Padilha',
+                        localApresentacao: 'Avenida Sergio Pique, 324, Campinas',
+                        dataPagamento: '2025-10-26',
+                        dataServico: '2025-10-27',
+                        contratoAtivo: true,
+                        valorContrato: 500.00,
+                        horasDuracao: 3,
+                        comprovantePagamento: 'comprovante_002.pdf'
+                    },
+                    {
+                        id: '3',
+                        musicoId: id || '',
+                        contratanteId: 'c1',
+                        nomeMusico: 'Thiago Marques',
+                        nomeContratante: 'Guilherme Padilha',
+                        localApresentacao: 'Avenida Sergio Pique, 324, Campinas',
+                        dataPagamento: '2025-10-18',
+                        dataServico: '2025-10-19',
+                        contratoAtivo: true,
+                        valorContrato: 500.00,
+                        horasDuracao: 3,
+                        comprovantePagamento: 'comprovante_003.pdf'
+                    },
+                    {
+                        id: '4',
+                        musicoId: id || '',
+                        contratanteId: 'c1',
+                        nomeMusico: 'Thiago Marques',
+                        nomeContratante: 'Guilherme Padilha',
+                        localApresentacao: 'Avenida Sergio Pique, 324, Campinas',
+                        dataPagamento: '2025-10-14',
+                        dataServico: '2025-10-15',
+                        contratoAtivo: false,
+                        valorContrato: 500.00,
+                        horasDuracao: 3,
+                        comprovantePagamento: null
+                    }
+                ];
+
+                // Ordenar por dataPagamento decrescente
+                const sorted = mockContratos.sort((a, b) => 
+                    new Date(b.dataPagamento).getTime() - new Date(a.dataPagamento).getTime()
+                );
+                
+                setContratos(sorted);
+            } catch (error) {
+                console.error('Erro ao carregar contratos:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
     }, []);
 
-    const handleChange = (field: keyof Musician, value: any) => {
-        setMusicianData((prevData) => (prevData ? { ...prevData, [field]: value } : null));
+    const handleEditarPerfil = () => {
+        router.push('/Musico/Editar');
     };
 
-    const handleEdit = () => {
-        setEditing(true);
+    const formatarData = (dataISO: string) => {
+        const data = new Date(dataISO);
+        return data.toLocaleDateString('pt-BR');
     };
 
-    const handleCancel = () => {
-        setMusicianData(originalMusicianData);
-        setEditing(false);
-    };
-
-    const handleSave = async () => {
-        if (!musicianData) return;
-        try {
-            const response = await fetch(`http://localhost:8080/v1/musico/${musicianData.cpf}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(musicianData),
-            });
-
-            if (!response.ok) {
-                throw new Error("Failed to save musician data.");
-            }
-
-            const updatedData = await response.json();
-            setOriginalMusicianData(updatedData);
-            setMusicianData(updatedData);
-            setEditing(false);
-        } catch (error) {
-            console.error("Error saving data:", error);
+    const getStatusIcon = (contrato: Contrato) => {
+        if (contrato.contratoAtivo && contrato.comprovantePagamento) {
+            return '/icons/check-verde.svg';
         }
+        return '/icons/pendente.svg';
     };
-
-    const genres = [
-        { label: 'Rock', value: 'Rock' },
-        { label: 'Pop', value: 'Pop' },
-        { label: 'Jazz', value: 'Jazz' },
-        { label: 'Clássica', value: 'Classica' },
-        { label: 'Sertanejo', value: 'Sertanejo' },
-        { label: 'Funk', value: 'Funk' },
-        { label: 'Eletrônica', value: 'Eletronica' },
-        { label: 'Hip Hop', value: 'Hiphop' },
-        { label: 'Reggae', value: 'Reggae' },
-    ];
-
-    const genders = [
-        { label: 'Masculino', value: 'M' },
-        { label: 'Feminino', value: 'F' },
-    ];
-
-    const inputClass = 'w-full h-10 px-4 border border-gray-200 rounded-[999px] text-[12px] focus:border-blue-400 focus:ring-0';
-    const inputStyle = { boxShadow: 'none', backgroundColor: '#fafafa' };
-    const disabledInputStyle = { boxShadow: 'none', backgroundColor: '#f0f0f0', color: '#6c757d' };
 
     if (loading) {
         return (
@@ -120,149 +145,96 @@ export default function MusicoHomePage() {
             </div>
         );
     }
-    
-    if (!musicianData) {
-        return <div className="flex justify-center items-center min-h-screen">Error: Musician not found.</div>
-    }
 
     return (
-        <div className="flex flex-col items-center min-h-screen bg-white p-8">
-            <div className="w-full max-w-4xl">
-                <div className="flex items-center justify-between mb-8">
-                    <div className="flex items-center">
-                        <Avatar label={musicianData.nome?.charAt(0) || 'U'} size='xlarge' className='p-overlay-badge mr-4' />
-                        <div>
-                            <p className='text-xl font-bold'>{musicianData.nome}</p>
-                            <p className='text-sm text-gray-500'>{musicianData.email}</p>
-                        </div>
-                    </div>
-                    {!editing && <Button 
-                                    label='Editar' 
-                                    severity="info" 
-                                    icon='pi pi-pencil' 
-                                    onClick={handleEdit} 
-                                    className="py-2 px-4" 
-                                    style={{ background: '#1379E6', border: 'none', borderRadius: '999px', color: 'white' }} 
-                                />}
-                    {editing && (
-                        <div className="flex gap-2">
-                            <Button 
-                                label='Salvar' 
-                                icon='pi pi-check' 
-                                onClick={handleSave} 
-                                className="py-2 px-4" 
-                                style={{ background: '#28a745', border: 'none', borderRadius: '999px', color: 'white' }} />
-                            <Button 
-                                label='Cancelar' 
-                                icon='pi pi-times' 
-                                severity="secondary"
-                                onClick={handleCancel} 
-                                className="py-2 px-4" 
-                                style={{ background: '#6c757d', border: 'none', borderRadius: '999px', color: 'white' }} />
-                        </div>
+        <div className="min-h-screen bg-white">
+            {/* Header */}
+            <header className="flex items-center justify-between px-8 py-4 border-b border-gray-200">
+                <h1 className="text-2xl font-bold text-[#1379E6]">SoundBridge</h1>
+                <div className="flex items-center gap-4">
+                    <span className="text-sm text-gray-700">{nomeMusico}</span>
+                    <button className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                        <Image src="/icons/details/menu.png" alt="Menu" width={20} height={20} />
+                    </button>
+                    <button className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-gray-700 font-semibold">
+                        {nomeMusico?.charAt(0) || 'U'}
+                    </button>
+                </div>
+            </header>
+
+            {/* Main Content */}
+            <main className="px-8 py-8">
+                <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-3xl font-bold text-gray-900">Contratos</h2>
+                    <Button
+                        label="Editar"
+                        icon="pi pi-pencil"
+                        onClick={handleEditarPerfil}
+                        className="py-2 px-6"
+                        style={{
+                            background: '#1379E6',
+                            border: 'none',
+                            borderRadius: '999px',
+                            color: 'white',
+                            fontSize: '14px'
+                        }}
+                    />
+                </div>
+
+                {/* Lista de Contratos */}
+                <div className="flex flex-col gap-4">
+                    {contratos.length === 0 ? (
+                        <p className="text-gray-500 text-center py-8">Nenhum contrato encontrado.</p>
+                    ) : (
+                        contratos.map((contrato) => (
+                            <div
+                                key={contrato.id}
+                                className="flex items-center gap-6 px-6 py-4 bg-green-50 rounded-lg border border-green-100"
+                            >
+                                {/* Ícones de Status */}
+                                <div className="flex flex-col items-center gap-1">
+                                    <Image
+                                        src={getStatusIcon(contrato)}
+                                        alt="Status"
+                                        width={24}
+                                        height={24}
+                                    />
+                                    <Image
+                                        src="/icons/contrato.svg"
+                                        alt="Contrato"
+                                        width={20}
+                                        height={20}
+                                    />
+                                </div>
+
+                                {/* Músico */}
+                                <div className="flex-1">
+                                    <p className="text-xs text-gray-500 mb-1">Músico</p>
+                                    <p className="text-sm text-gray-700">{contrato.nomeMusico}</p>
+                                </div>
+
+                                {/* Data do pagamento */}
+                                <div className="flex-1">
+                                    <p className="text-xs text-gray-500 mb-1">Data do pagamento:</p>
+                                    <p className="text-sm text-gray-700">{formatarData(contrato.dataPagamento)}</p>
+                                </div>
+
+                                {/* Local da apresentação */}
+                                <div className="flex-[2]">
+                                    <p className="text-xs text-gray-500 mb-1">Local da apresentação</p>
+                                    <p className="text-sm text-gray-700">{contrato.localApresentacao}</p>
+                                </div>
+
+                                {/* Nome do contratante */}
+                                <div className="flex-1">
+                                    <p className="text-xs text-gray-500 mb-1">Nome do contratante</p>
+                                    <p className="text-sm text-gray-700">{contrato.nomeContratante}</p>
+                                </div>
+                            </div>
+                        ))
                     )}
                 </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="flex flex-col gap-2">
-                        <label htmlFor="nome">Nome Artístico</label>
-                        <InputText 
-                            id="nome" 
-                            value={musicianData.nome} 
-                            onChange={(e) => handleChange('nome', e.target.value)} 
-                            disabled={!editing} 
-                            className={inputClass} 
-                            style={!editing ? disabledInputStyle : inputStyle} />
-                    </div>
-
-                    <div className="flex flex-col gap-2">
-                        <label htmlFor="cpf">CPF</label>
-                        <InputText 
-                            id="cpf" 
-                            value={musicianData.cpf} 
-                            onChange={(e) => handleChange('cpf', e.target.value)} 
-                            disabled={!editing} 
-                            className={inputClass} 
-                            style={!editing ? disabledInputStyle : inputStyle} />
-                    </div>
-
-                    <div className="flex flex-col gap-2">
-                        <label htmlFor="genero">Gênero</label>
-                        <Dropdown 
-                            id="genero" 
-                            value={musicianData.genero} 
-                            options={genders} 
-                            onChange={(e) => handleChange('genero', e.value)} 
-                            placeholder="Selecione o gênero" 
-                            disabled={!editing} 
-                            className={inputClass} 
-                            panelClassName="text-[12px]" 
-                            style={!editing ? disabledInputStyle : inputStyle} />
-                    </div>
-                    
-                    <div className="flex flex-col gap-2 md:col-span-2">
-                        <label htmlFor="biografia">Biografia</label>
-                        <InputTextarea 
-                            id="biografia" 
-                            value={musicianData.biografia} 
-                            onChange={(e) => handleChange('biografia', e.target.value)} 
-                            rows={4} autoResize disabled={!editing} 
-                            className="w-full px-4 border border-gray-200 rounded-[20px] text-[12px] focus:border-blue-400 focus:ring-0" 
-                            style={!editing ? disabledInputStyle : inputStyle} />
-                    </div>
-
-                    <div className="flex flex-col gap-2">
-                        <label htmlFor="generoMusical">Estilos Musicais</label>
-                        <Dropdown 
-                            id="generoMusical" 
-                            value={musicianData.generoMusical} 
-                            options={genres} 
-                            onChange={(e) => handleChange('generoMusical', e.value)} 
-                            placeholder="Selecione seu estilo" disabled={!editing} 
-                            className={inputClass} panelClassName="text-[12px]" 
-                            style={!editing ? disabledInputStyle : inputStyle} />
-                    </div>
-
-                    <div className="md:col-span-2 mt-4">
-                        <h2 className="text-lg font-semibold mb-4 border-t pt-4">Dados da Conta</h2>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="flex flex-col gap-2">
-                                <label htmlFor="email">Email</label>
-                                <InputText 
-                                    id="email" 
-                                    value={musicianData.email} 
-                                    onChange={(e) => handleChange('email', e.target.value)} 
-                                    disabled={!editing} 
-                                    className={inputClass} 
-                                    style={!editing ? disabledInputStyle : inputStyle} />
-                            </div>
-                            <div className="flex flex-col gap-2">
-                                <label htmlFor="senha">Senha</label>
-                                <Password 
-                                    id="senha" 
-                                    value={musicianData.senha} 
-                                    onChange={(e) => handleChange('senha', e.target.value)} 
-                                    disabled={!editing} 
-                                    feedback={false} 
-                                    toggleMask 
-                                    className={inputClass} 
-                                    style={!editing ? disabledInputStyle : inputStyle} 
-                                    inputStyle={{width: '100%'}}/>
-                            </div>
-                            <div className="flex flex-col gap-2">
-                                <label htmlFor="chavePix">Chave PIX</label>
-                                <InputText 
-                                    id="chavePix" 
-                                    value={musicianData.chavePix} 
-                                    onChange={(e) => handleChange('chavePix', e.target.value)} 
-                                    disabled={!editing} 
-                                    className={inputClass} 
-                                    style={!editing ? disabledInputStyle : inputStyle} />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            </main>
         </div>
     );
 }
