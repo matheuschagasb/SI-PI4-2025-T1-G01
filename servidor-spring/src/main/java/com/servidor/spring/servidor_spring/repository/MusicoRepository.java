@@ -8,6 +8,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.List;
 
 public interface MusicoRepository extends JpaRepository<Musico, String> {
-    UserDetails findByEmail(String email);
+    Musico findByEmail(String email);
     List<Musico> findByGeneroMusical(String generoMusical);
 }

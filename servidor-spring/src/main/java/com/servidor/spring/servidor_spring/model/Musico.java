@@ -33,6 +33,15 @@ public class Musico implements UserDetails {
     private String cpf;
     private String senha;
 
+    @Column(columnDefinition = "TEXT")
+    private String fotoPerfil;
+
+    @ElementCollection
+    @CollectionTable(name = "musico_fotos", joinColumns = @JoinColumn(name = "musico_id"))
+    @Column(name = "foto_banda", columnDefinition = "TEXT")
+    private List<String> fotosBanda;
+
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_MUSICO"));

@@ -38,6 +38,7 @@ public class SecurityConfigurations {
 
                     // ALTERAÇÃO AQUI: Adicionado /** para permitir buscar por ID
                     req.requestMatchers(HttpMethod.GET, "/v1/musico/**").permitAll();
+                    req.requestMatchers(HttpMethod.PUT, "/v1/musico/**").permitAll();
 
                     req.requestMatchers(HttpMethod.POST, "/v1/musico").permitAll();
                     req.requestMatchers(HttpMethod.POST, "/v1/contratante").permitAll();

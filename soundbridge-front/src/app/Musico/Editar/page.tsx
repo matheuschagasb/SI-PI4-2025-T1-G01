@@ -20,6 +20,8 @@ interface Musician {
     senha: string;
     chavePix: string;
     telefone: string;
+    fotoPerfil?: string;
+    fotosBanda?: string[];
 }
 
 export default function MusicoEditarPage() {
@@ -41,6 +43,19 @@ export default function MusicoEditarPage() {
             const responseText = await response.text();
             try {
                 const data = JSON.parse(responseText);
+
+                if (data.fotoPerfil && !data.fotoPerfil.startsWith('data:')) {
+                    data.fotoPerfil = `data:image/jpeg;base64,${data.fotoPerfil}`;
+                }
+                if (data.fotosBanda && Array.isArray(data.fotosBanda)) {
+                    data.fotosBanda = data.fotosBanda.map((photo: string) => {
+                        if (photo && !photo.startsWith('data:')) {
+                            return `data:image/jpeg;base64,${photo}`;
+                        }
+                        return photo;
+                    }).filter(Boolean);
+                }
+
                 setMusicianData(data);
                 setOriginalMusicianData(data);
             } catch (parseError) {
@@ -57,6 +72,54 @@ export default function MusicoEditarPage() {
         fetchMusicianData();
     }, []);
 
+    const handleProfileImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (readerEvent) => {
+                const base64String = readerEvent.target?.result as string;
+                setMusicianData((prevData) => (prevData ? { ...prevData, fotoPerfil: base64String } : null));
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleBandPhotosChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const files = event.target.files;
+        if (files) {
+            const filePromises = Array.from(files).map(file => {
+                return new Promise<string>((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = (readerEvent) => {
+                        resolve(readerEvent.target?.result as string);
+                    };
+                    reader.onerror = reject;
+                    reader.readAsDataURL(file);
+                });
+            });
+
+            Promise.all(filePromises).then(base64Strings => {
+                setMusicianData(prevData => {
+                    if (!prevData) return null;
+                    const existingPhotos = prevData.fotosBanda || [];
+                    return {
+                        ...prevData,
+                        fotosBanda: [...existingPhotos, ...base64Strings]
+                    };
+                });
+            });
+        }
+    };
+
+    const handleRemoveBandPhoto = (index: number) => {
+        setMusicianData(prevData => {
+            if (!prevData || !prevData.fotosBanda) return prevData;
+            const newFotos = [...prevData.fotosBanda];
+            newFotos.splice(index, 1);
+            return { ...prevData, fotosBanda: newFotos };
+        });
+    };
+
     const handleChange = (field: keyof Musician, value: any) => {
         setMusicianData((prevData) => (prevData ? { ...prevData, [field]: value } : null));
     };
@@ -72,6 +135,22 @@ export default function MusicoEditarPage() {
 
     const handleSave = async () => {
         if (!musicianData) return;
+
+        const dataToSend = { ...musicianData };
+
+        if (dataToSend.fotoPerfil && dataToSend.fotoPerfil.startsWith('data:image')) {
+            dataToSend.fotoPerfil = dataToSend.fotoPerfil.split(',')[1];
+        }
+
+        if (dataToSend.fotosBanda) {
+            dataToSend.fotosBanda = dataToSend.fotosBanda.map(photo => {
+                if (photo.startsWith('data:image')) {
+                    return photo.split(',')[1];
+                }
+                return photo;
+            });
+        }
+
         try {
             // TODO: Ajustar endpoint para PUT /v1/musico/{id} quando backend estiver pronto
             const response = await fetch(`http://localhost:8080/v1/musico/${musicianData.id}`, {
@@ -79,7 +158,7 @@ export default function MusicoEditarPage() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(musicianData),
+                body: JSON.stringify(dataToSend),
             });
 
             if (!response.ok) {
@@ -140,7 +219,29 @@ export default function MusicoEditarPage() {
             <div className="w-full max-w-4xl">
                 <div className="flex items-center justify-between mb-8">
                     <div className="flex items-center">
-                        <Avatar label={musicianData.nome?.charAt(0) || 'U'} size='xlarge' className='p-overlay-badge mr-4' />
+                        <div className="relative mr-4">
+                            <Avatar 
+                                image={musicianData.fotoPerfil}
+                                label={musicianData.nome?.charAt(0) || 'U'}
+                                size='xlarge'
+                                shape="circle"
+                                className='p-overlay-badge'
+                            />
+                            {editing && (
+                                <>
+                                    <label htmlFor="profile-image-upload" className="absolute bottom-0 right-0 cursor-pointer bg-gray-200 rounded-full p-2 hover:bg-gray-300">
+                                        <i className="pi pi-pencil text-sm"></i>
+                                        <input
+                                            id="profile-image-upload"
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={handleProfileImageChange}
+                                            className="hidden"
+                                        />
+                                    </label>
+                                </>
+                            )}
+                        </div>
                         <div>
                             <p className='text-xl font-bold'>{musicianData.nome}</p>
                             <p className='text-sm text-gray-500'>{musicianData.email}</p>
@@ -285,6 +386,40 @@ export default function MusicoEditarPage() {
                                     className={inputClass} 
                                     style={!editing ? disabledInputStyle : inputStyle} />
                             </div>
+                        </div>
+                    </div>
+                    <div className="md:col-span-2 mt-4">
+                        <h2 className="text-lg font-semibold mb-4 border-t pt-4">Fotos da Banda</h2>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                            {musicianData.fotosBanda?.map((photo, index) => (
+                                <div key={index} className="relative group">
+                                    <img src={photo} alt={`Foto da banda ${index + 1}`} className="w-full h-40 object-cover rounded-lg" />
+                                    {editing && (
+                                        <Button 
+                                            icon="pi pi-times"
+                                            rounded
+                                            text
+                                            severity="danger"
+                                            onClick={() => handleRemoveBandPhoto(index)}
+                                            className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 bg-black/50"
+                                        />
+                                    )}
+                                </div>
+                            ))}
+                            {editing && (
+                                <label htmlFor="band-photos-upload" className="cursor-pointer flex flex-col items-center justify-center w-full h-40 border-2 border-dashed rounded-lg text-gray-400 hover:bg-gray-50 hover:text-gray-500">
+                                    <i className="pi pi-plus text-2xl"></i>
+                                    <span>Adicionar Fotos</span>
+                                    <input
+                                        id="band-photos-upload"
+                                        type="file"
+                                        accept="image/*"
+                                        multiple
+                                        onChange={handleBandPhotosChange}
+                                        className="hidden"
+                                    />
+                                </label>
+                            )}
                         </div>
                     </div>
                 </div>

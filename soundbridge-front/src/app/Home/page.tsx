@@ -17,6 +17,7 @@ interface ApiMusician {
   generoMusical: string;
   email: string;
   telefone: string;
+  fotoPerfil?: string; // Add fotoPerfil to the API interface
 }
 
 // Interface for the Musician data used in the frontend
@@ -49,16 +50,27 @@ export default function Home() {
           throw new Error('Failed to fetch musicians');
         }
         const data: ApiMusician[] = await response.json();
-        const mappedMusicians: Musician[] = data.map((apiMusician: ApiMusician) => ({
-          id: apiMusician.id,
-          name: apiMusician.nome,
-          genre: apiMusician.generoMusical,
-          subgenre: '',
-          rating: 0,
-          price: 0,
-          image: '/default-musician.jpg',
-          cidade: apiMusician.cidade,
-        }));
+        const mappedMusicians: Musician[] = data.map((apiMusician: ApiMusician) => {
+          let imageUrl = '/default-musician.jpg'; // Default image
+          if (apiMusician.fotoPerfil) {
+            // Prepend data URI prefix if it's not already there
+            if (!apiMusician.fotoPerfil.startsWith('data:')) {
+              imageUrl = `data:image/jpeg;base64,${apiMusician.fotoPerfil}`; // Assuming JPEG for simplicity
+            } else {
+              imageUrl = apiMusician.fotoPerfil;
+            }
+          }
+          return {
+            id: apiMusician.id,
+            name: apiMusician.nome,
+            genre: apiMusician.generoMusical,
+            subgenre: '',
+            rating: 0,
+            price: 0,
+            image: imageUrl, // Use fetched fotoPerfil
+            cidade: apiMusician.cidade,
+          };
+        });
         setMusicians(mappedMusicians);
       } catch (err: any) {
         setError(err.message || 'Error fetching musicians');
