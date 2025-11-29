@@ -14,7 +14,9 @@ public record ContratoResponseDTO(
         Double valorTotal,
         StatusContrato status,
         String localEvento,
-        String observacoes
+        String observacoes,
+        LocalDateTime dataPagamento,
+        String comprovantePagamentoUrl
 ) {
     public ContratoResponseDTO(Contrato contrato) {
         this(
@@ -26,7 +28,9 @@ public record ContratoResponseDTO(
                 contrato.getValorTotal(),
                 contrato.getStatus(),
                 contrato.getLocalEvento(),
-                contrato.getObservacoes()
+                contrato.getObservacoes(),
+                contrato.getDataPagamento(),
+                contrato.getComprovantePagamentoUrl()
         );
     }
 }

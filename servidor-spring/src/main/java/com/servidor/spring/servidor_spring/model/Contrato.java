@@ -35,6 +35,8 @@ public class Contrato {
 
     private String localEvento;
     private String observacoes;
+    private LocalDateTime dataPagamento;
+    private String comprovantePagamentoUrl;
 
     public void setContratante(Contratante contratante) {
         this.contratante = contratante;
@@ -66,5 +68,13 @@ public class Contrato {
 
     public void setStatus(StatusContrato status) {
         this.status = status;
+    }
+
+    public void setDataPagamento(LocalDateTime dataPagamento) {
+        this.dataPagamento = dataPagamento;
+    }
+
+    public void setComprovantePagamentoUrl(String comprovantePagamentoUrl) {
+        this.comprovantePagamentoUrl = comprovantePagamentoUrl;
     }
 }

@@ -12,7 +12,7 @@ interface Contrato {
     nomeMusico: string;
     nomeContratante: string;
     localApresentacao: string;
-    dataPagamento: string;
+    dataPagamento: string | null; // Changed to allow null
     dataServico: string;
     contratoAtivo: boolean;
     valorContrato: number;
@@ -26,13 +26,67 @@ export default function MusicoHomePage() {
     const [nomeMusico, setNomeMusico] = useState<string>('');
     const router = useRouter();
 
+    // Helper function to map API response to frontend Contrato interface
+    const mapAndSetContracts = (fetchedContratos: any[], musicianId: string) => {
+        const currentMusicoNome = localStorage.getItem('soundbridge/nome') || 'Músico'; // Assuming musician's name is in localStorage
+
+        const contratosFormatados = fetchedContratos.map(contrato => ({
+            id: contrato.id,
+            musicoId: musicianId, // Use the ID from localStorage/param
+            contratanteId: contrato.contratante.id,
+            nomeMusico: currentMusicoNome,
+            nomeContratante: contrato.contratante.nome,
+            localApresentacao: contrato.localEvento,
+            dataPagamento: contrato.dataPagamento,
+            dataServico: contrato.dataEvento,
+            contratoAtivo: contrato.status === 'CONFIRMADO', // Map string status to boolean
+            valorContrato: contrato.valorTotal,
+            horasDuracao: contrato.duracao,
+            comprovantePagamento: contrato.comprovantePagamentoUrl,
+        }));
+        setContratos(contratosFormatados);
+    };
+
+    // Helper function to fetch contracts from API
+    const fetchContracts = async (musicianId: string, authToken: string) => {
+        try {
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+            const response = await fetch(`${apiUrl}/v1/contratos?musicoId=${musicianId}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${authToken}`
+                }
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || `Failed to fetch contracts: ${response.status} ${response.statusText}`);
+            }
+
+            const fetchedContratos = await response.json();
+            mapAndSetContracts(fetchedContratos, musicianId);
+
+        } catch (error: any) {
+            console.error("Error fetching contracts:", error);
+            // Display user-friendly error message on the UI
+            // Potentially use a toast or alert here
+        }
+    };
+
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
             try {
                 const id = localStorage.getItem('soundbridge/id');
                 const nomeArmazenado = localStorage.getItem('soundbridge/nome');
+                const token = localStorage.getItem('soundbridge/token');
                 
+                if (!id || !token) {
+                    console.error("Musician ID or token not found in localStorage. Redirecting to login.");
+                    router.push('/Login');
+                    return;
+                }
+
                 if (nomeArmazenado) {
                     setNomeMusico(nomeArmazenado);
                 } else {
@@ -45,73 +99,8 @@ export default function MusicoHomePage() {
                     }
                 }
 
-                // TODO: Futuramente substituir por fetch real: GET /v1/contratos?musicoId=${id}
-                // Mock de contratos ordenados por dataPagamento (mais recente primeiro)
-                const mockContratos: Contrato[] = [
-                    {
-                        id: '1',
-                        musicoId: id || '',
-                        contratanteId: 'c1',
-                        nomeMusico: 'Thiago Marques',
-                        nomeContratante: 'Guilherme Padilha',
-                        localApresentacao: 'Avenida Sergio Pique, 324, Campinas',
-                        dataPagamento: '2025-10-29',
-                        dataServico: '2025-10-30',
-                        contratoAtivo: true,
-                        valorContrato: 500.00,
-                        horasDuracao: 3,
-                        comprovantePagamento: 'comprovante_001.pdf'
-                    },
-                    {
-                        id: '2',
-                        musicoId: id || '',
-                        contratanteId: 'c1',
-                        nomeMusico: 'Thiago Marques',
-                        nomeContratante: 'Guilherme Padilha',
-                        localApresentacao: 'Avenida Sergio Pique, 324, Campinas',
-                        dataPagamento: '2025-10-26',
-                        dataServico: '2025-10-27',
-                        contratoAtivo: true,
-                        valorContrato: 500.00,
-                        horasDuracao: 3,
-                        comprovantePagamento: 'comprovante_002.pdf'
-                    },
-                    {
-                        id: '3',
-                        musicoId: id || '',
-                        contratanteId: 'c1',
-                        nomeMusico: 'Thiago Marques',
-                        nomeContratante: 'Guilherme Padilha',
-                        localApresentacao: 'Avenida Sergio Pique, 324, Campinas',
-                        dataPagamento: '2025-10-18',
-                        dataServico: '2025-10-19',
-                        contratoAtivo: true,
-                        valorContrato: 500.00,
-                        horasDuracao: 3,
-                        comprovantePagamento: 'comprovante_003.pdf'
-                    },
-                    {
-                        id: '4',
-                        musicoId: id || '',
-                        contratanteId: 'c1',
-                        nomeMusico: 'Thiago Marques',
-                        nomeContratante: 'Guilherme Padilha',
-                        localApresentacao: 'Avenida Sergio Pique, 324, Campinas',
-                        dataPagamento: '2025-10-14',
-                        dataServico: '2025-10-15',
-                        contratoAtivo: false,
-                        valorContrato: 500.00,
-                        horasDuracao: 3,
-                        comprovantePagamento: null
-                    }
-                ];
-
-                // Ordenar por dataPagamento decrescente
-                const sorted = mockContratos.sort((a, b) => 
-                    new Date(b.dataPagamento).getTime() - new Date(a.dataPagamento).getTime()
-                );
+                await fetchContracts(id, token); // Call the new fetch function
                 
-                setContratos(sorted);
             } catch (error) {
                 console.error('Erro ao carregar contratos:', error);
             } finally {
@@ -120,7 +109,7 @@ export default function MusicoHomePage() {
         };
 
         fetchData();
-    }, []);
+    }, []); // Empty dependency array means this runs once on component mount
 
     const handleEditarPerfil = () => {
         router.push('/Musico/Editar');
@@ -216,7 +205,7 @@ export default function MusicoHomePage() {
                                 {/* Data do pagamento */}
                                 <div className="flex-1">
                                     <p className="text-xs text-gray-500 mb-1">Data do pagamento:</p>
-                                    <p className="text-sm text-gray-700">{formatarData(contrato.dataPagamento)}</p>
+                                    <p className="text-sm text-gray-700">{contrato.dataPagamento ? formatarData(contrato.dataPagamento) : 'N/A'}</p>
                                 </div>
 
                                 {/* Local da apresentação */}
