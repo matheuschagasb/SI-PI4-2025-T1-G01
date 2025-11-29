@@ -12,7 +12,7 @@ interface Contrato {
     nomeMusico: string;
     nomeContratante: string;
     localApresentacao: string;
-    dataPagamento: string | null; // Changed to allow null
+    dataPagamento: string | null;
     dataServico: string;
     contratoAtivo: boolean;
     valorContrato: number;
@@ -26,20 +26,19 @@ export default function MusicoHomePage() {
     const [nomeMusico, setNomeMusico] = useState<string>('');
     const router = useRouter();
 
-    // Helper function to map API response to frontend Contrato interface
     const mapAndSetContracts = (fetchedContratos: any[], musicianId: string) => {
-        const currentMusicoNome = localStorage.getItem('soundbridge/nome') || 'Músico'; // Assuming musician's name is in localStorage
+        const currentMusicoNome = localStorage.getItem('soundbridge/nome') || 'Músico';
 
         const contratosFormatados = fetchedContratos.map(contrato => ({
             id: contrato.id,
-            musicoId: musicianId, // Use the ID from localStorage/param
+            musicoId: musicianId,
             contratanteId: contrato.contratante.id,
             nomeMusico: currentMusicoNome,
             nomeContratante: contrato.contratante.nome,
             localApresentacao: contrato.localEvento,
             dataPagamento: contrato.dataPagamento,
             dataServico: contrato.dataEvento,
-            contratoAtivo: contrato.status === 'CONFIRMADO', // Map string status to boolean
+            contratoAtivo: contrato.status === 'CONFIRMADO',
             valorContrato: contrato.valorTotal,
             horasDuracao: contrato.duracao,
             comprovantePagamento: contrato.comprovantePagamentoUrl,
@@ -47,7 +46,6 @@ export default function MusicoHomePage() {
         setContratos(contratosFormatados);
     };
 
-    // Helper function to fetch contracts from API
     const fetchContracts = async (musicianId: string, authToken: string) => {
         try {
             const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
@@ -68,8 +66,6 @@ export default function MusicoHomePage() {
 
         } catch (error: any) {
             console.error("Error fetching contracts:", error);
-            // Display user-friendly error message on the UI
-            // Potentially use a toast or alert here
         }
     };
 
@@ -90,7 +86,6 @@ export default function MusicoHomePage() {
                 if (nomeArmazenado) {
                     setNomeMusico(nomeArmazenado);
                 } else {
-                    // Buscar nome do músico se não estiver no localStorage
                     const responseName = await fetch(`http://localhost:8080/v1/musico/${id}`);
                     if (responseName.ok) {
                         const musicoData = await responseName.json();
@@ -99,7 +94,7 @@ export default function MusicoHomePage() {
                     }
                 }
 
-                await fetchContracts(id, token); // Call the new fetch function
+                await fetchContracts(id, token);
                 
             } catch (error) {
                 console.error('Erro ao carregar contratos:', error);
@@ -109,7 +104,7 @@ export default function MusicoHomePage() {
         };
 
         fetchData();
-    }, []); // Empty dependency array means this runs once on component mount
+    }, []);
 
     const handleEditarPerfil = () => {
         router.push('/Musico/Editar');
@@ -170,7 +165,6 @@ export default function MusicoHomePage() {
                     />
                 </div>
 
-                {/* Lista de Contratos */}
                 <div className="flex flex-col gap-4">
                     {contratos.length === 0 ? (
                         <p className="text-gray-500 text-center py-8">Nenhum contrato encontrado.</p>
@@ -180,7 +174,7 @@ export default function MusicoHomePage() {
                                 key={contrato.id}
                                 className="flex items-center gap-6 px-6 py-4 bg-green-50 rounded-lg border border-green-100"
                             >
-                                {/* Ícones de Status */}
+
                                 <div className="flex flex-col items-center gap-1">
                                     <Image
                                         src={getStatusIcon(contrato)}
@@ -196,25 +190,21 @@ export default function MusicoHomePage() {
                                     />
                                 </div>
 
-                                {/* Músico */}
                                 <div className="flex-1">
                                     <p className="text-xs text-gray-500 mb-1">Músico</p>
                                     <p className="text-sm text-gray-700">{contrato.nomeMusico}</p>
                                 </div>
 
-                                {/* Data do pagamento */}
                                 <div className="flex-1">
                                     <p className="text-xs text-gray-500 mb-1">Data do pagamento:</p>
                                     <p className="text-sm text-gray-700">{contrato.dataPagamento ? formatarData(contrato.dataPagamento) : 'N/A'}</p>
                                 </div>
 
-                                {/* Local da apresentação */}
                                 <div className="flex-[2]">
                                     <p className="text-xs text-gray-500 mb-1">Local da apresentação</p>
                                     <p className="text-sm text-gray-700">{contrato.localApresentacao}</p>
                                 </div>
 
-                                {/* Nome do contratante */}
                                 <div className="flex-1">
                                     <p className="text-xs text-gray-500 mb-1">Nome do contratante</p>
                                     <p className="text-sm text-gray-700">{contrato.nomeContratante}</p>
