@@ -77,4 +77,8 @@ public class Musico implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+    public String getPreco() {
+        return preco;
+    }
 }

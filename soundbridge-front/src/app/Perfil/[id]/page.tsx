@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useEffect, useState, useRef } from 'react'; // Added useRef
+import { useParams, useRouter } from 'next/navigation'; // useRouter already there
 
 import { Card } from 'primereact/card';
 import { Button } from 'primereact/button';
@@ -10,6 +10,10 @@ import { Calendar } from 'primereact/calendar';
 import { Divider } from 'primereact/divider';
 import { Avatar } from 'primereact/avatar';
 import { Tag } from 'primereact/tag';
+import { InputNumber } from 'primereact/inputnumber'; // New import
+import { InputText } from 'primereact/inputtext'; // New import
+import { InputTextarea } from 'primereact/inputtextarea'; // New import
+import { Toast } from 'primereact/toast'; // New import
 
 type Musico = {
   id: string;
@@ -26,7 +30,7 @@ type Musico = {
   reviews: number;
   categorias: string[];
   local: string;
-  preco: number;
+  preco: string; // Changed to string
   fotos: string[];
   descricao: string;
   habilidades: string[];
@@ -42,6 +46,7 @@ type Avaliacao = {
 
 export default function Perfil() {
   const { id } = useParams() as { id: string };
+  const router = useRouter(); // Initialize useRouter
 
   const [musico, setMusico] = useState<Musico | null>(null);
   const [loading, setLoading] = useState(true);
@@ -49,7 +54,12 @@ export default function Perfil() {
 
   const [dataReserva, setDataReserva] = useState<Date | null>(null);
   const [horaReserva, setHoraReserva] = useState<Date | null>(null);
+  const [duracao, setDuracao] = useState<number | null>(null); // New state
+  const [localEvento, setLocalEvento] = useState<string>(''); // New state
+  const [observacoes, setObservacoes] = useState<string>(''); // New state
   const [calendarioInline, setCalendarioInline] = useState<Date | null>(new Date());
+
+  const toast = useRef<Toast>(null); // Toast ref
 
   // Fetch dados do backend com fallback para mock
   useEffect(() => {
@@ -92,7 +102,7 @@ export default function Perfil() {
           reviews: data.reviews || 0,
           categorias: data.categorias || [data.generoMusical, data.subgenero].filter(Boolean),
           local: data.local || [data.cidade, data.estado].filter(Boolean).join(', ') || 'Brasil',
-          preco: data.preco || 250,
+          preco: data.preco || '250.00', // Changed fallback to string
           fotos: allFotos.length > 0 ? allFotos : (data.fotos || []),
           descricao: data.biografia || data.descricao || 'Sem descrição disponível',
           habilidades: data.habilidades || [],
@@ -119,7 +129,7 @@ export default function Perfil() {
           estado: 'São Paulo',
           generoMusical: 'MPB',
           subgenero: 'Samba',
-          preco: 250,
+          preco: '250.00', // Changed fallback to string
           fotos: [
             '/images/hero.jpg',
             '/images/thumb-1.jpg',
@@ -159,14 +169,75 @@ export default function Perfil() {
     { nome: 'Samuel', data: 'Abril 2025', texto: 'Som agradável, repertório equilibrado e uma vibe muito boa. Voltaremos a contratar.' },
   ];
 
-  const handleReservar = () => {
-    if (!dataReserva || !horaReserva) {
-      alert('Por favor, selecione data e horário para continuar.');
+  const handleReservar = async () => {
+    if (!musico) {
+      toast.current?.show({ severity: 'error', summary: 'Erro', detail: 'Dados do músico não carregados.', life: 3000 });
       return;
     }
-    console.log('Reserva solicitada:', { musicoId: id, dataReserva, horaReserva });
-    // Futuramente: navegar para página de checkout ou abrir modal de confirmação
-    alert(`Reserva solicitada para ${musico?.nome} em ${dataReserva.toLocaleDateString()} às ${horaReserva.toLocaleTimeString()}`);
+
+    if (!dataReserva || !horaReserva || duracao === null || localEvento === '') {
+      toast.current?.show({ severity: 'warn', summary: 'Atenção', detail: 'Por favor, preencha todos os campos obrigatórios (data, hora, duração, local).', life: 5000 });
+      return;
+    }
+
+    const authToken = localStorage.getItem('soundbridge/token');
+    if (!authToken) {
+      toast.current?.show({ severity: 'error', summary: 'Erro', detail: 'Você precisa estar logado para fazer uma reserva.', life: 3000 });
+      router.push('/Login'); // Redirect to login
+      return;
+    }
+
+    // Format date and time
+    const dataFormatted = dataReserva.toISOString().split('T')[0]; // YYYY-MM-DD
+    const horaFormatted = horaReserva.toTimeString().split(' ')[0].substring(0, 5); // HH:MM
+
+    const payload = {
+      musicoId: musico.id,
+      data: dataFormatted,
+      hora: horaFormatted,
+      duracao: duracao,
+      localEvento: localEvento,
+      observacoes: observacoes,
+    };
+
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+      const response = await fetch(`${apiUrl}/v1/contratos`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (response.ok) {
+        toast.current?.show({ severity: 'success', summary: 'Sucesso', detail: 'Solicitação de reserva enviada! Aguardando confirmação do músico.', life: 5000 });
+        setDataReserva(null);
+        setHoraReserva(null);
+        setDuracao(null);
+        setLocalEvento('');
+        setObservacoes('');
+      } else {
+        const errorData = await response.json();
+        let detailMessage = 'Erro ao enviar solicitação de reserva.';
+
+        if (response.status === 400) {
+          detailMessage = errorData.message || 'Dados da solicitação inválidos.';
+        } else if (response.status === 401 || response.status === 403) {
+          detailMessage = errorData.message || 'Você não tem permissão para realizar esta ação. Por favor, faça login como Contratante.';
+          router.push('/Login');
+        } else if (response.status === 409) {
+          detailMessage = errorData.message || 'O músico não está disponível para esta data e hora.';
+        } else {
+          detailMessage = errorData.message || `Erro ${response.status}: ${response.statusText}`;
+        }
+        toast.current?.show({ severity: 'error', summary: 'Erro', detail: detailMessage, life: 7000 });
+      }
+    } catch (apiError: any) {
+      console.error('Erro na API de contratação:', apiError);
+      toast.current?.show({ severity: 'error', summary: 'Erro', detail: 'Não foi possível conectar ao servidor. Tente novamente mais tarde.', life: 7000 });
+    }
   };
 
   if (loading) {
@@ -193,6 +264,8 @@ export default function Perfil() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-6">
+      <Toast ref={toast} /> {/* Toast component added */}
+
       {/* Aviso de fallback (apenas para desenvolvimento) */}
       {error && (
         <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800">
@@ -332,32 +405,42 @@ export default function Perfil() {
                   <label className="block text-xs text-slate-500 mb-1">Hora</label>
                   <Calendar value={horaReserva} onChange={(e) => setHoraReserva(e.value as Date)} timeOnly showIcon hourFormat="24" className="w-full" />
                 </div>
+                <div className="col-span-2">
+                  <label className="block text-xs text-slate-500 mb-1">Duração (horas)</label>
+                  <InputNumber
+                    value={duracao}
+                    onValueChange={(e) => setDuracao(e.value)}
+                    min={1}
+                    max={24}
+                    showButtons
+                    className="w-full"
+                  />
+                </div>
+                <div className="col-span-2">
+                  <label className="block text-xs text-slate-500 mb-1">Local do Evento</label>
+                  <InputText
+                    value={localEvento}
+                    onChange={(e) => setLocalEvento(e.target.value)}
+                    className="w-full"
+                    placeholder="Endereço completo"
+                  />
+                </div>
+                <div className="col-span-2">
+                  <label className="block text-xs text-slate-500 mb-1">Observações (opcional)</label>
+                  <InputTextarea
+                    value={observacoes}
+                    onChange={(e) => setObservacoes(e.target.value)}
+                    rows={3}
+                    className="w-full"
+                    placeholder="Detalhes adicionais para o músico"
+                  />
+                </div>
               </div>
 
               <Button label="Reservar" className="w-full mt-3" onClick={handleReservar} />
               <p className="text-xs text-slate-500 mt-2">
                 Total inicial sem descontos. Valores finais podem variar conforme duração e extras.
               </p>
-            </Card>
-
-            <Card className="shadow-sm">
-              <div className="flex items-center justify-between mb-2">
-                <strong>Calendário</strong>
-                <div className="flex gap-2">
-                  <Button icon="pi pi-chevron-left" rounded text aria-label="Anterior" />
-                  <Button icon="pi pi-chevron-right" rounded text aria-label="Próximo" />
-                </div>
-              </div>
-              <Calendar
-                inline
-                value={calendarioInline}
-                onChange={(e) => setCalendarioInline(e.value as Date)}
-                className="w-full"
-              />
-              <div className="flex items-center justify-between text-xs text-slate-600 mt-2">
-                <span>Hoje</span>
-                <Button label="Limpar" outlined size="small" />
-              </div>
             </Card>
           </div>
         </div>

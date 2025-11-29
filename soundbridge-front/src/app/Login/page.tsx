@@ -30,12 +30,15 @@ export default function LoginPage() {
 
             if (response.ok) {
                 const data = await response.json();
-                localStorage.setItem('token', data.token);
+                localStorage.setItem('soundbridge/token', data.token);
+                localStorage.setItem('soundbridge/id', data.id);
+                localStorage.setItem('soundbridge/nome', data.nome);
+                localStorage.setItem('soundbridge/role', role);
+
                 if (role === 'contratante') {
                     router.push('/Home');
                 } else {
                     localStorage.setItem('soundbridge/cpf', data.cpf);
-                    localStorage.setItem('soundbridge/id', data.id);
                     router.push('/Musico/Home');
                 }
             } else if (response.status === 401) {
