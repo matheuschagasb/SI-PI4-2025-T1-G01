@@ -26,7 +26,7 @@ type Musico = {
   reviews: number;
   categorias: string[];
   local: string;
-  precoHora: number;
+  preco: number;
   fotos: string[];
   descricao: string;
   habilidades: string[];
@@ -66,6 +66,16 @@ export default function Perfil() {
 
         const data = await response.json();
         
+        const allFotos: string[] = [];
+        if (data.fotoPerfil) {
+          allFotos.push(`data:image/jpeg;base64,${data.fotoPerfil}`);
+        }
+        if (data.fotosBanda && Array.isArray(data.fotosBanda)) {
+          data.fotosBanda.forEach((foto: string) => {
+            allFotos.push(`data:image/jpeg;base64,${foto}`);
+          });
+        }
+        
         // Mapear dados do backend para o formato da UI
         const musicoData: Musico = {
           id: data.id || id,
@@ -81,9 +91,9 @@ export default function Perfil() {
           rating: data.rating || 4.5,
           reviews: data.reviews || 0,
           categorias: data.categorias || [data.generoMusical, data.subgenero].filter(Boolean),
-          local: data.local || `${data.cidade}, ${data.estado}` || 'Brasil',
-          precoHora: data.precoHora || 250,
-          fotos: data.fotos || [],
+          local: data.local || [data.cidade, data.estado].filter(Boolean).join(', ') || 'Brasil',
+          preco: data.preco || 250,
+          fotos: allFotos.length > 0 ? allFotos : (data.fotos || []),
           descricao: data.biografia || data.descricao || 'Sem descrição disponível',
           habilidades: data.habilidades || [],
           equipamentos: data.equipamentos || [],
@@ -109,7 +119,7 @@ export default function Perfil() {
           estado: 'São Paulo',
           generoMusical: 'MPB',
           subgenero: 'Samba',
-          precoHora: 250,
+          preco: 250,
           fotos: [
             '/images/hero.jpg',
             '/images/thumb-1.jpg',
@@ -242,14 +252,6 @@ export default function Perfil() {
         <div className="lg:col-span-2 flex flex-col gap-4">
           <Card className="shadow-sm">
             <div className="flex flex-col gap-2">
-              <div className="flex items-center gap-2 text-slate-600">
-                <Rating value={musico.rating} readOnly cancel={false} />
-                <span className="text-sm">{musico.rating.toFixed(2)} · {musico.reviews} avaliações</span>
-                <span className="text-slate-300">•</span>
-                <span className="flex items-center gap-2 text-sm">
-                  <i className="pi pi-map-marker text-slate-500" /> {musico.local}
-                </span>
-              </div>
 
               <Divider className="my-2" />
 
@@ -313,7 +315,7 @@ export default function Perfil() {
             <Card className="shadow-sm">
               <div className="flex items-start justify-between">
                 <div>
-                  <div className="text-2xl font-bold">R${musico.precoHora}<span className="text-sm font-medium text-slate-500">/hora</span></div>
+                  <div className="text-2xl font-bold">R${musico.preco}<span className="text-sm font-medium text-slate-500">/hora</span></div>
                   <div className="flex items-center gap-2 text-xs text-slate-600 mt-1">
                     <Rating value={musico.rating} readOnly cancel={false} />
                     <span>{musico.rating.toFixed(2)} · {musico.reviews} avaliações</span>

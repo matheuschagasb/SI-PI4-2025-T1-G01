@@ -14,7 +14,8 @@ public record MusicoDTO(
         String email,
         String telefone,
         String fotoPerfil,
-        List<String> fotosBanda
+        List<String> fotosBanda,
+        String preco
 ) {
     public MusicoDTO(Musico musico) {
         this(
@@ -27,7 +28,8 @@ public record MusicoDTO(
                 musico.getEmail(),
                 musico.getTelefone(),
                 musico.getFotoPerfil(),
-                musico.getFotosBanda()
+                musico.getFotosBanda(),
+                musico.getPreco()
         );
     }
 }

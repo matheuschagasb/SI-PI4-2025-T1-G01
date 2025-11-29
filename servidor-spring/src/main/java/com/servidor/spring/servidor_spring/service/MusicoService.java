@@ -65,6 +65,9 @@ public class MusicoService {
         if(dados.fotosBanda() != null) {
             musico.setFotosBanda(dados.fotosBanda());
         }
+        if(dados.preco() != null) {
+            musico.setPreco(dados.preco());
+        }
 
         return musicoRepository.save(musico);
     }

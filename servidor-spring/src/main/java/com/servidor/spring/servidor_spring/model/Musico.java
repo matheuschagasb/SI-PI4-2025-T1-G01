@@ -32,6 +32,7 @@ public class Musico implements UserDetails {
     @Column(unique = true)
     private String cpf;
     private String senha;
+    private String preco;
 
     @Column(columnDefinition = "TEXT")
     private String fotoPerfil;

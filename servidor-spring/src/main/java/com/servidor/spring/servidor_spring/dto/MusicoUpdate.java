@@ -10,6 +10,7 @@ public record MusicoUpdate(
         String generoMusical,
         String telefone,
         String fotoPerfil,
-        List<String> fotosBanda
+        List<String> fotosBanda,
+        String preco
 ) {
 }

@@ -18,10 +18,10 @@ interface Musician {
     genero: string;
     generoMusical: string;
     senha: string;
-    chavePix: string;
     telefone: string;
     fotoPerfil?: string;
     fotosBanda?: string[];
+    preco?: string;
 }
 
 export default function MusicoEditarPage() {
@@ -303,17 +303,6 @@ export default function MusicoEditarPage() {
                     </div>
 
                     <div className="flex flex-col gap-2">
-                        <label htmlFor="cpf">CPF</label>
-                        <InputText 
-                            id="cpf" 
-                            value={musicianData.cpf} 
-                            onChange={(e) => handleChange('cpf', e.target.value)} 
-                            disabled={!editing} 
-                            className={inputClass} 
-                            style={!editing ? disabledInputStyle : inputStyle} />
-                    </div>
-
-                    <div className="flex flex-col gap-2">
                         <label htmlFor="genero">Gênero</label>
                         <Dropdown 
                             id="genero" 
@@ -350,6 +339,19 @@ export default function MusicoEditarPage() {
                             style={!editing ? disabledInputStyle : inputStyle} />
                     </div>
 
+                    <div className="flex flex-col gap-2">
+                        <label htmlFor="preco">Preço por Hora</label>
+                        <InputText
+                            id="preco"
+                            value={musicianData.preco}
+                            onChange={(e) => handleChange('preco', e.target.value)}
+                            disabled={!editing}
+                            className={inputClass}
+                            style={!editing ? disabledInputStyle : inputStyle}
+                            placeholder="Ex: 150.00"
+                        />
+                    </div>
+
                     <div className="md:col-span-2 mt-4">
                         <h2 className="text-lg font-semibold mb-4 border-t pt-4">Dados da Conta</h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -364,24 +366,11 @@ export default function MusicoEditarPage() {
                                     style={!editing ? disabledInputStyle : inputStyle} />
                             </div>
                             <div className="flex flex-col gap-2">
-                                <label htmlFor="senha">Senha</label>
-                                <Password 
-                                    id="senha" 
-                                    value={musicianData.senha} 
-                                    onChange={(e) => handleChange('senha', e.target.value)} 
-                                    disabled={!editing} 
-                                    feedback={false} 
-                                    toggleMask 
-                                    className={inputClass} 
-                                    style={!editing ? disabledInputStyle : inputStyle} 
-                                    inputStyle={{width: '100%'}}/>
-                            </div>
-                            <div className="flex flex-col gap-2">
                                 <label htmlFor="chavePix">Chave PIX</label>
                                 <InputText 
                                     id="chavePix" 
-                                    value={musicianData.chavePix} 
-                                    onChange={(e) => handleChange('chavePix', e.target.value)} 
+                                    value={musicianData.telefone} 
+                                    onChange={(e) => handleChange('telefone', e.target.value)} 
                                     disabled={!editing} 
                                     className={inputClass} 
                                     style={!editing ? disabledInputStyle : inputStyle} />
