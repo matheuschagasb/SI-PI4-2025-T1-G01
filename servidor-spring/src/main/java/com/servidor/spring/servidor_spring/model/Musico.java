@@ -33,6 +33,7 @@ public class Musico implements UserDetails {
     private String cpf;
     private String senha;
     private String preco;
+    private String chavePix;
 
     @Column(columnDefinition = "TEXT")
     private String fotoPerfil;

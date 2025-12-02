@@ -14,7 +14,7 @@ export default function ContratanteProfile() {
 
     async function carregarDados() {
         try {
-            const token = localStorage.getItem("token");
+            const token = localStorage.getItem("soundbridge/token");
             const response = await fetch("http://localhost:8080/v1/contratante/me", {
                 headers: { "Authorization": `Bearer ${token}` },
             });

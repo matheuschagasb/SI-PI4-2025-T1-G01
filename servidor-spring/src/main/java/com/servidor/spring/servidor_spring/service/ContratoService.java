@@ -1,6 +1,7 @@
 package com.servidor.spring.servidor_spring.service;
 
 import com.servidor.spring.servidor_spring.dto.ContratoRequestDTO;
+import com.servidor.spring.servidor_spring.exception.ForbiddenException;
 import com.servidor.spring.servidor_spring.exception.ValidationException;
 import com.servidor.spring.servidor_spring.model.*;
 import com.servidor.spring.servidor_spring.repository.ContratanteRepository;
@@ -64,6 +65,26 @@ public class ContratoService {
         contrato.setObservacoes(dados.observacoes());
         contrato.setValorTotal(valorTotal);
         contrato.setStatus(StatusContrato.PENDENTE);
+
+        return contratoRepository.save(contrato);
+    }
+
+    public Contrato confirmarPagamento(String contratoId, String emailContratante) {
+        Contrato contrato = contratoRepository.findById(contratoId)
+                .orElseThrow(() -> new ValidationException("Contrato não encontrado."));
+
+        Contratante contratante = contratanteRepository.findByEmail(emailContratante);
+
+        if (!contrato.getContratante().getId().equals(contratante.getId())) {
+            throw new ForbiddenException("Você não tem permissão para confirmar o pagamento deste contrato.");
+        }
+
+        if (contrato.getStatus() != StatusContrato.CONFIRMADO) {
+            throw new ValidationException("Este contrato não pode ser pago. Status atual: " + contrato.getStatus());
+        }
+
+        contrato.setStatus(StatusContrato.CONCLUIDO);
+        contrato.setDataPagamento(LocalDateTime.now());
 
         return contratoRepository.save(contrato);
     }

@@ -36,6 +36,13 @@ public class ContratoController {
         return ResponseEntity.created(uri).body(responseDTO);
     }
 
+    @PostMapping("/{id}/confirmar-pagamento")
+    public ResponseEntity<ContratoResponseDTO> confirmarPagamento(@PathVariable String id, Authentication authentication) {
+        String emailContratante = authentication.getName();
+        Contrato contratoAtualizado = contratoService.confirmarPagamento(id, emailContratante);
+        return ResponseEntity.ok(new ContratoResponseDTO(contratoAtualizado));
+    }
+
     @GetMapping
     public ResponseEntity<List<ContratoResponseDTO>> getContratos(
             @RequestParam String musicoId,

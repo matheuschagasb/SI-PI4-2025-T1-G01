@@ -11,6 +11,7 @@ public record MusicoUpdate(
         String telefone,
         String fotoPerfil,
         List<String> fotosBanda,
-        String preco
+        String preco,
+        String chavePix
 ) {
 }

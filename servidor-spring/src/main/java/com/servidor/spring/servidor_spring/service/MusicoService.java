@@ -1,11 +1,19 @@
 package com.servidor.spring.servidor_spring.service;
 
 import com.servidor.spring.servidor_spring.dto.MusicoUpdate;
+import com.servidor.spring.servidor_spring.exception.ForbiddenException;
+import com.servidor.spring.servidor_spring.exception.ValidationException;
+import com.servidor.spring.servidor_spring.model.Contratante;
 import com.servidor.spring.servidor_spring.model.Musico;
+import com.servidor.spring.servidor_spring.model.StatusContrato;
+import com.servidor.spring.servidor_spring.repository.ContratanteRepository;
+import com.servidor.spring.servidor_spring.repository.ContratoRepository;
 import com.servidor.spring.servidor_spring.repository.MusicoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import com.servidor.spring.servidor_spring.dto.ChavePixDTO;
+
 
 import java.util.List;
 import java.util.Optional;
@@ -15,6 +23,10 @@ public class MusicoService {
 
     @Autowired
     private MusicoRepository musicoRepository;
+    @Autowired
+    private ContratanteRepository contratanteRepository;
+    @Autowired
+    private ContratoRepository contratoRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
 
@@ -37,6 +49,29 @@ public class MusicoService {
 
     public Musico findByEmail(String email) {
         return musicoRepository.findByEmail(email);
+    }
+
+    public ChavePixDTO getChavePix(String musicoId, String contratanteEmail) {
+        Contratante contratante = contratanteRepository.findByEmail(contratanteEmail);
+        if (contratante == null) {
+            throw new ValidationException("Contratante não encontrado.");
+        }
+
+        List<StatusContrato> statuses = List.of(StatusContrato.PENDENTE, StatusContrato.CONFIRMADO);
+        boolean hasActiveContract = contratoRepository.existsByMusicoIdAndContratanteIdAndStatusIn(musicoId, contratante.getId(), statuses);
+
+        if (!hasActiveContract) {
+            throw new ForbiddenException("Você não tem permissão para visualizar a chave PIX deste músico.");
+        }
+
+        Musico musico = musicoRepository.findById(musicoId)
+                .orElseThrow(() -> new ValidationException("Músico não encontrado."));
+        
+        if (musico.getChavePix() == null || musico.getChavePix().isBlank()) {
+            throw new ValidationException("O músico ainda não cadastrou uma chave PIX.");
+        }
+
+        return new ChavePixDTO(musico.getChavePix());
     }
 
     public Musico updateMusico(String id, MusicoUpdate dados) {
@@ -67,6 +102,9 @@ public class MusicoService {
         }
         if(dados.preco() != null) {
             musico.setPreco(dados.preco());
+        }
+        if(dados.chavePix() != null) {
+            musico.setChavePix(dados.chavePix());
         }
 
         return musicoRepository.save(musico);
