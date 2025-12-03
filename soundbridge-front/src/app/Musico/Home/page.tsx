@@ -116,7 +116,7 @@ export default function MusicoHomePage() {
     };
 
     const getStatusIcon = (contrato: Contrato) => {
-        if (contrato.contratoAtivo && contrato.comprovantePagamento) {
+        if (contrato.contratoAtivo) {
             return '/icons/check-verde.svg';
         }
         return '/icons/pendente.svg';

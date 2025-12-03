@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from "react";
+import { Button } from 'primereact/button';
 
 export default function ContratanteProfile() {
     const [usuario, setUsuario] = useState(null);
@@ -114,7 +115,9 @@ export default function ContratanteProfile() {
                 <Link href="/Home" className="text-2xl font-bold text-blue-600 no-underline">SoundBridge</Link>
                 <div className="flex items-center gap-6">
                     <span className="text-sm text-gray-700">{usuario.nome}</span>
-                    <div className="w-6 h-6 rounded-full bg-gray-300" />
+                    <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-gray-700 font-semibold">
+                        {usuario.nome?.charAt(0) || 'U'}
+                    </div>
                 </div>
             </header>
 
@@ -144,6 +147,9 @@ export default function ContratanteProfile() {
                         <p className="text-sm text-gray-500">{usuario.email}</p>
                     </div>
                     <div className="ml-auto flex gap-2">
+                        <Link href="/Contratante/Home">
+                            <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Contratos</button>
+                        </Link>
                         {!isEditing ? (
                             <button onClick={() => setIsEditing(true)} className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Editar</button>
                         ) : (

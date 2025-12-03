@@ -79,11 +79,11 @@ public class ContratoService {
             throw new ForbiddenException("Você não tem permissão para confirmar o pagamento deste contrato.");
         }
 
-        if (contrato.getStatus() != StatusContrato.CONFIRMADO) {
+        if (contrato.getStatus() != StatusContrato.PENDENTE) {
             throw new ValidationException("Este contrato não pode ser pago. Status atual: " + contrato.getStatus());
         }
 
-        contrato.setStatus(StatusContrato.CONCLUIDO);
+        contrato.setStatus(StatusContrato.CONFIRMADO);
         contrato.setDataPagamento(LocalDateTime.now());
 
         return contratoRepository.save(contrato);
