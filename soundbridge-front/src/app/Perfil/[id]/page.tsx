@@ -212,7 +212,7 @@ export default function Perfil() {
       });
 
       if (response.ok) {
-        toast.current?.show({ severity: 'success', summary: 'Sucesso', detail: 'Solicitação de reserva enviada! Aguardando confirmação do músico.', life: 5000 });
+        toast.current?.show({ severity: 'success', summary: 'Sucesso', detail: 'Solicitação de reserva enviada!', life: 5000 });
         setDataReserva(null);
         setHoraReserva(null);
         setDuracao(null);

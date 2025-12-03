@@ -30,6 +30,7 @@ export default function LoginPage() {
 
             if (response.ok) {
                 const data = await response.json();
+                console.log("DATA login", data)
                 localStorage.setItem('soundbridge/token', data.token);
                 localStorage.setItem('soundbridge/id', data.id);
                 localStorage.setItem('soundbridge/nome', data.nome);

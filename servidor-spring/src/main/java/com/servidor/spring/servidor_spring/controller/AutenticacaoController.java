@@ -36,16 +36,17 @@ public class AutenticacaoController {
         String id = null;
         String cpf = null;
         String role = dados.role();
+        String nome = null;
 
         if (principal instanceof Musico) {
             Musico musico = (Musico) principal;
             id = musico.getId();
             cpf = musico.getCpf();
+            nome = musico.getNome();
         } else if (principal instanceof Contratante) {
             Contratante contratante = (Contratante) principal;
             id = contratante.getId();
         }
 
-        return ResponseEntity.ok(new DadosTokenJWT(tokenJWT, id, role, cpf));
-    }
+        return ResponseEntity.ok(new DadosTokenJWT(tokenJWT, id, role, cpf, nome));    }
 }
