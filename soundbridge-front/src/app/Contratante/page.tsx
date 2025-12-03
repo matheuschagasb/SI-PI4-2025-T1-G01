@@ -144,7 +144,12 @@ export default function ContratanteProfile() {
                         <p className="text-sm text-gray-500">{usuario.email}</p>
                     </div>
                     <div className="ml-auto flex gap-2">
-                        {!isEditing ? (
+                    <Link href="/contrato">
+                    <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+                        Contratos
+                    </button>
+                    </Link>                       
+                     {!isEditing ? (
                             <button onClick={() => setIsEditing(true)} className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Editar</button>
                         ) : (
                             <>
