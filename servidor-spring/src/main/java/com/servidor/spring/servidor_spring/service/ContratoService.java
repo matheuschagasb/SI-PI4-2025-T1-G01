@@ -93,6 +93,10 @@ public class ContratoService {
         return contratoRepository.findByMusicoIdOrderByDataEventoDesc(musicoId);
     }
 
+    public List<Contrato> getContratosByContratanteId(String contratanteId) {
+        return contratoRepository.findByContratanteIdOrderByDataEventoDesc(contratanteId);
+    }
+
     private LocalDateTime parseDataHora(String data, String hora) {
         try {
             DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");

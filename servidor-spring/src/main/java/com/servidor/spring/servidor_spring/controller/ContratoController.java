@@ -4,6 +4,7 @@ import com.servidor.spring.servidor_spring.dto.ContratoRequestDTO;
 import com.servidor.spring.servidor_spring.dto.ContratoResponseDTO;
 import com.servidor.spring.servidor_spring.exception.ForbiddenException;
 import com.servidor.spring.servidor_spring.model.Contrato;
+import com.servidor.spring.servidor_spring.model.Contratante;
 import com.servidor.spring.servidor_spring.model.Musico;
 import com.servidor.spring.servidor_spring.service.ContratoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,6 +60,22 @@ public class ContratoController {
         }
 
         List<Contrato> contratos = contratoService.getContratosByMusicoId(musicoId);
+        List<ContratoResponseDTO> responseDTOs = contratos.stream()
+                .map(ContratoResponseDTO::new)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(responseDTOs);
+    }
+
+    @GetMapping("/contratante")
+    public ResponseEntity<List<ContratoResponseDTO>> getContratosParaContratante(Authentication authentication) {
+        Object principal = authentication.getPrincipal();
+        if (!(principal instanceof Contratante)) {
+            throw new ForbiddenException("Acesso negado. Apenas contratantes podem visualizar seus contratos.");
+        }
+
+        Contratante authenticatedContratante = (Contratante) principal;
+        List<Contrato> contratos = contratoService.getContratosByContratanteId(authenticatedContratante.getId());
         List<ContratoResponseDTO> responseDTOs = contratos.stream()
                 .map(ContratoResponseDTO::new)
                 .collect(Collectors.toList());

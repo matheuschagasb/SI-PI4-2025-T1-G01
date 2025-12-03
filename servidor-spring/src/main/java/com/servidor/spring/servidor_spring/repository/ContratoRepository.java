@@ -13,6 +13,8 @@ public interface ContratoRepository extends JpaRepository<Contrato, String> {
 
     List<Contrato> findByMusicoIdOrderByDataEventoDesc(String musicoId);
 
+    List<Contrato> findByContratanteIdOrderByDataEventoDesc(String contratanteId);
+
     boolean existsByMusicoIdAndContratanteIdAndStatusIn(String musicoId, String contratanteId, List<StatusContrato> statuses);
 
     @Query(value = "SELECT * FROM contrato c WHERE c.musico_id = :musicoId " +

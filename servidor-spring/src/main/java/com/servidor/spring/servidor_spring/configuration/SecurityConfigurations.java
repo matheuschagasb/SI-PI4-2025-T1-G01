@@ -45,6 +45,7 @@ public class SecurityConfigurations {
                     req.requestMatchers(HttpMethod.GET, "/v1/contratante/me").hasRole("CONTRATANTE");
                     req.requestMatchers(HttpMethod.POST, "/v1/contratos").authenticated();
                     req.requestMatchers(HttpMethod.GET, "/v1/contratos").hasRole("MUSICO");
+                    req.requestMatchers(HttpMethod.GET, "/v1/contratos/contratante").hasRole("CONTRATANTE");
                     req.requestMatchers("/hello-world").permitAll();
                     req.anyRequest().authenticated();
                 })
@@ -65,7 +66,7 @@ public class SecurityConfigurations {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://192.168.15.5:3000"));
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://192.168.15.63:3000"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
