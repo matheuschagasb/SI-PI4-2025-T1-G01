@@ -19,5 +19,12 @@
             <artifactId>postgresql</artifactId>
             <version>42.2.23</version>
         </dependency>
+
+        <!-- jBCrypt for password validation -->
+        <dependency>
+            <groupId>org.mindrot</groupId>
+            <artifactId>jbcrypt</artifactId>
+            <version>0.4</version>
+        </dependency>
     </dependencies>
 </project>
