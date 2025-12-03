@@ -12,7 +12,6 @@ import com.servidor.spring.servidor_spring.repository.MusicoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import com.servidor.spring.servidor_spring.dto.ChavePixDTO;
 
 
 import java.util.List;
@@ -51,28 +50,6 @@ public class MusicoService {
         return musicoRepository.findByEmail(email);
     }
 
-    public ChavePixDTO getChavePix(String musicoId, String contratanteEmail) {
-        Contratante contratante = contratanteRepository.findByEmail(contratanteEmail);
-        if (contratante == null) {
-            throw new ValidationException("Contratante não encontrado.");
-        }
-
-        List<StatusContrato> statuses = List.of(StatusContrato.PENDENTE, StatusContrato.CONFIRMADO);
-        boolean hasActiveContract = contratoRepository.existsByMusicoIdAndContratanteIdAndStatusIn(musicoId, contratante.getId(), statuses);
-
-        if (!hasActiveContract) {
-            throw new ForbiddenException("Você não tem permissão para visualizar a chave PIX deste músico.");
-        }
-
-        Musico musico = musicoRepository.findById(musicoId)
-                .orElseThrow(() -> new ValidationException("Músico não encontrado."));
-        
-        if (musico.getChavePix() == null || musico.getChavePix().isBlank()) {
-            throw new ValidationException("O músico ainda não cadastrou uma chave PIX.");
-        }
-
-        return new ChavePixDTO(musico.getChavePix());
-    }
 
     public Musico updateMusico(String id, MusicoUpdate dados) {
         Musico musico = musicoRepository.findById(id).orElseThrow();

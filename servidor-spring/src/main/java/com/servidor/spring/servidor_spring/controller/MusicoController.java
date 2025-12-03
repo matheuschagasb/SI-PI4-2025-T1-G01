@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import com.servidor.spring.servidor_spring.dto.ChavePixDTO;
 
 
 import java.util.List;
@@ -38,12 +37,7 @@ public class MusicoController {
         }
     }
 
-    @GetMapping("/{id}/pix")
-    public ResponseEntity<ChavePixDTO> getChavePix(@PathVariable String id, Authentication auth) {
-        String email = auth.getName();
-        ChavePixDTO chavePixDTO = musicoService.getChavePix(id, email);
-        return ResponseEntity.ok(chavePixDTO);
-    }
+
 
     @PostMapping
     public Musico createMusico(@RequestBody Musico musico) {
