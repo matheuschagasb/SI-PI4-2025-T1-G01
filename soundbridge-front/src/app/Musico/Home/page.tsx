@@ -4,6 +4,8 @@ import { useRouter } from 'next/navigation';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { Button } from 'primereact/button';
 import Image from 'next/image';
+import Link from 'next/link';
+import { Avatar } from 'primereact/avatar';
 
 interface Contrato {
     id: string;
@@ -134,16 +136,25 @@ export default function MusicoHomePage() {
         <div className="min-h-screen bg-white">
             {/* Header */}
             <header className="flex items-center justify-between px-8 py-4 border-b border-gray-200">
-                <h1 className="text-2xl font-bold text-[#1379E6]">SoundBridge</h1>
-                <div className="flex items-center gap-4">
-                    <span className="text-sm text-gray-700">{nomeMusico}</span>
-                    <button className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
-                        <Image src="/icons/details/menu.png" alt="Menu" width={20} height={20} />
-                    </button>
-                    <button className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-gray-700 font-semibold">
-                        {nomeMusico?.charAt(0) || 'U'}
-                    </button>
+            <Link href="#" className="text-2xl font-bold text-blue-600 no-underline hover:text-blue-700 transition-colors">
+              SoundBridge
+            </Link>
+
+                            <div className="flex items-center gap-4">
+              <span className="font-medium text-gray-700 hidden sm:block"></span>
+              
+              <button className="p-2 text-gray-600 hover:bg-gray-100 rounded-full transition-colors" title="Idioma">
+                <i className="pi pi-globe text-xl"></i>
+              </button>
+              
+              <Link href="/Musico/Editar">
+                <div className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 p-1 pr-2 rounded-full border border-gray-200 transition-all shadow-sm hover:shadow-md">
+                  <i className="pi pi-bars text-lg ml-2 text-gray-600"></i>
+                  <Avatar icon="pi pi-user" shape="circle" className="bg-blue-600 text-white" />
                 </div>
+              </Link>
+            </div>
+            
             </header>
 
             {/* Main Content */}

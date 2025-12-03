@@ -5,6 +5,7 @@ import { ProgressSpinner } from 'primereact/progressspinner';
 import { Button } from 'primereact/button';
 import Image from 'next/image';
 import { TabView, TabPanel } from 'primereact/tabview';
+import Link from 'next/link';
 
 interface Contrato {
   id: string;
@@ -218,8 +219,10 @@ export default function ContratanteHomePage() {
     return (
         <div className="min-h-screen bg-white">
             <header className="flex items-center justify-between px-8 py-4 border-b border-gray-200">
-                <h1 className="text-2xl font-bold text-[#1379E6]">SoundBridge</h1>
-                <div className="flex items-center gap-4">
+            <Link href="#" className="text-2xl font-bold text-blue-600 no-underline hover:text-blue-700 transition-colors">
+              SoundBridge
+            </Link>
+                            <div className="flex items-center gap-4">
                     <span className="text-sm text-gray-700">{nomeContratante}</span>
                     <button className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-gray-700 font-semibold">
                         {nomeContratante?.charAt(0) || 'U'}
