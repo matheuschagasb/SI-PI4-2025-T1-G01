@@ -125,15 +125,17 @@ export default function LoginPage() {
                         inputStyle={inputStyle}
                     />
 
+                    {/*
                     <div className="flex justify-end -mt-1 mb-1">
                         <Button
-                            label="Esqueceu a senha?"
+                            label="Esqueceu a senha?"SS
                             className="p-button-link p-0 text-blue-500 text-[11px]"
                             type="button"
                             onClick={() => router.push('/ForgotPassword')}
                             tabIndex={-1}
-                        />
+                        />SS
                     </div>
+                    */}
 
                     {error && (
                         <div className="text-red-500 text-center text-xs mb-2">

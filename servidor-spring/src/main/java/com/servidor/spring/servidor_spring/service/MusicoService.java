@@ -67,11 +67,11 @@ public class MusicoService {
         Musico musico = musicoRepository.findById(musicoId)
                 .orElseThrow(() -> new ValidationException("Músico não encontrado."));
         
-        if (musico.getChavePix() == null || musico.getChavePix().isBlank()) {
-            throw new ValidationException("O músico ainda não cadastrou uma chave PIX.");
+        if (musico.getTelefone() == null || musico.getTelefone().isBlank()) {
+            throw new ValidationException("O músico ainda não cadastrou um telefone para chave PIX.");
         }
 
-        return new ChavePixDTO(musico.getChavePix());
+        return new ChavePixDTO(musico.getTelefone());
     }
 
     public Musico updateMusico(String id, MusicoUpdate dados) {
