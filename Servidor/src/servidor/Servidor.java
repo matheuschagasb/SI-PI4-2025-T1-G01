@@ -48,7 +48,7 @@ public class Servidor {
                 exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
                 if (exchange.getRequestMethod().equalsIgnoreCase("OPTIONS")) {
-                    exchange.sendResponseHeaders(204, -1); // No Content
+                    exchange.sendResponseHeaders(204, -1);
                     return;
                 }
                 
