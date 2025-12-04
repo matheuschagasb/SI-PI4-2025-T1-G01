@@ -4,7 +4,6 @@ package servidor;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonParseException;
 
 import java.io.IOException;
 import java.net.URI;
@@ -13,7 +12,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Map;
 
 // Esta classe é responsável por encaminhar as requisições para o servidor de backend.
 public class ProxyService {
