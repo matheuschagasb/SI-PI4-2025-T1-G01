@@ -48,7 +48,7 @@ export default function MusicoHomePage() {
 
     const fetchContracts = async (musicianId: string, authToken: string) => {
         try {
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+            const apiUrl = 'http://localhost:3001';
             const response = await fetch(`${apiUrl}/v1/contratos?musicoId=${musicianId}`, {
                 method: 'GET',
                 headers: {
@@ -86,7 +86,7 @@ export default function MusicoHomePage() {
                 if (nomeArmazenado) {
                     setNomeMusico(nomeArmazenado);
                 } else {
-                    const responseName = await fetch(`http://localhost:8080/v1/musico/${id}`);
+                    const responseName = await fetch(`http://localhost:3001/v1/musico/${id}`);
                     if (responseName.ok) {
                         const musicoData = await responseName.json();
                         setNomeMusico(musicoData.nome || 'Músico');

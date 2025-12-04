@@ -1,127 +1,102 @@
-# Backend SoundBridge (Servidor Java)
+# SoundBridge Project
 
-Este documento fornece uma visão geral do servidor backend do projeto SoundBridge, incluindo sua arquitetura, como executá-lo e o padrão para adicionar novas funcionalidades.
+SoundBridge é uma plataforma completa projetada para conectar músicos talentosos a contratantes de eventos. A aplicação permite que músicos criem perfis, exibam seu trabalho e sejam contratados, enquanto os contratantes podem buscar artistas por gênero e gerenciar contratos.
 
-## Visão Geral
+## Arquitetura Geral
 
-Este servidor é responsável por toda a lógica de negócio da aplicação SoundBridge. Ele expõe uma API RESTful que o frontend (e outros clientes) pode consumir para realizar ações como login, cadastro, busca de dados, etc.
+O projeto é construído sobre uma arquitetura moderna de 3 camadas, garantindo separação de responsabilidades, escalabilidade e manutenibilidade.
 
-## Arquitetura
+`Frontend (Porta 3000)` <-> `Proxy Server (Porta 3001)` <-> `Backend API (Porta 8080)` <-> `Banco de Dados (PostgreSQL)`
 
-Para manter a simplicidade e evitar dependências externas, o servidor foi construído utilizando apenas bibliotecas nativas do Java (Java SE).
+1.  **Frontend:** A interface do usuário, com a qual músicos e contratantes interagem.
+2.  **Servidor Proxy:** Um intermediário que recebe todas as requisições do frontend e as encaminha para o backend. Ele resolve problemas de CORS e serve como um ponto de entrada único para a API.
+3.  **Backend API:** O cérebro da aplicação, onde toda a lógica de negócios, segurança e comunicação com o banco de dados acontece.
 
-- **Servidor HTTP:** Utiliza a classe `com.sun.net.httpserver.HttpServer`, que faz parte do JDK padrão. É um servidor leve e robusto para lidar com requisições HTTP.
-- **Roteamento:** O roteamento é feito manualmente no arquivo `Servidor/src/Main.java`, associando caminhos de URL (ex: `/api/login`) a classes `HttpHandler` específicas.
-- **Manipulação de JSON:** Para ler e escrever JSON sem bibliotecas externas (como Gson ou Jackson), utilizamos o motor de JavaScript embutido no Java (Nashorn/GraalVM JS) para executar `JSON.parse()` e para criar strings JSON manualmente.
+---
 
-## Pré-requisitos
+## Componentes do Projeto
 
-- **Java Development Kit (JDK)**: Versão 8 ou superior.
-  - **Atenção:** O motor de JavaScript Nashorn foi removido no JDK 15. Se estiver usando JDK 15 ou superior, pode ser necessário garantir que um motor de script compatível com JavaScript (como o GraalVM JS) esteja disponível no seu ambiente, ou o servidor falhará ao tentar processar JSON.
+### 1. Frontend (`soundbridge-front/`)
 
-## Como Executar o Servidor
+Interface de usuário rica e interativa para a plataforma.
 
-1.  **Navegue até a pasta do servidor:**
-    ```bash
-    cd /home/marcos-junior/Documentos/PUC/airane/Servidor
-    ```
+-   **Tecnologia:** Next.js, React, TypeScript.
+-   **Responsabilidades:** Renderizar a interface, gerenciar o estado do lado do cliente e enviar requisições HTTP para o Servidor Proxy.
 
-2.  **Compile todos os arquivos `.java`:**
-    ```bash
-    javac src/*.java
-    ```
-    *Se aparecerem avisos de "unchecked cast", você pode ignorá-los ou usar a flag `-Xlint:unchecked` para ver os detalhes. Eles são esperados devido à forma como o JSON é processado.*
+### 2. Servidor Proxy (`Servidor/`)
 
-3.  **Execute a classe principal:**
-    ```bash
-    java src.Main
-    ```
-    Por padrão, o servidor iniciará na porta `8080`.
+Um servidor proxy HTTP leve, construído em Java puro, que atua como uma ponte entre o frontend e o backend.
 
-4.  **Para especificar uma porta diferente:**
-    ```bash
-    java src.Main 9000
-    ```
+-   **Tecnologia:** Java 11, `HttpServer` nativo, Maven.
+-   **Responsabilidades:**
+    -   Receber requisições da porta `3001`.
+    -   Gerenciar o CORS para permitir a comunicação com o frontend.
+    -   Encaminhar as requisições de forma transparente para a API Backend na porta `8080`.
+    -   Retornar as respostas do backend para o frontend.
 
-5.  **Para parar o servidor:**
-    Digite `desativar` no terminal onde o servidor está rodando e pressione Enter.
+### 3. Backend API (`servidor-spring/`)
 
-## Criando Novos Endpoints
+A API RESTful que implementa toda a lógica de negócios e persistência de dados do SoundBridge.
 
-Siga este padrão para garantir a consistência do projeto.
+-   **Tecnologia:** Java 21, Spring Boot, Spring Data JPA, Spring Security, Hibernate.
+-   **Banco de Dados:** PostgreSQL.
+-   **Responsabilidades:**
+    -   Expor endpoints REST para operações como login, gerenciamento de usuários, contratos, etc.
+    -   Validar dados e regras de negócio.
+    -   Autenticar e autorizar usuários usando tokens JWT.
+    -   Persistir todos os dados da aplicação no banco de dados PostgreSQL.
 
-### 1. Crie a Classe Handler
+---
 
-Para cada novo endpoint (ex: `/api/cadastro`), crie uma nova classe em `Servidor/src/` que implemente a interface `HttpHandler`. Use o `LoginHandler.java` como modelo.
+## Como Executar a Aplicação Completa
 
-**Exemplo de esqueleto para `CadastroHandler.java`:**
+Siga os passos abaixo para configurar e executar todo o ambiente de desenvolvimento local.
 
-```java
-package src;
+### Pré-requisitos
 
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
-import java.io.IOException;
-// ... outros imports
+-   **Java (JDK):** Versão 11 ou superior.
+-   **Node.js e npm:** Para executar o projeto frontend.
+-   **Maven:** Para compilar e executar o Servidor Proxy.
+-   **PostgreSQL:** Um servidor de banco de dados rodando localmente.
 
-public class CadastroHandler implements HttpHandler {
+### Passo 1: Configurar o Banco de Dados
 
-    @Override
-    @SuppressWarnings("unchecked")
-    public void handle(HttpExchange exchange) throws IOException {
-        // 1. Configurar CORS e tratar requisições OPTIONS
-        // (Copie esta parte do LoginHandler)
+1.  Certifique-se de que seu servidor PostgreSQL esteja ativo.
+2.  Crie um banco de dados chamado `servidor-spring`.
+3.  Verifique as credenciais de acesso (`username`, `password`) no arquivo `servidor-spring/src/main/resources/application.properties` e ajuste-as conforme a sua configuração local.
 
-        // 2. Verificar se o método é POST (ou o que for apropriado)
-        if (!"POST".equalsIgnoreCase(exchange.getRequestMethod())) {
-            // Enviar erro 405 Method Not Allowed
-            return;
-        }
+### Passo 2: Executar o Backend API
 
-        try {
-            // 3. Ler e parsear o corpo da requisição JSON
-            // (Use o motor de JavaScript como no LoginHandler)
-
-            // 4. Extrair os dados do Map
-            // String nome = (String) dadosDoCadastro.get("nome");
-            
-            // 5. APLICAR SUA LÓGICA DE NEGÓCIO AQUI
-            // (Ex: salvar o usuário no banco de dados)
-
-            // 6. Enviar uma resposta de sucesso ou erro em JSON
-            
-        } catch (Exception e) {
-            // Tratar exceções e enviar erro 500
-        }
-    }
-    
-    // Copie o método sendResponse do LoginHandler para cá
-    private void sendResponse(HttpExchange exchange, int statusCode, String response) throws IOException {
-        // ...
-    }
-}
-```
-
-### 2. Registre o Handler no `Main.java`
-
-No arquivo `Servidor/src/Main.java`, dentro do método `main`, adicione uma linha para registrar seu novo handler, associando-o a um caminho de URL.
-
-```java
-// ...
-server.createContext("/api/login", new LoginHandler());
-server.createContext("/api/cadastro", new CadastroHandler()); // Nova linha
-// ...
-```
-
-## Testando os Endpoints
-
-Endpoints `GET` podem ser testados no navegador. Para endpoints `POST`, `PUT`, ou `DELETE`, você precisa de uma ferramenta de API como [Postman](https://www.postman.com/), [Insomnia](https://insomnia.rest/), ou o comando `curl`.
-
-**Exemplo de teste para o endpoint de login com `curl`:**
+Abra um terminal e execute os seguintes comandos:
 
 ```bash
-curl -X POST \
-  -H "Content-Type: application/json" \
-  -d '{"email":"user@puc.com", "senha":"1234"}' \
-  http://localhost:8080/api/login
+cd servidor-spring
+./mvnw spring-boot:run
 ```
+> O backend estará rodando em `http://localhost:8080`.
+
+### Passo 3: Executar o Servidor Proxy
+
+Abra um **novo terminal** e execute os seguintes comandos:
+
+```bash
+cd Servidor
+mvn compile exec:java
+```
+> O proxy estará rodando em `http://localhost:3001`.
+
+### Passo 4: Executar o Frontend
+
+Abra um **terceiro terminal** e execute os seguintes comandos:
+
+```bash
+cd soundbridge-front
+npm install
+npm run dev
+```
+> O frontend estará rodando em `http://localhost:3000`.
+
+### Passo 5: Acessar a Aplicação
+
+Abra seu navegador e acesse **`http://localhost:3000`**. Agora você pode interagir com a aplicação completa.
+

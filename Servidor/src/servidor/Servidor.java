@@ -1,142 +1,119 @@
 package servidor;
 
-import comunicacao.ComunicadoDeDesligamento;
-import comunicacao.Parceiro;
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
+import com.sun.net.httpserver.HttpServer;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
+import java.net.http.HttpResponse;
+import java.util.List;
+import java.util.Scanner;
+import java.util.concurrent.Executors;
 
 public class Servidor {
-    public static String PORTA_PADRAO = "3000";
-    private static Set<String> ipsPermitidos = new HashSet<>();
+    private static final int PORTA_PADRAO = 3001; // Changed to avoid conflict with front-end
 
-    public static void main(String[] args) {
-        System.out.println("=== SERVIDOR SOUNDBRIDGE - TCP SOCKET ===\n");
-
-        // Carregar IPs permitidos
-        carregarWhitelist();
-
-        // Solicitar configurações
-        String porta = solicitarPorta();
-        String host = solicitarHost();
-
-        ArrayList<Parceiro> usuarios = new ArrayList<>();
-
-        AceitadoraDeConexao aceitadoraDeConexao = null;
-        try {
-            aceitadoraDeConexao = new AceitadoraDeConexao(porta, host, usuarios, ipsPermitidos);
-            aceitadoraDeConexao.start();
-        } catch (Exception erro) {
-            System.err.println("Erro ao iniciar servidor: " + erro.getMessage());
-            System.err.println("Escolha uma porta apropriada e liberada para uso!\n");
-            return;
+    public static void main(String[] args) throws IOException {
+        int porta = PORTA_PADRAO;
+        if (args.length > 0) {
+            try {
+                porta = Integer.parseInt(args[0]);
+            } catch (NumberFormatException e) {
+                System.err.println("A porta deve ser um número. Usando a porta padrão: " + porta);
+            }
         }
 
-        System.out.println("\n✅ Servidor ativo em " + host + ":" + porta);
-        System.out.println("📋 IPs permitidos: " + ipsPermitidos.size() + " endereços carregados");
+        HttpServer server = HttpServer.create(new InetSocketAddress(porta), 0);
 
-        // Loop principal
-        for (;;) {
-            System.out.println("\n==========================================");
-            System.out.println("O servidor esta ativo!");
-            System.out.println("Comandos disponiveis:");
-            System.out.println("  - 'desativar' : Desliga o servidor");
-            System.out.println("  - 'status'    : Mostra usuarios conectados");
-            System.out.println("==========================================");
-            System.out.print("> ");
+        // A single handler to proxy all requests
+        server.createContext("/", new ProxyHandler());
 
-            String comando = null;
+        server.setExecutor(Executors.newCachedThreadPool());
+        server.start();
+
+        System.out.println("✅ Servidor Proxy HTTP iniciado na porta " + porta);
+        System.out.println("Pressione Ctrl+C para parar o servidor.");
+    }
+
+    static class ProxyHandler implements HttpHandler {
+        private final ProxyService proxyService = new ProxyService();
+
+        @Override
+        public void handle(HttpExchange exchange) throws IOException {
             try {
-                comando = Teclado.getUmString();
-            } catch (Exception erro) {
-            }
+                // --- CORS Handling ---
+                exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+                exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+                exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
-            if (comando == null || comando.trim().isEmpty()) {
-                continue;
-            }
+                if (exchange.getRequestMethod().equalsIgnoreCase("OPTIONS")) {
+                    exchange.sendResponseHeaders(204, -1); // No Content
+                    return;
+                }
+                
+                // --- Request Forwarding ---
+                String path = exchange.getRequestURI().getPath();
+                String query = exchange.getRequestURI().getQuery();
+                if (query != null && !query.isEmpty()) {
+                    path += "?" + query;
+                }
 
-            comando = comando.toLowerCase().trim();
+                String method = exchange.getRequestMethod();
+                String requestBody = readRequestBody(exchange.getRequestBody());
+                String authToken = extractAuthToken(exchange.getRequestHeaders().getFirst("Authorization"));
+                
+                System.out.println("➡️  Proxying request: " + method + " " + path);
 
-            if (comando.equals("desativar")) {
-                System.out.println("\n🔄 Encerrando servidor...");
-                synchronized (usuarios) {
-                    ComunicadoDeDesligamento comunicadoDeDesligamento = new ComunicadoDeDesligamento();
+                HttpResponse<String> backendResponse = proxyService.forwardRequest(path, method, requestBody, authToken);
 
-                    System.out.println("📤 Notificando " + usuarios.size() + " cliente(s) conectado(s)...");
-                    for (Parceiro usuario : usuarios) {
-                        try {
-                            usuario.receba(comunicadoDeDesligamento);
-                            usuario.adeus();
-                        } catch (Exception erro) {
-                            System.err.println("⚠️  Erro ao notificar cliente: " + erro.getMessage());
+                // --- Response Piping ---
+                // Copy headers from backend response to frontend response
+                backendResponse.headers().map().forEach((key, values) -> {
+                    if (!key.equalsIgnoreCase("Content-Encoding") && !key.equalsIgnoreCase("Transfer-Encoding")) {
+                        for(String value : values) {
+                            exchange.getResponseHeaders().add(key, value);
                         }
                     }
-                }
+                });
+                
+                int statusCode = backendResponse.statusCode();
+                String responseBody = backendResponse.body();
+                byte[] responseBytes = responseBody.getBytes("UTF-8");
 
-                System.out.println("✅ O servidor foi desativado!\n");
-                System.exit(0);
-            } else if (comando.equals("status")) {
-                synchronized (usuarios) {
-                    System.out.println("\n📊 STATUS DO SERVIDOR");
-                    System.out.println("Usuários conectados: " + usuarios.size());
-                    if (usuarios.isEmpty()) {
-                        System.out.println("(Nenhum cliente conectado no momento)");
-                    }
-                }
-            } else {
-                System.err.println("❌ Comando invalido! Use 'desativar' ou 'status'\n");
+                exchange.sendResponseHeaders(statusCode, responseBytes.length);
+
+                OutputStream os = exchange.getResponseBody();
+                os.write(responseBytes);
+                os.close();
+
+                System.out.println("⬅️  Request proxied successfully with status " + statusCode);
+
+            } catch (Exception e) {
+                System.err.println("❌ Erro no handler do proxy: " + e.getMessage());
+                e.printStackTrace();
+                String errorResponse = "{\"error\":\"Erro interno no servidor proxy.\"}";
+                byte[] responseBytes = errorResponse.getBytes("UTF-8");
+                exchange.sendResponseHeaders(500, responseBytes.length);
+                OutputStream os = exchange.getResponseBody();
+                os.write(responseBytes);
+                os.close();
             }
         }
-    }
 
-    private static void carregarWhitelist() {
-        try {
-            File arquivo = new File("resources/whitelist.txt");
-            if (!arquivo.exists()) {
-                System.out.println("⚠️  Arquivo whitelist.txt não encontrado. Criando com valores padrão...");
-                // Adiciona IPs padrão
-                ipsPermitidos.add("127.0.0.1");
-                ipsPermitidos.add("0:0:0:0:0:0:0:1"); // IPv6 localhost
-                return;
+        private String readRequestBody(InputStream is) {
+            try (Scanner s = new Scanner(is).useDelimiter("\\A")) {
+                return s.hasNext() ? s.next() : "";
             }
+        }
 
-            BufferedReader reader = new BufferedReader(new FileReader(arquivo));
-            String linha;
-            while ((linha = reader.readLine()) != null) {
-                linha = linha.trim();
-                if (!linha.isEmpty() && !linha.startsWith("#")) {
-                    ipsPermitidos.add(linha);
-                    if (linha.equals("localhost")) {
-                        ipsPermitidos.add("127.0.0.1");
-                        ipsPermitidos.add("0:0:0:0:0:0:0:1");
-                    }
-                }
+        private String extractAuthToken(String authHeader) {
+            if (authHeader != null && authHeader.toLowerCase().startsWith("bearer ")) {
+                return authHeader.substring(7);
             }
-            reader.close();
-            System.out.println("✅ Whitelist carregada: " + ipsPermitidos.size() + " IPs permitidos");
-        } catch (IOException e) {
-            System.err.println("⚠️  Erro ao carregar whitelist: " + e.getMessage());
-            System.out.println("Usando apenas localhost como padrão.");
-            ipsPermitidos.add("127.0.0.1");
-            ipsPermitidos.add("0:0:0:0:0:0:0:1");
+            return null;
         }
-    }
-
-    private static String solicitarPorta() {
-        System.out.print("Digite a porta do servidor [" + PORTA_PADRAO + "]: ");
-        String porta = Teclado.getUmString();
-        if (porta == null || porta.trim().isEmpty()) {
-            porta = PORTA_PADRAO;
-        }
-        return porta.trim();
-    }
-
-    private static String solicitarHost() {
-        System.out.print("Digite o host do servidor [localhost]: ");
-        String host = Teclado.getUmString();
-        if (host == null || host.trim().isEmpty()) {
-            host = "localhost";
-        }
-        return host.trim();
     }
 }

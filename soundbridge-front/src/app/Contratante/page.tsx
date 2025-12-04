@@ -16,7 +16,7 @@ export default function ContratanteProfile() {
     async function carregarDados() {
         try {
             const token = localStorage.getItem("soundbridge/token");
-            const response = await fetch("http://localhost:8080/v1/contratante/me", {
+            const response = await fetch("http://localhost:3001/v1/contratante/me", {
                 headers: { "Authorization": `Bearer ${token}` },
             });
 
@@ -78,7 +78,7 @@ export default function ContratanteProfile() {
                 fotoPerfil: formData.fotoPerfil
             };
 
-            const response = await fetch(`http://localhost:8080/v1/contratante/${usuario.id}`, {
+            const response = await fetch(`http://localhost:3001/v1/contratante/${usuario.id}`, {
                 method: "PUT",
                 headers: {
                     "Authorization": `Bearer ${token}`,

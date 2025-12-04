@@ -54,7 +54,7 @@ export default function Signup() {
     let payload: any = {};
 
     if (formData.role === 'musico') {
-      url = 'http://localhost:8080/v1/musico';
+      url = 'http://localhost:3001/v1/musico';
       payload = {
         nome: formData.nomeArtistico,
         cpf: formData.cpf,
@@ -67,7 +67,7 @@ export default function Signup() {
         senha: formData.password,
       };
     } else if (formData.role === 'contratante') {
-      url = 'http://localhost:8080/v1/contratante';
+      url = 'http://localhost:3001/v1/contratante';
       payload = {
         nome: formData.nome,
         email: formData.email,

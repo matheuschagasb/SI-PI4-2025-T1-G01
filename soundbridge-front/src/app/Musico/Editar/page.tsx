@@ -35,7 +35,7 @@ export default function MusicoEditarPage() {
         setLoading(true);
         try {
             const id = localStorage.getItem('soundbridge/id');
-            const response = await fetch(`http://localhost:8080/v1/musico/${id}`);
+            const response = await fetch(`http://localhost:3001/v1/musico/${id}`);
             if (!response.ok) {
                 throw new Error(`Failed to fetch musician data. Status: ${response.status}`);
             }
@@ -152,8 +152,7 @@ export default function MusicoEditarPage() {
         }
 
         try {
-            // TODO: Ajustar endpoint para PUT /v1/musico/{id} quando backend estiver pronto
-            const response = await fetch(`http://localhost:8080/v1/musico/${musicianData.id}`, {
+            const response = await fetch(`http://localhost:3001/v1/musico/${musicianData.id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

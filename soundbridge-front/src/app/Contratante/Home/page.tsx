@@ -6,6 +6,7 @@ import { Button } from 'primereact/button';
 import Image from 'next/image';
 import { TabView, TabPanel } from 'primereact/tabview';
 
+const apiUrl = 'http://localhost:3001';
 interface Contrato {
   id: string;
   musico: {
@@ -47,7 +48,6 @@ export default function ContratanteHomePage() {
 
     const fetchContracts = async (authToken: string) => {
         try {
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
             const response = await fetch(`${apiUrl}/v1/contratos/contratante`, {
                 method: 'GET',
                 headers: {
@@ -106,7 +106,7 @@ export default function ContratanteHomePage() {
         }
 
         try {
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
             const response = await fetch(`${apiUrl}/v1/contratos/${contratoId}/confirmar-pagamento`, {
                 method: 'POST',
                 headers: {
