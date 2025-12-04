@@ -1,3 +1,7 @@
+/*
+ * Thiago Mauri Gonzalez – 24015357
+ */
+
 package com.servidor.spring.servidor_spring.infra.security;
 
 import com.servidor.spring.servidor_spring.repository.ContratanteRepository;
@@ -15,6 +19,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+// Filtro que intercepta todas as requisições para validar o token JWT
 @Component
 public class SecurityFilter extends OncePerRequestFilter {
 
@@ -35,6 +40,7 @@ public class SecurityFilter extends OncePerRequestFilter {
             var subject = tokenService.getSubject(tokenJWT);
             var role = tokenService.getClaim(tokenJWT, "role");
 
+            // Busca usuário de acordo com a role do token
             UserDetails userDetails = null;
             if ("ROLE_MUSICO".equals(role)) {
                 userDetails = musicoRepository.findByEmail(subject);
@@ -43,6 +49,7 @@ public class SecurityFilter extends OncePerRequestFilter {
             }
 
             if (userDetails != null) {
+                // Autentica o usuário no contexto do Spring Security
                 var authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
@@ -51,6 +58,7 @@ public class SecurityFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
+    // Extrai o token JWT do cabeçalho Authorization
     private String recuperarToken(HttpServletRequest request) {
         var authorizationHeader = request.getHeader("Authorization");
         if (authorizationHeader != null) {

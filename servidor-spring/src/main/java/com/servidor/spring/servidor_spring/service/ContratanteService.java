@@ -1,3 +1,7 @@
+/*
+ * Autor: Victor Ramalho Borges de Souza – 24007532
+ */
+
 package com.servidor.spring.servidor_spring.service;
 
 import com.servidor.spring.servidor_spring.model.Contratante;
@@ -7,6 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.servidor.spring.servidor_spring.dto.ContratanteUpdate;
 
+// Serviço com lógica de negócio para Contratante
 @Service
 public class ContratanteService {
     @Autowired
@@ -14,6 +19,7 @@ public class ContratanteService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    // Cria novo contratante com senha criptografada
     public Contratante createContratante(Contratante contratante) {
         contratante.setSenha(passwordEncoder.encode(contratante.getSenha()));
         return contratanteRepository.save(contratante);
@@ -23,6 +29,7 @@ public class ContratanteService {
         return (Contratante) contratanteRepository.findByEmail(email);
     }
 
+    // Atualiza dados do contratante (atualiza apenas campos não nulos)
     public Contratante updateContratante(String id, ContratanteUpdate dados) {
         Contratante contratante = contratanteRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Contratante não encontrado"));

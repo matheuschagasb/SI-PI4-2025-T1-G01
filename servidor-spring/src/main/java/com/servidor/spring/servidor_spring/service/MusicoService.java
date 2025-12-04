@@ -1,3 +1,7 @@
+/*
+ * Autor: Marcos Roberto Mazzero Junior – 24010753
+ */
+
 package com.servidor.spring.servidor_spring.service;
 
 import com.servidor.spring.servidor_spring.dto.MusicoUpdate;
@@ -18,6 +22,7 @@ import com.servidor.spring.servidor_spring.dto.ChavePixDTO;
 import java.util.List;
 import java.util.Optional;
 
+// Serviço com lógica de negócio para Músico
 @Service
 public class MusicoService {
 
@@ -30,11 +35,13 @@ public class MusicoService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    // Cria novo músico com senha criptografada
     public Musico createMusico(Musico musico) {
         musico.setSenha(passwordEncoder.encode(musico.getSenha()));
         return musicoRepository.save(musico);
     }
 
+    // Lista músicos com filtro opcional por gênero
     public List<Musico> getAllMusicos(String generoMusical) {
         if (generoMusical != null && !generoMusical.isEmpty()) {
             return musicoRepository.findByGeneroMusical(generoMusical);
