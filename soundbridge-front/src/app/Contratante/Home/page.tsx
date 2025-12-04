@@ -5,9 +5,13 @@ import { ProgressSpinner } from 'primereact/progressspinner';
 import { Button } from 'primereact/button';
 import Image from 'next/image';
 import { TabView, TabPanel } from 'primereact/tabview';
+import { Dialog } from 'primereact/dialog'; // Novo
+import { Rating } from 'primereact/rating'; // Novo
+import { InputTextarea } from 'primereact/inputtextarea'; // Novo
 import Link from 'next/link';
 
-const apiUrl = 'http://localhost:3001';
+const apiUrl = 'http://localhost:3001'; // Lembre-se de ajustar se seu proxy estiver na 3001 ou direto no 8080
+
 interface Contrato {
   id: string;
   musico: {
@@ -38,6 +42,8 @@ interface Contrato {
   observacoes: string;
   dataPagamento: string | null;
   comprovantePagamentoUrl: string | null;
+  // Se o contrato já tiver avaliação, seria bom vir aqui para desabilitar o botão
+  avaliacaoFeita?: boolean; 
 }
 
 export default function ContratanteHomePage() {
@@ -46,6 +52,13 @@ export default function ContratanteHomePage() {
     const [nomeContratante, setNomeContratante] = useState<string>('');
     const router = useRouter();
     const [activeIndex, setActiveIndex] = useState(0);
+
+    // Estados para o Modal de Avaliação
+    const [showAvaliacaoModal, setShowAvaliacaoModal] = useState(false);
+    const [contratoSelecionado, setContratoSelecionado] = useState<Contrato | null>(null);
+    const [nota, setNota] = useState<number | null>(null); // 1 a 5
+    const [comentario, setComentario] = useState('');
+    const [enviandoAvaliacao, setEnviandoAvaliacao] = useState(false);
 
     const fetchContracts = async (authToken: string) => {
         try {
@@ -107,7 +120,6 @@ export default function ContratanteHomePage() {
         }
 
         try {
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
             const response = await fetch(`${apiUrl}/v1/contratos/${contratoId}/confirmar-pagamento`, {
                 method: 'POST',
                 headers: {
@@ -121,10 +133,63 @@ export default function ContratanteHomePage() {
             }
 
             alert('Pagamento confirmado com sucesso!');
-            await fetchContracts(token); // Refresh contracts
+            await fetchContracts(token); 
         } catch (error: any) {
             console.error("Payment error:", error);
             alert(`Erro no pagamento: ${error.message}`);
+        }
+    };
+
+    // --- Lógica de Avaliação ---
+    const abrirModalAvaliacao = (contrato: Contrato) => {
+        setContratoSelecionado(contrato);
+        setNota(0);
+        setComentario('');
+        setShowAvaliacaoModal(true);
+    };
+
+    const handleEnviarAvaliacao = async () => {
+        if (!contratoSelecionado || !nota) {
+            alert("Por favor, selecione uma nota.");
+            return;
+        }
+
+        const token = localStorage.getItem('soundbridge/token');
+        setEnviandoAvaliacao(true);
+
+        try {
+            // Estou assumindo que você vai criar este endpoint no Java
+            // POST /v1/avaliacoes
+            const payload = {
+                contratoId: contratoSelecionado.id,
+                musicoId: contratoSelecionado.musico.id,
+                nota: nota, // Inteiro de 1 a 5
+                comentario: comentario
+            };
+
+            const response = await fetch(`${apiUrl}/v1/avaliacoes`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                throw new Error('Erro ao salvar avaliação');
+            }
+
+            alert('Avaliação enviada com sucesso!');
+            setShowAvaliacaoModal(false);
+            // Opcional: Recarregar contratos para atualizar status ou bloquear nova avaliação
+            await fetchContracts(token!); 
+
+        } catch (error) {
+            console.error(error);
+            alert('Erro ao enviar avaliação.');
+        } finally {
+            setEnviandoAvaliacao(false);
         }
     };
 
@@ -140,7 +205,7 @@ export default function ContratanteHomePage() {
             case 'PENDENTE':
                 return '/icons/pendente.svg';
             case 'CONCLUIDO':
-                return '/icons/check-verde.svg'; // Or another icon for concluded
+                return '/icons/check-verde.svg'; 
             default:
                 return '/icons/pendente.svg';
         }
@@ -198,6 +263,7 @@ export default function ContratanteHomePage() {
                 <p className="text-sm text-gray-700">R$ {contrato.valorTotal.toFixed(2)}</p>
             </div>
 
+            {/* Botão de Pagar (Apenas Pendente) */}
             {contrato.status === 'PENDENTE' && (
                 <Button
                     label="Pagar"
@@ -205,6 +271,24 @@ export default function ContratanteHomePage() {
                     className="p-button-success"
                     style={{
                         background: '#28a745',
+                        border: 'none',
+                        borderRadius: '999px',
+                        color: 'white',
+                        fontSize: '14px',
+                        padding: '8px 16px'
+                    }}
+                />
+            )}
+
+            {/* Botão de Avaliar (Apenas Concluído) */}
+            {contrato.status === 'CONCLUIDO' && (
+                <Button
+                    label="Avaliar"
+                    icon="pi pi-star"
+                    onClick={() => abrirModalAvaliacao(contrato)}
+                    className="p-button-warning"
+                    style={{
+                        background: '#f59e0b', // Amber-500
                         border: 'none',
                         borderRadius: '999px',
                         color: 'white',
@@ -222,7 +306,7 @@ export default function ContratanteHomePage() {
             <Link href="#" className="text-2xl font-bold text-blue-600 no-underline hover:text-blue-700 transition-colors">
               SoundBridge
             </Link>
-                            <div className="flex items-center gap-4">
+                <div className="flex items-center gap-4">
                     <span className="text-sm text-gray-700">{nomeContratante}</span>
                     <button className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-gray-700 font-semibold">
                         {nomeContratante?.charAt(0) || 'U'}
@@ -251,6 +335,54 @@ export default function ContratanteHomePage() {
                     </TabPanel>
                 </TabView>
             </main>
+
+            {/* Modal de Avaliação */}
+            <Dialog 
+                header={`Avaliar ${contratoSelecionado?.musico.nome}`} 
+                visible={showAvaliacaoModal} 
+                style={{ width: '50vw' }} 
+                onHide={() => setShowAvaliacaoModal(false)}
+            >
+                <div className="flex flex-col gap-4 pt-4">
+                    <div className="flex flex-col gap-2">
+                        <label className="font-bold text-gray-700">Nota</label>
+                        <Rating 
+                            value={nota || 0} 
+                            onChange={(e) => setNota(e.value || 0)} 
+                            cancel={false} 
+                            stars={5}
+                        />
+                    </div>
+
+                    <div className="flex flex-col gap-2">
+                        <label className="font-bold text-gray-700">Comentário</label>
+                        <InputTextarea 
+                            value={comentario} 
+                            onChange={(e) => setComentario(e.target.value)} 
+                            rows={5} 
+                            cols={30} 
+                            placeholder="Conte como foi a experiência com o músico..."
+                            className="w-full"
+                        />
+                    </div>
+
+                    <div className="flex justify-end gap-2 mt-4">
+                        <Button 
+                            label="Cancelar" 
+                            icon="pi pi-times" 
+                            onClick={() => setShowAvaliacaoModal(false)} 
+                            className="p-button-text" 
+                        />
+                        <Button 
+                            label="Enviar Avaliação" 
+                            icon="pi pi-check" 
+                            onClick={handleEnviarAvaliacao} 
+                            loading={enviandoAvaliacao}
+                            autoFocus 
+                        />
+                    </div>
+                </div>
+            </Dialog>
         </div>
     );
 }

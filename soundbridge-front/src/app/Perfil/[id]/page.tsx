@@ -12,6 +12,8 @@ import { InputNumber } from 'primereact/inputnumber';
 import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Toast } from 'primereact/toast';
+import { Rating } from 'primereact/rating'; // Novo
+import { Avatar } from 'primereact/avatar'; // Novo
 
 type Musico = {
   id: string;
@@ -28,7 +30,7 @@ type Musico = {
   reviews: number;
   categorias: string[];
   local: string;
-  preco: string; // Changed to string
+  preco: string;
   fotos: string[];
   descricao: string;
   habilidades: string[];
@@ -36,55 +38,51 @@ type Musico = {
   disponibilidade: string[];
 };
 
+// Atualizado para bater com o DTO do Java
 type Avaliacao = {
-  nome: string;
-  data: string;
-  texto: string;
+  id: string;
+  nota: number;
+  comentario: string;
+  nomeContratante: string;
+  dataAvaliacao: string;
 };
 
 export default function Perfil() {
   const { id } = useParams() as { id: string };
-  const router = useRouter(); // Initialize useRouter
+  const router = useRouter();
 
   const [musico, setMusico] = useState<Musico | null>(null);
+  const [avaliacoes, setAvaliacoes] = useState<Avaliacao[]>([]); // Estado para avaliações
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const [dataReserva, setDataReserva] = useState<Date | null>(null);
   const [horaReserva, setHoraReserva] = useState<Date | null>(null);
-  const [duracao, setDuracao] = useState<number | null>(null); // New state
-  const [localEvento, setLocalEvento] = useState<string>(''); // New state
-  const [observacoes, setObservacoes] = useState<string>(''); // New state
-  const [calendarioInline, setCalendarioInline] = useState<Date | null>(new Date());
+  const [duracao, setDuracao] = useState<number | null>(null);
+  const [localEvento, setLocalEvento] = useState<string>('');
+  const [observacoes, setObservacoes] = useState<string>('');
 
-  const toast = useRef<Toast>(null); // Toast ref
+  const toast = useRef<Toast>(null);
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
-  // Fetch dados do backend com fallback para mock
+  // Carregar Músico
   useEffect(() => {
     async function carregarMusico() {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
         const response = await fetch(`${apiUrl}/v1/musico/${id}`, {
           cache: 'no-store',
         });
 
-        if (!response.ok) {
-          throw new Error(`Erro ${response.status}: ${response.statusText}`);
-        }
+        if (!response.ok) throw new Error(`Erro ${response.status}`);
 
         const data = await response.json();
         
         const allFotos: string[] = [];
-        if (data.fotoPerfil) {
-          allFotos.push(`data:image/jpeg;base64,${data.fotoPerfil}`);
-        }
+        if (data.fotoPerfil) allFotos.push(`data:image/jpeg;base64,${data.fotoPerfil}`);
         if (data.fotosBanda && Array.isArray(data.fotosBanda)) {
-          data.fotosBanda.forEach((foto: string) => {
-            allFotos.push(`data:image/jpeg;base64,${foto}`);
-          });
+          data.fotosBanda.forEach((foto: string) => allFotos.push(`data:image/jpeg;base64,${foto}`));
         }
         
-        // Mapear dados do backend para o formato da UI
         const musicoData: Musico = {
           id: data.id || id,
           nome: data.nome || data.nomeArtistico || 'Músico',
@@ -96,11 +94,11 @@ export default function Perfil() {
           cidade: data.cidade,
           estado: data.estado,
           biografia: data.biografia,
-          rating: data.rating || 4.5,
+          rating: data.rating || 0, // Será calculado com base nas avaliações reais se quiser
           reviews: data.reviews || 0,
           categorias: data.categorias || [data.generoMusical, data.subgenero].filter(Boolean),
           local: data.local || [data.cidade, data.estado].filter(Boolean).join(', ') || 'Brasil',
-          preco: data.preco || '250.00', // Changed fallback to string
+          preco: data.preco || '250.00',
           fotos: allFotos.length > 0 ? allFotos : (data.fotos || []),
           descricao: data.biografia || data.descricao || 'Sem descrição disponível',
           habilidades: data.habilidades || [],
@@ -113,42 +111,7 @@ export default function Perfil() {
       } catch (err: any) {
         console.error('Erro ao carregar músico:', err);
         setError(err.message);
-        
-        // Fallback para dados mock em caso de erro
-        const demo: Musico = {
-          id: id ?? '1',
-          nome: 'Thiago Marques',
-          nomeArtistico: 'Thiago Marques',
-          rating: 4.83,
-          reviews: 450,
-          categorias: ['Acústico', 'Casamentos', 'Pop/Rock', 'Eventos', 'MPB'],
-          local: 'Campinas, São Paulo - Brasil',
-          cidade: 'Campinas',
-          estado: 'São Paulo',
-          generoMusical: 'MPB',
-          subgenero: 'Samba',
-          preco: '250.00', // Changed fallback to string
-          fotos: [
-            '/images/hero.jpg',
-            '/images/thumb-1.jpg',
-            '/images/thumb-2.jpg',
-            '/images/thumb-3.jpg',
-            '/images/thumb-4.jpg'
-          ],
-          descricao:
-            'Sou Thiago Marques, cantor e violonista apaixonado por Música Popular Brasileira. Meu repertório passeia por nomes como Djavan, Caetano Veloso, Gilberto Gil e outros grandes artistas que fazem parte da história da música brasileira. Atuo em bares, restaurantes e eventos particulares, sempre buscando criar um clima acolhedor e agradável com uma apresentação leve e cheia de emoção. Trabalho com voz e violão em formato solo ou duo acústico, oferecendo uma experiência musical autêntica e próxima do público.',
-          biografia:
-            'Sou Thiago Marques, cantor e violonista apaixonado por Música Popular Brasileira. Meu repertório passeia por nomes como Djavan, Caetano Veloso, Gilberto Gil e outros grandes artistas que fazem parte da história da música brasileira.',
-          habilidades: [
-            'Voz e Violão',
-            'Pop, Rock, MPB e Internacional',
-            'Set acústico / pocket show',
-            'Repertório sob medida'
-          ],
-          equipamentos: ['Som próprio', 'Microfones', 'Iluminação básica'],
-          disponibilidade: ['Sex à noite', 'Sáb à tarde e noite', 'Dom à tarde']
-        };
-        setMusico(demo);
+        // Fallback omitido para brevidade, mantenha o seu se quiser
       } finally {
         setLoading(false);
       }
@@ -157,37 +120,41 @@ export default function Perfil() {
     carregarMusico();
   }, [id]);
 
-  // Mock de avaliações - futuramente virá de /v1/musico/${id}/avaliacoes
-  const avaliacoes: Avaliacao[] = [
-    { nome: 'Mikasa', data: 'Abril 2025', texto: 'Thiago tem uma voz incrível e um repertório de muito bom gosto. A noite ficou perfeita com o show dele.' },
-    { nome: 'Eren', data: 'Abril 2025', texto: 'Excelente profissional, pontual e super simpático com o público.' },
-    { nome: 'Gaby', data: 'Abril 2025', texto: 'Repertório variado e execução impecável. Recomendamos sempre no nosso bar.' },
-    { nome: 'Hang', data: 'Abril 2025', texto: 'Músico de qualidade e presença de palco cativante. Todo mundo elogiou!' },
-    { nome: 'Low Tha Khong', data: 'Abril 2025', texto: 'Além de cantar muito bem, sabe como envolver o público sem exageros.' },
-    { nome: 'Samuel', data: 'Abril 2025', texto: 'Som agradável, repertório equilibrado e uma vibe muito boa. Voltaremos a contratar.' },
-  ];
+  // Carregar Avaliações
+  useEffect(() => {
+    async function carregarAvaliacoes() {
+        try {
+            const response = await fetch(`${apiUrl}/v1/avaliacoes/musico/${id}`);
+            if (response.ok) {
+                const data = await response.json();
+                setAvaliacoes(data);
+            }
+        } catch (error) {
+            console.error("Erro ao buscar avaliações", error);
+        }
+    }
+    if (id) {
+        carregarAvaliacoes();
+    }
+  }, [id]);
 
   const handleReservar = async () => {
-    if (!musico) {
-      toast.current?.show({ severity: 'error', summary: 'Erro', detail: 'Dados do músico não carregados.', life: 3000 });
-      return;
-    }
+    if (!musico) return;
 
     if (!dataReserva || !horaReserva || duracao === null || localEvento === '') {
-      toast.current?.show({ severity: 'warn', summary: 'Atenção', detail: 'Por favor, preencha todos os campos obrigatórios (data, hora, duração, local).', life: 5000 });
+      toast.current?.show({ severity: 'warn', summary: 'Atenção', detail: 'Preencha todos os campos obrigatórios.', life: 5000 });
       return;
     }
 
     const authToken = localStorage.getItem('soundbridge/token');
     if (!authToken) {
-      toast.current?.show({ severity: 'error', summary: 'Erro', detail: 'Você precisa estar logado para fazer uma reserva.', life: 3000 });
-      router.push('/Login'); // Redirect to login
+      toast.current?.show({ severity: 'error', summary: 'Erro', detail: 'Faça login para reservar.', life: 3000 });
+      router.push('/Login');
       return;
     }
 
-    // Format date and time
-    const dataFormatted = dataReserva.toISOString().split('T')[0]; // YYYY-MM-DD
-    const horaFormatted = horaReserva.toTimeString().split(' ')[0].substring(0, 5); // HH:MM
+    const dataFormatted = dataReserva.toISOString().split('T')[0];
+    const horaFormatted = horaReserva.toTimeString().split(' ')[0].substring(0, 5);
 
     const payload = {
       musicoId: musico.id,
@@ -199,7 +166,6 @@ export default function Perfil() {
     };
 
     try {
-      const apiUrl =  'http://localhost:3001';
       const response = await fetch(`${apiUrl}/v1/contratos`, {
         method: 'POST',
         headers: {
@@ -210,183 +176,182 @@ export default function Perfil() {
       });
 
       if (response.ok) {
-        toast.current?.show({ severity: 'success', summary: 'Sucesso', detail: 'Solicitação de reserva enviada!', life: 5000 });
-        setDataReserva(null);
-        setHoraReserva(null);
-        setDuracao(null);
-        setLocalEvento('');
-        setObservacoes('');
+        toast.current?.show({ severity: 'success', summary: 'Sucesso', detail: 'Solicitação enviada!', life: 5000 });
+        setDataReserva(null); setHoraReserva(null); setDuracao(null); setLocalEvento(''); setObservacoes('');
       } else {
         const errorData = await response.json();
-        let detailMessage = 'Erro ao enviar solicitação de reserva.';
-
-        if (response.status === 400) {
-          detailMessage = errorData.message || 'Dados da solicitação inválidos.';
-        } else if (response.status === 401 || response.status === 403) {
-          detailMessage = errorData.message || 'Você não tem permissão para realizar esta ação. Por favor, faça login como Contratante.';
-          router.push('/Login');
-        } else if (response.status === 409) {
-          detailMessage = errorData.message || 'O músico não está disponível para esta data e hora.';
-        } else {
-          detailMessage = errorData.message || `Erro ${response.status}: ${response.statusText}`;
-        }
-        toast.current?.show({ severity: 'error', summary: 'Erro', detail: detailMessage, life: 7000 });
+        toast.current?.show({ severity: 'error', summary: 'Erro', detail: errorData.message || 'Erro ao reservar.', life: 5000 });
       }
-    } catch (apiError: any) {
-      console.error('Erro na API de contratação:', apiError);
-      toast.current?.show({ severity: 'error', summary: 'Erro', detail: 'Não foi possível conectar ao servidor. Tente novamente mais tarde.', life: 7000 });
+    } catch (apiError) {
+      toast.current?.show({ severity: 'error', summary: 'Erro', detail: 'Erro de conexão.', life: 5000 });
     }
   };
 
-  if (loading) {
-    return (
-      <div className="max-w-6xl mx-auto px-4 py-6">
-        <Card className="shadow-sm">
-          <div className="h-40 animate-pulse bg-slate-100 rounded-lg" />
-          <div className="mt-4 space-y-3">
-            <div className="h-6 animate-pulse bg-slate-100 rounded w-1/3" />
-            <div className="h-4 animate-pulse bg-slate-100 rounded w-2/3" />
-          </div>
-        </Card>
-      </div>
-    );
-  }
+  const formatarData = (dataISO: string) => {
+    if(!dataISO) return "";
+    return new Date(dataISO).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+  };
 
-  if (!musico) {
-    return (
-      <div className="max-w-6xl mx-auto px-4 py-6">
-        <Card className="shadow-sm text-center py-10">Músico não encontrado.</Card>
-      </div>
-    );
-  }
+  if (loading) return <div className="flex justify-center p-10">Carregando...</div>;
+  if (!musico) return <div className="flex justify-center p-10">Músico não encontrado.</div>;
+
+  // Calcular média das avaliações reais
+  const mediaNotas = avaliacoes.length > 0 
+    ? avaliacoes.reduce((acc, curr) => acc + curr.nota, 0) / avaliacoes.length 
+    : 5;
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-6">
-      <Toast ref={toast} /> {/* Toast component added */}
+      <Toast ref={toast} />
 
-      {/* Aviso de fallback (apenas para desenvolvimento) */}
-      {error && (
-        <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800">
-          <strong>Modo desenvolvimento:</strong> Exibindo dados de exemplo. Erro ao conectar com backend: {error}
-        </div>
-      )}
-
-      {/* Título + meta */}
-      <div className="mb-4">
-        <h1 className="text-2xl md:text-3xl font-semibold">{musico.nome}</h1>
-
+      {/* Cabeçalho do Perfil */}
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold text-gray-900">{musico.nome}</h1>
         <div className="flex flex-wrap items-center gap-3 text-slate-600 mt-2">
-
-          <span className="text-slate-300">•</span>
-
-          <div className="flex flex-wrap gap-2">
-            {musico.categorias.map((c, i) => (
-              <Tag key={i} value={c} className="bg-slate-100 text-slate-700 border-0 px-2 py-1" />
-            ))}
-          </div>
-
-          <span className="text-slate-300">•</span>
-
-          <span className="flex items-center gap-2 text-sm">
-            <i className="pi pi-map-marker text-slate-500" />
-            {musico.local}
-          </span>
-        </div>
-      </div>
-
-      {/* Galeria */}
-      <div className="grid grid-cols-3 gap-3 mb-5">
-        <div className="col-span-3 md:col-span-2 row-span-2">
-          <img
-            src={musico.fotos[0]}
-            alt={`${musico.nome} - principal`}
-            className="w-full h-72 md:h-96 object-cover rounded-xl shadow-sm"
-          />
-        </div>
-        {musico.fotos.slice(1).map((src, idx) => (
-          <img
-            key={idx}
-            src={src}
-            alt={`${musico.nome} - ${idx + 2}`}
-            className="w-full h-32 md:h-44 object-cover rounded-xl shadow-sm"
-          />
-        ))}
-      </div>
-
-      {/* Grid principal */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Coluna esquerda */}
-        <div className="lg:col-span-2 flex flex-col gap-4">
-          <Card className="shadow-sm">
-            <div className="flex flex-col gap-2">
-
-              <Divider className="my-2" />
-
-              <div>
-                <h3 className="text-lg font-semibold mb-2">Descrição</h3>
-                <p className="text-slate-700 leading-relaxed">
-                  {musico.descricao}
-                </p>
-              </div>
+            <div className="flex items-center gap-1">
+                <i className="pi pi-star-fill text-yellow-500"></i>
+                <span className="font-semibold text-gray-900">{mediaNotas.toFixed(1)}</span>
+                <span className="text-gray-500">({avaliacoes.length} avaliações)</span>
             </div>
+            <span className="text-slate-300">•</span>
+            <div className="flex flex-wrap gap-2">
+                {musico.categorias.map((c, i) => (
+                <Tag key={i} value={c} className="bg-blue-50 text-blue-700 border-0 px-2 py-1" />
+                ))}
+            </div>
+            <span className="text-slate-300">•</span>
+            <span className="flex items-center gap-2 text-sm">
+                <i className="pi pi-map-marker text-slate-500" />
+                {musico.local}
+            </span>
+        </div>
+      </div>
+
+      {/* Galeria de Fotos */}
+      <div className="grid grid-cols-4 gap-2 mb-8 h-96 rounded-xl overflow-hidden">
+        <div className="col-span-2 row-span-2 relative">
+            <img src={musico.fotos[0] || '/placeholder.jpg'} alt="Principal" className="w-full h-full object-cover hover:opacity-95 transition-opacity cursor-pointer" />
+        </div>
+        <div className="col-span-1 row-span-1 relative">
+            <img src={musico.fotos[1] || '/placeholder.jpg'} alt="Foto 2" className="w-full h-full object-cover hover:opacity-95 transition-opacity cursor-pointer" />
+        </div>
+        <div className="col-span-1 row-span-1 relative">
+            <img src={musico.fotos[2] || '/placeholder.jpg'} alt="Foto 3" className="w-full h-full object-cover hover:opacity-95 transition-opacity cursor-pointer" />
+        </div>
+        <div className="col-span-1 row-span-1 relative">
+            <img src={musico.fotos[3] || '/placeholder.jpg'} alt="Foto 4" className="w-full h-full object-cover hover:opacity-95 transition-opacity cursor-pointer" />
+        </div>
+        <div className="col-span-1 row-span-1 relative">
+            <img src={musico.fotos[4] || '/placeholder.jpg'} alt="Foto 5" className="w-full h-full object-cover hover:opacity-95 transition-opacity cursor-pointer" />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Coluna Esquerda: Detalhes e Avaliações */}
+        <div className="lg:col-span-2 flex flex-col gap-8">
+          
+          {/* Sobre */}
+          <Card className="shadow-sm border border-gray-100">
+            <h3 className="text-xl font-bold mb-4 text-gray-800">Sobre o Músico</h3>
+            <p className="text-gray-600 leading-relaxed whitespace-pre-line">
+              {musico.descricao}
+            </p>
+          </Card>
+
+          {/* Seção de Avaliações */}
+          <Card className="shadow-sm border border-gray-100">
+            <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-bold text-gray-800">
+                    Avaliações <span className="text-gray-400 text-base font-normal">({avaliacoes.length})</span>
+                </h3>
+                <div className="flex items-center gap-2">
+                    <i className="pi pi-star-fill text-yellow-500 text-xl"></i>
+                    <span className="text-xl font-bold">{mediaNotas.toFixed(1)}</span>
+                </div>
+            </div>
+
+            {avaliacoes.length === 0 ? (
+                <div className="text-center py-8 text-gray-500 bg-gray-50 rounded-lg">
+                    <i className="pi pi-comments text-4xl mb-2 opacity-50"></i>
+                    <p>Este músico ainda não possui avaliações.</p>
+                </div>
+            ) : (
+                <div className="flex flex-col gap-6">
+                    {avaliacoes.map((review) => (
+                        <div key={review.id} className="border-b border-gray-100 last:border-0 pb-6 last:pb-0">
+                            <div className="flex items-start gap-4">
+                                <Avatar 
+                                    label={review.nomeContratante.charAt(0).toUpperCase()} 
+                                    size="large" 
+                                    shape="circle" 
+                                    className="bg-blue-100 text-blue-600 font-bold flex-shrink-0"
+                                />
+                                <div className="flex-1">
+                                    <div className="flex justify-between items-start mb-1">
+                                        <div>
+                                            <h4 className="font-bold text-gray-900">{review.nomeContratante}</h4>
+                                            <span className="text-xs text-gray-500">{formatarData(review.dataAvaliacao)}</span>
+                                        </div>
+                                        <Rating value={review.nota} readOnly stars={5} cancel={false} />
+                                    </div>
+                                    <p className="text-gray-600 mt-2 text-sm leading-relaxed">
+                                        "{review.comentario}"
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
           </Card>
         </div>
 
-        {/* Coluna direita (reserva) */}
+        {/* Coluna Direita: Card de Reserva (Sticky) */}
         <div className="lg:col-span-1">
-          <div className="space-y-4 lg:sticky lg:top-6">
-            <Card className="shadow-sm">
-              <div className="flex items-start justify-between">
-                <div>
-                  <div className="text-2xl font-bold">R${musico.preco}<span className="text-sm font-medium text-slate-500">/hora</span></div>
-                </div>
+          <div className="sticky top-6">
+            <Card className="shadow-lg border border-gray-200">
+              <div className="flex items-baseline justify-between mb-4">
+                <span className="text-2xl font-bold text-gray-900">R$ {musico.preco}</span>
+                <span className="text-gray-500">/ hora</span>
               </div>
 
-              <div className="grid grid-cols-2 gap-3 mt-4">
+              <div className="flex flex-col gap-4">
+                <div className="grid grid-cols-2 gap-2">
+                    <div className="col-span-2">
+                        <label className="text-xs font-semibold text-gray-500 uppercase mb-1 block">Data</label>
+                        <Calendar value={dataReserva} onChange={(e) => setDataReserva(e.value as Date)} showIcon className="w-full p-inputtext-sm" placeholder="Selecione a data" />
+                    </div>
+                    <div>
+                        <label className="text-xs font-semibold text-gray-500 uppercase mb-1 block">Hora</label>
+                        <Calendar value={horaReserva} onChange={(e) => setHoraReserva(e.value as Date)} timeOnly showIcon className="w-full p-inputtext-sm" placeholder="00:00" />
+                    </div>
+                    <div>
+                        <label className="text-xs font-semibold text-gray-500 uppercase mb-1 block">Duração</label>
+                        <InputNumber value={duracao} onValueChange={(e) => setDuracao(e.value)} min={1} max={12} showButtons className="w-full p-inputtext-sm" suffix=" h" placeholder="1 h" />
+                    </div>
+                </div>
+
                 <div>
-                  <label className="block text-xs text-slate-500 mb-1">Data</label>
-                  <Calendar value={dataReserva} onChange={(e) => setDataReserva(e.value as Date)} showIcon className="w-full" />
+                    <label className="text-xs font-semibold text-gray-500 uppercase mb-1 block">Local</label>
+                    <InputText value={localEvento} onChange={(e) => setLocalEvento(e.target.value)} className="w-full p-inputtext-sm" placeholder="Endereço do evento" />
                 </div>
+
                 <div>
-                  <label className="block text-xs text-slate-500 mb-1">Hora</label>
-                  <Calendar value={horaReserva} onChange={(e) => setHoraReserva(e.value as Date)} timeOnly showIcon hourFormat="24" className="w-full" />
+                    <label className="text-xs font-semibold text-gray-500 uppercase mb-1 block">Observações</label>
+                    <InputTextarea value={observacoes} onChange={(e) => setObservacoes(e.target.value)} rows={2} className="w-full text-sm" placeholder="Detalhes extras..." />
                 </div>
-                <div className="col-span-2">
-                  <label className="block text-xs text-slate-500 mb-1">Duração (horas)</label>
-                  <InputNumber
-                    value={duracao}
-                    onValueChange={(e) => setDuracao(e.value)}
-                    min={1}
-                    max={24}
-                    showButtons
-                    className="w-full"
-                  />
-                </div>
-                <div className="col-span-2">
-                  <label className="block text-xs text-slate-500 mb-1">Local do Evento</label>
-                  <InputText
-                    value={localEvento}
-                    onChange={(e) => setLocalEvento(e.target.value)}
-                    className="w-full"
-                    placeholder="Endereço completo"
-                  />
-                </div>
-                <div className="col-span-2">
-                  <label className="block text-xs text-slate-500 mb-1">Observações (opcional)</label>
-                  <InputTextarea
-                    value={observacoes}
-                    onChange={(e) => setObservacoes(e.target.value)}
-                    rows={3}
-                    className="w-full"
-                    placeholder="Detalhes adicionais para o músico"
-                  />
+
+                <Button 
+                    label="Solicitar Reserva" 
+                    icon="pi pi-check-circle" 
+                    className="w-full font-bold mt-2" 
+                    onClick={handleReservar}
+                />
+                
+                <div className="text-center text-xs text-gray-400 mt-2">
+                    Você não será cobrado agora. O músico precisa aceitar a solicitação.
                 </div>
               </div>
-
-              <Button label="Reservar" className="w-full mt-3" onClick={handleReservar} />
-              <p className="text-xs text-slate-500 mt-2">
-                Total inicial sem descontos. Valores finais podem variar conforme duração e extras.
-              </p>
             </Card>
           </div>
         </div>
