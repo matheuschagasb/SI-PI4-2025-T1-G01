@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="41960cf1-ba5c-4f6b-905b-3589b2671e24" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/../../Servidor.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../LoginHandler.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../bd/BCryptUtil.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../bd/ConexaoBD.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../bd/ContratanteDAO.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../bd/ContratoDAO.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../bd/MusicoDAO.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/MutexManager.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/SupervisoraDeConexao.java" beforeDir="false" afterPath="$PROJECT_DIR$/SupervisoraDeConexao.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../test/ClienteTeste.java" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../../.." />
+  </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "devMarcos12"
+  }
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "git@github.com:matheuschagasb/airane.git",
+    "accountId": "16f2ba60-e9af-4518-b735-4f7f8d913668"
+  }
+}]]></component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 7
+}]]></component>
+  <component name="ProjectId" id="36MCFLwLBFeFVWzqNpZ9pVy8PvT" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "servidorJava",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "/home/marcos-junior/Documentos/PUC/airane/Servidor"
+  }
+}]]></component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="41960cf1-ba5c-4f6b-905b-3589b2671e24" name="Changes" comment="" />
+      <created>1764806948348</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1764806948348</updated>
+    </task>
+    <servers />
+  </component>
+</project>

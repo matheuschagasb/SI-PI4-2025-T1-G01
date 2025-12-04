@@ -45,7 +45,7 @@ export default function Home() {
       setError(null);
       try {
         const genreQuery = selectedGenre ? `?genero=${selectedGenre}` : '';
-        const response = await fetch(`http://localhost:8080/v1/musico${genreQuery}`);
+        const response = await fetch(`http://localhost:3001/v1/musico${genreQuery}`);
         if (!response.ok) {
           throw new Error('Failed to fetch musicians');
         }

@@ -8,16 +8,37 @@
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
     </properties>
 
     <dependencies>
-        <!-- PostgreSQL JDBC Driver -->
+        <!-- PostgreSQL JDBC Driver (can be removed if not used by any remaining utility) -->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <version>42.2.23</version>
         </dependency>
+
+        <!-- Gson for JSON processing -->
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.10.1</version>
+        </dependency>
     </dependencies>
+
+    <build>
+        <sourceDirectory>src</sourceDirectory>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.1.0</version>
+                <configuration>
+                    <mainClass>servidor.Servidor</mainClass>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
