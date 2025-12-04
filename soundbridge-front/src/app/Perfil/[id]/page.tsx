@@ -1,19 +1,17 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react'; // Added useRef
-import { useParams, useRouter } from 'next/navigation'; // useRouter already there
+import { useEffect, useState, useRef } from 'react';
+import { useParams, useRouter } from 'next/navigation';
 
 import { Card } from 'primereact/card';
 import { Button } from 'primereact/button';
-import { Rating } from 'primereact/rating';
 import { Calendar } from 'primereact/calendar';
 import { Divider } from 'primereact/divider';
-import { Avatar } from 'primereact/avatar';
 import { Tag } from 'primereact/tag';
-import { InputNumber } from 'primereact/inputnumber'; // New import
-import { InputText } from 'primereact/inputtext'; // New import
-import { InputTextarea } from 'primereact/inputtextarea'; // New import
-import { Toast } from 'primereact/toast'; // New import
+import { InputNumber } from 'primereact/inputnumber';
+import { InputText } from 'primereact/inputtext';
+import { InputTextarea } from 'primereact/inputtextarea';
+import { Toast } from 'primereact/toast';
 
 type Musico = {
   id: string;

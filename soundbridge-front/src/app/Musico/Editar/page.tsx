@@ -4,7 +4,6 @@ import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Dropdown } from 'primereact/dropdown';
-import { Password } from 'primereact/password';
 import { useState, useEffect } from 'react';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { useRouter } from 'next/navigation';

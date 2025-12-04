@@ -10,10 +10,10 @@ const genres = [
   { label: 'Pop', icon: '/icons/pop.png' },
   { label: 'Jazz', icon: '/icons/jazz.png' },
   { label: 'Clássica', icon: '/icons/classica.png' },
-  { label: 'Sertanejo', icon: '/icons/sertanejo-raiz.png' }, // Using sertanejo-raiz for general Sertanejo
+  { label: 'Sertanejo', icon: '/icons/sertanejo-raiz.png' },
   { label: 'Funk', icon: '/icons/funk.png' },
   { label: 'Eletrônica', icon: '/icons/musica-eletronica.png' },
-  { label: 'Hip Hop', icon: '/icons/rap.png' }, // Using rap as a close alternative
+  { label: 'Hip Hop', icon: '/icons/rap.png' },
   { label: 'Reggae', icon: '/icons/reggae.png' },
 ];
 
