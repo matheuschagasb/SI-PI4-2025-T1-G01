@@ -22,7 +22,6 @@ public class ProxyService {
     public ProxyService() {
         GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.registerTypeAdapter(LocalDateTime.class, (JsonDeserializer<LocalDateTime>) (json, typeOfT, context) -> {
-            // This logic might need to be adjusted depending on the exact format from the backend
             return LocalDateTime.parse(json.getAsString(), DateTimeFormatter.ISO_DATE_TIME);
         });
         this.gson = gsonBuilder.create();
@@ -89,7 +88,6 @@ public class ProxyService {
         return client.send(request, HttpResponse.BodyHandlers.ofString());
     }
     
-    // Generic pass-through method for other requests if needed
     public HttpResponse<String> forwardRequest(String path, String method, String requestBody, String token) throws IOException, InterruptedException {
         HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL + path));

@@ -14,7 +14,7 @@ import java.util.Scanner;
 import java.util.concurrent.Executors;
 
 public class Servidor {
-    private static final int PORTA_PADRAO = 3001; // Changed to avoid conflict with front-end
+    private static final int PORTA_PADRAO = 3001;
 
     public static void main(String[] args) throws IOException {
         int porta = PORTA_PADRAO;
@@ -28,13 +28,12 @@ public class Servidor {
 
         HttpServer server = HttpServer.create(new InetSocketAddress(porta), 0);
 
-        // A single handler to proxy all requests
         server.createContext("/", new ProxyHandler());
 
         server.setExecutor(Executors.newCachedThreadPool());
         server.start();
 
-        System.out.println("✅ Servidor Proxy HTTP iniciado na porta " + porta);
+        System.out.println("Servidor Proxy HTTP iniciado na porta " + porta);
         System.out.println("Pressione Ctrl+C para parar o servidor.");
     }
 
@@ -44,7 +43,6 @@ public class Servidor {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
             try {
-                // --- CORS Handling ---
                 exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
                 exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
                 exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type, Authorization");
@@ -54,7 +52,6 @@ public class Servidor {
                     return;
                 }
                 
-                // --- Request Forwarding ---
                 String path = exchange.getRequestURI().getPath();
                 String query = exchange.getRequestURI().getQuery();
                 if (query != null && !query.isEmpty()) {
@@ -69,8 +66,6 @@ public class Servidor {
 
                 HttpResponse<String> backendResponse = proxyService.forwardRequest(path, method, requestBody, authToken);
 
-                // --- Response Piping ---
-                // Copy headers from backend response to frontend response
                 backendResponse.headers().map().forEach((key, values) -> {
                     if (!key.equalsIgnoreCase("Content-Encoding") && !key.equalsIgnoreCase("Transfer-Encoding")) {
                         for(String value : values) {
@@ -89,10 +84,10 @@ public class Servidor {
                 os.write(responseBytes);
                 os.close();
 
-                System.out.println("⬅️  Request proxied successfully with status " + statusCode);
+                System.out.println("Request proxied successfully with status " + statusCode);
 
             } catch (Exception e) {
-                System.err.println("❌ Erro no handler do proxy: " + e.getMessage());
+                System.err.println("Erro no handler do proxy: " + e.getMessage());
                 e.printStackTrace();
                 String errorResponse = "{\"error\":\"Erro interno no servidor proxy.\"}";
                 byte[] responseBytes = errorResponse.getBytes("UTF-8");
