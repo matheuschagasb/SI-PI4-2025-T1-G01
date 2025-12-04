@@ -278,10 +278,6 @@ export default function Perfil() {
         <h1 className="text-2xl md:text-3xl font-semibold">{musico.nome}</h1>
 
         <div className="flex flex-wrap items-center gap-3 text-slate-600 mt-2">
-          <div className="flex items-center gap-2">
-            <Rating value={musico.rating} readOnly cancel={false} />
-            <span className="text-sm">{musico.rating.toFixed(2)} · {musico.reviews} avaliações</span>
-          </div>
 
           <span className="text-slate-300">•</span>
 
@@ -334,50 +330,6 @@ export default function Perfil() {
                   {musico.descricao}
                 </p>
               </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-                <div>
-                  <h3 className="text-lg font-semibold mb-2">Habilidades</h3>
-                  <ul className="list-disc pl-5 space-y-1 text-slate-700">
-                    {musico.habilidades.map((h, i) => <li key={i}>{h}</li>)}
-                  </ul>
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold mb-2">Equipamentos</h3>
-                  <ul className="list-disc pl-5 space-y-1 text-slate-700">
-                    {musico.equipamentos.map((e, i) => <li key={i}>{e}</li>)}
-                  </ul>
-
-                  <h3 className="text-lg font-semibold mt-4 mb-2">Disponibilidade</h3>
-                  <ul className="list-disc pl-5 space-y-1 text-slate-700">
-                    {musico.disponibilidade.map((d, i) => <li key={i}>{d}</li>)}
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </Card>
-
-          {/* Avaliações */}
-          <Card className="shadow-sm">
-            <h2 className="text-xl font-semibold">★ {musico.rating.toFixed(2)} · {musico.reviews} Avaliações</h2>
-
-            <div className="grid md:grid-cols-2 gap-4 mt-3">
-              {avaliacoes.map((r, i) => (
-                <div key={i} className="flex gap-3 p-3 border rounded-xl">
-                  <Avatar label={r.nome.charAt(0)} className="bg-slate-200 text-slate-700" shape="circle" />
-                  <div>
-                    <div className="flex items-center gap-2 text-sm text-slate-600">
-                      <strong className="text-slate-800">{r.nome}</strong>
-                      <span className="text-slate-400">{r.data}</span>
-                    </div>
-                    <p className="mt-1 text-slate-700">{r.texto}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="flex gap-2 mt-4">
-              <Button label="Mostrar mais" outlined className="flex-1" />
             </div>
           </Card>
         </div>
@@ -389,10 +341,6 @@ export default function Perfil() {
               <div className="flex items-start justify-between">
                 <div>
                   <div className="text-2xl font-bold">R${musico.preco}<span className="text-sm font-medium text-slate-500">/hora</span></div>
-                  <div className="flex items-center gap-2 text-xs text-slate-600 mt-1">
-                    <Rating value={musico.rating} readOnly cancel={false} />
-                    <span>{musico.rating.toFixed(2)} · {musico.reviews} avaliações</span>
-                  </div>
                 </div>
               </div>
 
