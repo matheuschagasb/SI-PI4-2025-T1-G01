@@ -1,3 +1,7 @@
+/*
+ * Thiago Mauri Gonzalez – 24015357
+ */
+
 package com.servidor.spring.servidor_spring.dto;
 
 import com.servidor.spring.servidor_spring.model.Contrato;
@@ -5,6 +9,7 @@ import com.servidor.spring.servidor_spring.model.StatusContrato;
 
 import java.time.LocalDateTime;
 
+// DTO para retorno de dados do contrato com informações completas
 public record ContratoResponseDTO(
         String id,
         MusicoDTO musico,
@@ -18,6 +23,7 @@ public record ContratoResponseDTO(
         LocalDateTime dataPagamento,
         String comprovantePagamentoUrl
 ) {
+    // Construtor que converte entidade em DTO
     public ContratoResponseDTO(Contrato contrato) {
         this(
                 contrato.getId(),

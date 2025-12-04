@@ -1,3 +1,7 @@
+/*
+ * Autor: Thiago Mauri Gonzalez – 24015357
+ */
+
 package com.servidor.spring.servidor_spring.service;
 
 import com.servidor.spring.servidor_spring.repository.ContratanteRepository;
@@ -8,6 +12,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+// Serviço de autenticação usado pelo Spring Security
 @Service
 public class AutenticacaoService implements UserDetailsService {
 
@@ -17,6 +22,7 @@ public class AutenticacaoService implements UserDetailsService {
     @Autowired
     private ContratanteRepository contratanteRepository;
 
+    // Carrega usuário por email e role (formato: "role:email")
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         String[] parts = username.split(":");
