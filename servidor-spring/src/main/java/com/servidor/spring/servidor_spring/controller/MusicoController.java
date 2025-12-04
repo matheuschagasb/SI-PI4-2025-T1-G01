@@ -1,3 +1,5 @@
+// Thiago Mauri - 24015357
+
 package com.servidor.spring.servidor_spring.controller;
 
 import com.servidor.spring.servidor_spring.dto.MusicoDTO;
@@ -26,7 +28,7 @@ public class MusicoController {
         return musicoService.getAllMusicos(generoMusical).stream().map(MusicoDTO::new).collect(Collectors.toList());
     }
 
-    // Novo endpoint adicionado
+    // Retorna músico por ID
     @GetMapping("/{id}")
     public ResponseEntity<MusicoDTO> getMusicoById(@PathVariable String id) {
         Optional<Musico> musico = musicoService.getMusicoById(id);
@@ -38,6 +40,7 @@ public class MusicoController {
         }
     }
 
+    // Retorna chave PIX do músico autenticado
     @GetMapping("/{id}/pix")
     public ResponseEntity<ChavePixDTO> getChavePix(@PathVariable String id, Authentication auth) {
         String email = auth.getName();
@@ -55,9 +58,10 @@ public class MusicoController {
         return musicoService.updateMusico(id, dados);
     }
 
+    // Retorna dados do usuário autenticado usando token JWT
     @GetMapping("/me")
     public MusicoDTO getUsuarioLogado(Authentication auth) {
-        String email = auth.getName(); // pega o email do token JWT
+        String email = auth.getName();
         return new MusicoDTO(musicoService.findByEmail(email));
     }
 }

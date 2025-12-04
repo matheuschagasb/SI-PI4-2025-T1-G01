@@ -1,3 +1,5 @@
+//Marcos Roberto - 24010753
+
 package com.servidor.spring.servidor_spring.controller;
 
 import com.servidor.spring.servidor_spring.dto.ContratoRequestDTO;
@@ -24,6 +26,7 @@ public class ContratoController {
     @Autowired
     private ContratoService contratoService;
 
+    // Cria novo contrato
     @PostMapping
     public ResponseEntity<ContratoResponseDTO> createContrato(@RequestBody ContratoRequestDTO dados,
                                                               Authentication authentication,
@@ -37,6 +40,7 @@ public class ContratoController {
         return ResponseEntity.created(uri).body(responseDTO);
     }
 
+    // Confirma pagamento do contrato
     @PostMapping("/{id}/confirmar-pagamento")
     public ResponseEntity<ContratoResponseDTO> confirmarPagamento(@PathVariable String id, Authentication authentication) {
         String emailContratante = authentication.getName();
@@ -44,6 +48,7 @@ public class ContratoController {
         return ResponseEntity.ok(new ContratoResponseDTO(contratoAtualizado));
     }
 
+    // Retorna contratos do músico autenticado
     @GetMapping
     public ResponseEntity<List<ContratoResponseDTO>> getContratos(
             @RequestParam String musicoId,
@@ -67,6 +72,7 @@ public class ContratoController {
         return ResponseEntity.ok(responseDTOs);
     }
 
+    // Retorna contratos do contratante autenticado
     @GetMapping("/contratante")
     public ResponseEntity<List<ContratoResponseDTO>> getContratosParaContratante(Authentication authentication) {
         Object principal = authentication.getPrincipal();

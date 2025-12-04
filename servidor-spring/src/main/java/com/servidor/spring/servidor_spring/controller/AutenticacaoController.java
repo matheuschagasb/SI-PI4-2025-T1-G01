@@ -1,3 +1,5 @@
+//Matheus Chagas - 24015048
+
 package com.servidor.spring.servidor_spring.controller;
 
 import com.servidor.spring.servidor_spring.dto.DadosLogin;
@@ -24,6 +26,7 @@ public class AutenticacaoController {
     @Autowired
     private TokenService tokenService;
 
+    // Autentica usuário e gera token JWT
     @PostMapping
     public ResponseEntity efetuarLogin(@RequestBody @Valid DadosLogin dados) {
         var username = dados.role() + ":" + dados.email();
@@ -33,6 +36,7 @@ public class AutenticacaoController {
         var principal = authentication.getPrincipal();
         var tokenJWT = tokenService.gerarToken((org.springframework.security.core.userdetails.UserDetails) principal);
 
+        // Extrai dados específicos conforme o tipo de usuário
         String id = null;
         String cpf = null;
         String role = dados.role();
@@ -48,5 +52,6 @@ public class AutenticacaoController {
             id = contratante.getId();
         }
 
-        return ResponseEntity.ok(new DadosTokenJWT(tokenJWT, id, role, cpf, nome));    }
+        return ResponseEntity.ok(new DadosTokenJWT(tokenJWT, id, role, cpf, nome));
+    }
 }
