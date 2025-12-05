@@ -47,7 +47,7 @@ public class SecurityConfigurations {
                     req.requestMatchers(HttpMethod.POST, "/v1/contratos/{id}/confirmar-pagamento").hasRole("CONTRATANTE");
                     req.requestMatchers(HttpMethod.GET, "/v1/contratos").hasRole("MUSICO");
                     req.requestMatchers(HttpMethod.GET, "/v1/contratos/contratante").hasRole("CONTRATANTE");
-                    req.requestMatchers(HttpMethod.POST, "/v1/avaliacoes").hasRole("CONTRATANTE");
+                    req.requestMatchers(HttpMethod.POST, "/v1/avaliacoes").permitAll();
                     req.requestMatchers(HttpMethod.GET, "/v1/avaliacoes/**").permitAll();
                     req.requestMatchers("/hello-world").permitAll();
                     req.anyRequest().authenticated();
