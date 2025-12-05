@@ -18,6 +18,8 @@ interface ApiMusician {
   email: string;
   telefone: string;
   fotoPerfil?: string; // Add fotoPerfil to the API interface
+  nota?: number;
+  valor?: number;
 }
 
 // Interface for the Musician data used in the frontend
@@ -65,8 +67,8 @@ export default function Home() {
             name: apiMusician.nome,
             genre: apiMusician.generoMusical,
             subgenre: '',
-            rating: 0,
-            price: 0,
+            rating: apiMusician.nota || 0,
+            price: apiMusician.valor || 0,
             image: imageUrl, // Use fetched fotoPerfil
             cidade: apiMusician.cidade,
           };
@@ -128,11 +130,11 @@ export default function Home() {
             {/* User Actions */}
             <div className="flex items-center gap-4">
               <span className="font-medium text-gray-700 hidden sm:block"></span>
-              
+            
               <button className="p-2 text-gray-600 hover:bg-gray-100 rounded-full transition-colors" title="Idioma">
                 <i className="pi pi-globe text-xl"></i>
               </button>
-              
+            
               <Link href="/Contratante">
                 <div className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 p-1 pr-2 rounded-full border border-gray-200 transition-all shadow-sm hover:shadow-md">
                   <i className="pi pi-bars text-lg ml-2 text-gray-600"></i>
@@ -140,7 +142,7 @@ export default function Home() {
                 </div>
               </Link>
             </div>
-            
+          
           </div>
 
           {/* Genre Filters */}
@@ -162,14 +164,14 @@ export default function Home() {
                 <span className="ml-3 text-lg text-gray-600">Carregando músicos...</span>
             </div>
         )}
-        
+      
         {error && (
             <div className="bg-red-50 border border-red-200 text-red-600 p-4 rounded-lg text-center mt-8">
                 <i className="pi pi-exclamation-circle mr-2"></i>
                 Erro: {error}
             </div>
         )}
-        
+      
         {!loading && !error && filteredMusicians.length === 0 && (
           <div className="text-center py-12 text-gray-500">
             <i className="pi pi-search text-4xl mb-3 block opacity-20"></i>

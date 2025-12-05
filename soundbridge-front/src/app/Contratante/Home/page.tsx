@@ -5,12 +5,12 @@ import { ProgressSpinner } from 'primereact/progressspinner';
 import { Button } from 'primereact/button';
 import Image from 'next/image';
 import { TabView, TabPanel } from 'primereact/tabview';
-import { Dialog } from 'primereact/dialog'; // Novo
-import { Rating } from 'primereact/rating'; // Novo
-import { InputTextarea } from 'primereact/inputtextarea'; // Novo
+import { Dialog } from 'primereact/dialog';
+import { Rating } from 'primereact/rating';
+import { InputTextarea } from 'primereact/inputtextarea';
 import Link from 'next/link';
 
-const apiUrl = 'http://localhost:3001'; // Lembre-se de ajustar se seu proxy estiver na 3001 ou direto no 8080
+const apiUrl = 'http://localhost:3001';
 
 interface Contrato {
   id: string;
@@ -42,7 +42,6 @@ interface Contrato {
   observacoes: string;
   dataPagamento: string | null;
   comprovantePagamentoUrl: string | null;
-  // Se o contrato já tiver avaliação, seria bom vir aqui para desabilitar o botão
   avaliacaoFeita?: boolean; 
 }
 
@@ -56,7 +55,7 @@ export default function ContratanteHomePage() {
     // Estados para o Modal de Avaliação
     const [showAvaliacaoModal, setShowAvaliacaoModal] = useState(false);
     const [contratoSelecionado, setContratoSelecionado] = useState<Contrato | null>(null);
-    const [nota, setNota] = useState<number | null>(null); // 1 a 5
+    const [nota, setNota] = useState<number | null>(null);
     const [comentario, setComentario] = useState('');
     const [enviandoAvaliacao, setEnviandoAvaliacao] = useState(false);
 
@@ -140,7 +139,6 @@ export default function ContratanteHomePage() {
         }
     };
 
-    // --- Lógica de Avaliação ---
     const abrirModalAvaliacao = (contrato: Contrato) => {
         setContratoSelecionado(contrato);
         setNota(0);
@@ -158,12 +156,10 @@ export default function ContratanteHomePage() {
         setEnviandoAvaliacao(true);
 
         try {
-            // Estou assumindo que você vai criar este endpoint no Java
-            // POST /v1/avaliacoes
             const payload = {
                 contratoId: contratoSelecionado.id,
                 musicoId: contratoSelecionado.musico.id,
-                nota: nota, // Inteiro de 1 a 5
+                nota: nota,
                 comentario: comentario
             };
 
@@ -182,7 +178,6 @@ export default function ContratanteHomePage() {
 
             alert('Avaliação enviada com sucesso!');
             setShowAvaliacaoModal(false);
-            // Opcional: Recarregar contratos para atualizar status ou bloquear nova avaliação
             await fetchContracts(token!); 
 
         } catch (error) {
@@ -198,21 +193,57 @@ export default function ContratanteHomePage() {
         return data.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' às ' + data.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
     };
 
-    const getStatusIcon = (status: Contrato['status']) => {
-        switch (status) {
+    // --- NOVA LÓGICA DE VERIFICAÇÃO DE DATA ---
+    const isEventoConcluido = (contrato: Contrato) => {
+        const dataEvento = new Date(contrato.dataEvento);
+        const agora = new Date();
+
+        // Se o status já for CONCLUIDO no banco, retorna true
+        if (contrato.status === 'CONCLUIDO') return true;
+
+        // Se o status for CONFIRMADO e a data já passou, considera concluído
+        if (contrato.status === 'CONFIRMADO' && agora > dataEvento) {
+            return true;
+        }
+
+        return false;
+    };
+
+    const getStatusIcon = (contrato: Contrato) => {
+        if (isEventoConcluido(contrato)) {
+            return '/icons/check-verde.svg';
+        }
+        
+        switch (contrato.status) {
             case 'CONFIRMADO':
                 return '/icons/check-verde.svg';
             case 'PENDENTE':
                 return '/icons/pendente.svg';
-            case 'CONCLUIDO':
-                return '/icons/check-verde.svg'; 
             default:
                 return '/icons/pendente.svg';
         }
     };
 
-    const filteredContracts = (status: Contrato['status']) => {
-        return contratos.filter(c => c.status === status);
+    // --- FILTRO ATUALIZADO ---
+    const filteredContracts = (tabType: 'PENDENTE' | 'CONFIRMADO' | 'CONCLUIDO') => {
+        return contratos.filter(c => {
+            const concluidoPorData = isEventoConcluido(c);
+
+            if (tabType === 'CONCLUIDO') {
+                return concluidoPorData;
+            }
+
+            if (tabType === 'CONFIRMADO') {
+                // Só mostra em confirmado se NÃO estiver concluído por data
+                return c.status === 'CONFIRMADO' && !concluidoPorData;
+            }
+
+            if (tabType === 'PENDENTE') {
+                return c.status === 'PENDENTE';
+            }
+
+            return false;
+        });
     }
 
     if (loading) {
@@ -223,82 +254,88 @@ export default function ContratanteHomePage() {
         );
     }
 
-    const renderContratoCard = (contrato: Contrato) => (
-        <div
-            key={contrato.id}
-            className="flex items-center gap-6 px-6 py-4 bg-gray-50 rounded-lg border border-gray-200 mb-4"
-        >
-            <div className="flex flex-col items-center gap-1">
-                <Image
-                    src={getStatusIcon(contrato.status)}
-                    alt={contrato.status}
-                    width={24}
-                    height={24}
-                />
-                <Image
-                    src="/icons/contrato.svg"
-                    alt="Contrato"
-                    width={20}
-                    height={20}
-                />
-            </div>
+    const renderContratoCard = (contrato: Contrato) => {
+        const concluido = isEventoConcluido(contrato);
 
-            <div className="flex-1">
-                <p className="text-xs text-gray-500 mb-1">Músico</p>
-                <p className="text-sm text-gray-700">{contrato.musico.nome}</p>
-            </div>
+        return (
+            <div
+                key={contrato.id}
+                className="flex items-center gap-6 px-6 py-4 bg-gray-50 rounded-lg border border-gray-200 mb-4"
+            >
+                <div className="flex flex-col items-center gap-1">
+                    <Image
+                        src={getStatusIcon(contrato)}
+                        alt={contrato.status}
+                        width={24}
+                        height={24}
+                    />
+                    <Image
+                        src="/icons/contrato.svg"
+                        alt="Contrato"
+                        width={20}
+                        height={20}
+                    />
+                </div>
 
-            <div className="flex-1">
-                <p className="text-xs text-gray-500 mb-1">Data do Evento</p>
-                <p className="text-sm text-gray-700">{formatarData(contrato.dataEvento)}</p>
-            </div>
-            
-            <div className="flex-[2]">
-                <p className="text-xs text-gray-500 mb-1">Local</p>
-                <p className="text-sm text-gray-700">{contrato.localEvento}</p>
-            </div>
+                <div className="flex-1">
+                    <p className="text-xs text-gray-500 mb-1">Músico</p>
+                    <p className="text-sm text-gray-700">{contrato.musico.nome}</p>
+                </div>
 
-            <div className="flex-1">
-                <p className="text-xs text-gray-500 mb-1">Valor</p>
-                <p className="text-sm text-gray-700">R$ {contrato.valorTotal.toFixed(2)}</p>
+                <div className="flex-1">
+                    <p className="text-xs text-gray-500 mb-1">Data do Evento</p>
+                    <p className="text-sm text-gray-700">{formatarData(contrato.dataEvento)}</p>
+                </div>
+                
+                <div className="flex-[2]">
+                    <p className="text-xs text-gray-500 mb-1">Local</p>
+                    <p className="text-sm text-gray-700">{contrato.localEvento}</p>
+                </div>
+
+                <div className="flex-1">
+                    <p className="text-xs text-gray-500 mb-1">Valor</p>
+                    <p className="text-sm text-gray-700">R$ {contrato.valorTotal.toFixed(2)}</p>
+                </div>
+
+                {/* Botão de Pagar (Apenas Pendente) */}
+                {contrato.status === 'PENDENTE' && (
+                    <Button
+                        label="Pagar"
+                        onClick={() => handlePagar(contrato.id)}
+                        className="p-button-success"
+                        style={{
+                            background: '#28a745',
+                            border: 'none',
+                            borderRadius: '999px',
+                            color: 'white',
+                            fontSize: '14px',
+                            padding: '8px 16px'
+                        }}
+                    />
+                )}
+
+                {/* Botão de Avaliar (Se estiver concluído pela lógica de data ou status) */}
+                {concluido && (
+                    <Button
+                        label="Avaliar"
+                        icon="pi pi-star"
+                        onClick={() => abrirModalAvaliacao(contrato)}
+                        className="p-button-warning"
+                        disabled={contrato.avaliacaoFeita} // Desabilita se já avaliou (opcional)
+                        style={{
+                            background: '#f59e0b',
+                            border: 'none',
+                            borderRadius: '999px',
+                            color: 'white',
+                            fontSize: '14px',
+                            padding: '8px 16px',
+                            opacity: contrato.avaliacaoFeita ? 0.6 : 1
+                        }}
+                    />
+                )}
             </div>
-
-            {/* Botão de Pagar (Apenas Pendente) */}
-            {contrato.status === 'PENDENTE' && (
-                <Button
-                    label="Pagar"
-                    onClick={() => handlePagar(contrato.id)}
-                    className="p-button-success"
-                    style={{
-                        background: '#28a745',
-                        border: 'none',
-                        borderRadius: '999px',
-                        color: 'white',
-                        fontSize: '14px',
-                        padding: '8px 16px'
-                    }}
-                />
-            )}
-
-            {/* Botão de Avaliar (Apenas Concluído) */}
-            {contrato.status === 'CONCLUIDO' && (
-                <Button
-                    label="Avaliar"
-                    icon="pi pi-star"
-                    onClick={() => abrirModalAvaliacao(contrato)}
-                    className="p-button-warning"
-                    style={{
-                        background: '#f59e0b', // Amber-500
-                        border: 'none',
-                        borderRadius: '999px',
-                        color: 'white',
-                        fontSize: '14px',
-                        padding: '8px 16px'
-                    }}
-                />
-            )}
-        </div>
-    );
+        );
+    };
 
     return (
         <div className="min-h-screen bg-white">
@@ -326,7 +363,7 @@ export default function ContratanteHomePage() {
                     <TabPanel header="Confirmados">
                         {filteredContracts('CONFIRMADO').length > 0 ? (
                            filteredContracts('CONFIRMADO').map(renderContratoCard)
-                        ) : <p>Nenhum contrato confirmado.</p>}
+                        ) : <p>Nenhum contrato confirmado (futuro).</p>}
                     </TabPanel>
                     <TabPanel header="Concluídos">
                         {filteredContracts('CONCLUIDO').length > 0 ? (
