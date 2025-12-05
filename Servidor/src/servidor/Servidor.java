@@ -9,7 +9,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.http.HttpResponse;
-import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.Executors;
 
@@ -62,7 +61,7 @@ public class Servidor {
                 String requestBody = readRequestBody(exchange.getRequestBody());
                 String authToken = extractAuthToken(exchange.getRequestHeaders().getFirst("Authorization"));
                 
-                System.out.println("➡️  Proxying request: " + method + " " + path);
+                System.out.println("Proxying request: " + method + " " + path);
 
                 HttpResponse<String> backendResponse = proxyService.forwardRequest(path, method, requestBody, authToken);
 
