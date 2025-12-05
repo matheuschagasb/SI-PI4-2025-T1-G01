@@ -115,12 +115,11 @@ export default function Home() {
             {/* Search Bar */}
             <div className="flex-1 w-full max-w-xl mx-4">
               <span className="p-input-icon-right w-full">
-                <i className="pi pi-search text-gray-400" />
                 <InputText
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Buscar por nome, cidade ou estilo..."
-                  className="w-full p-inputtext-sm"
+                  placeholder="Buscar por nome"
+                  className="w-full p-inputtext-sm bg-gray-100 rounded-2xl border-0 focus:shadow-lg pl-4 my-4"
                 />
               </span>
             </div>
