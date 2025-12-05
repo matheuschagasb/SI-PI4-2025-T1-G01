@@ -15,7 +15,8 @@ public record AvaliacaoResponseDTO(
                 avaliacao.getId(),
                 avaliacao.getNota(),
                 avaliacao.getComentario(),
-                avaliacao.getContratante().getNome(),
+                // Proteção contra NullPointerException aqui:
+                (avaliacao.getContratante() != null) ? avaliacao.getContratante().getNome() : "Contratante Desconhecido",
                 avaliacao.getDataAvaliacao()
         );
     }
