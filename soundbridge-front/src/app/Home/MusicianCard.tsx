@@ -7,7 +7,7 @@ interface Musician {
   genre: string;
   subgenre: string;
   rating: number;
-  price: number;
+  price: string;
   image: string;
 }
 
@@ -32,8 +32,6 @@ export const MusicianCard = ({ musician }: MusicianCardProps) => {
 
           <div className="flex items-center justify-between mt-2">
             <div className="flex items-center gap-1">
-              <i className="pi pi-star text-yellow-500"></i>
-              <span className="text-gray-700 text-sm">{musician.rating.toFixed(2)}</span>
             </div>
             <span className="font-medium text-gray-800">
               R$ {musician.price} hora
