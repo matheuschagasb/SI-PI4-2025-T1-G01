@@ -7,7 +7,7 @@ import { GenreFilters } from './GenreFilters';
 import { MusicianCard } from './MusicianCard';
 import { useState, useEffect } from 'react';
 
-// Interface for API response structure
+// Interface atualizada para refletir o que vem do Java
 interface ApiMusician {
   id: string;
   nome: string;
@@ -17,17 +17,19 @@ interface ApiMusician {
   generoMusical: string;
   email: string;
   telefone: string;
-  fotoPerfil?: string; // Add fotoPerfil to the API interface
+  fotoPerfil?: string;
+  preco?: string | number; // Adicionado
+  rating?: number;         // Adicionado
 }
 
-// Interface for the Musician data used in the frontend
+// Interface usada no Frontend
 interface Musician {
   id: string;
   name: string;
   genre: string;
   subgenre: string;
   rating: number;
-  price: number;
+  price: string; // Mudei para string para facilitar a formatação
   image: string;
   cidade: string;
 }
@@ -45,32 +47,37 @@ export default function Home() {
       setError(null);
       try {
         const genreQuery = selectedGenre ? `?genero=${selectedGenre}` : '';
+        // Ajuste a porta se necessário (8080 direto ou 3001 via proxy)
         const response = await fetch(`http://localhost:8080/v1/musico${genreQuery}`);
+        
         if (!response.ok) {
           throw new Error('Failed to fetch musicians');
         }
+        
         const data: ApiMusician[] = await response.json();
+        
         const mappedMusicians: Musician[] = data.map((apiMusician: ApiMusician) => {
-          let imageUrl = '/default-musician.jpg'; // Default image
+          let imageUrl = '/default-musician.jpg';
           if (apiMusician.fotoPerfil) {
-            // Prepend data URI prefix if it's not already there
             if (!apiMusician.fotoPerfil.startsWith('data:')) {
-              imageUrl = `data:image/jpeg;base64,${apiMusician.fotoPerfil}`; // Assuming JPEG for simplicity
+              imageUrl = `data:image/jpeg;base64,${apiMusician.fotoPerfil}`;
             } else {
               imageUrl = apiMusician.fotoPerfil;
             }
           }
+
           return {
             id: apiMusician.id,
             name: apiMusician.nome,
             genre: apiMusician.generoMusical,
-            subgenre: '',
-            rating: 0,
-            price: 0,
-            image: imageUrl, // Use fetched fotoPerfil
+            subgenre: '', // Se tiver subgenero no backend, adicione aqui
+            rating: apiMusician.rating || 5.0, // Pega do backend ou padrão 5.0
+            price: apiMusician.preco ? apiMusician.preco.toString() : 'A combinar', // Pega do backend
+            image: imageUrl,
             cidade: apiMusician.cidade,
           };
         });
+        
         setMusicians(mappedMusicians);
       } catch (err: any) {
         setError(err.message || 'Error fetching musicians');
@@ -96,7 +103,6 @@ export default function Home() {
     <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Header */}
       <header className="bg-white shadow-sm sticky top-0 z-50">
-        {/* Top Banner */}
         <div className="bg-gray-900 text-white px-4 py-2 flex justify-between items-center text-sm">
           <p className="font-medium">Bem-Vindo!</p>
           <button className="text-white hover:text-gray-300 transition-colors">
@@ -104,34 +110,24 @@ export default function Home() {
           </button>
         </div>
 
-        {/* Main Nav */}
         <div className="container mx-auto px-4 py-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            {/* Logo */}
             <Link href="#" className="text-2xl font-bold text-blue-600 no-underline hover:text-blue-700 transition-colors">
               SoundBridge
             </Link>
 
-            {/* Search Bar */}
             <div className="flex-1 w-full max-w-xl mx-4">
               <span className="p-input-icon-right w-full">
                 <InputText
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Buscar por nome"
+                  placeholder="Buscar por nome, gênero ou cidade"
                   className="w-full p-inputtext-sm bg-gray-100 rounded-2xl border-0 focus:shadow-lg pl-4 my-4"
                 />
               </span>
             </div>
 
-            {/* User Actions */}
             <div className="flex items-center gap-4">
-              <span className="font-medium text-gray-700 hidden sm:block"></span>
-              
-              <button className="p-2 text-gray-600 hover:bg-gray-100 rounded-full transition-colors" title="Idioma">
-                <i className="pi pi-globe text-xl"></i>
-              </button>
-              
               <Link href="/Contratante">
                 <div className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 p-1 pr-2 rounded-full border border-gray-200 transition-all shadow-sm hover:shadow-md">
                   <i className="pi pi-bars text-lg ml-2 text-gray-600"></i>
@@ -141,9 +137,7 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Genre Filters */}
           <div className="mt-6 border-t border-gray-100 pt-4">
-             {/* Envolvendo o componente de filtros para garantir espaçamento */}
             <GenreFilters
               onSelectGenre={setSelectedGenre}
               selectedGenre={selectedGenre}
@@ -152,7 +146,6 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Cards de músicos */}
       <main className="container mx-auto px-4 py-8 flex-grow">
         {loading && (
             <div className="flex justify-center items-center py-12">
@@ -175,7 +168,6 @@ export default function Home() {
           </div>
         )}
 
-        {/* Grid Layout Corrigido */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {!loading && !error && filteredMusicians.map((musician) => (
             <div key={musician.id} className="h-full">
