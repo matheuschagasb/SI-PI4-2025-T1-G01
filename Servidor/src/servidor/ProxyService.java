@@ -17,7 +17,7 @@ import java.util.Map;
 public class ProxyService {
     private final HttpClient client = HttpClient.newBuilder().build();
     private final Gson gson;
-    private static final String BASE_URL = "http://localhost:8080";
+    private static final String BASE_URL = "http://localhost:3001";
 
     public ProxyService() {
         GsonBuilder gsonBuilder = new GsonBuilder();

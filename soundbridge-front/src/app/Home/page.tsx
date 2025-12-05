@@ -48,7 +48,7 @@ export default function Home() {
       try {
         const genreQuery = selectedGenre ? `?genero=${selectedGenre}` : '';
         // Ajuste a porta se necessário (8080 direto ou 3001 via proxy)
-        const response = await fetch(`http://localhost:8080/v1/musico${genreQuery}`);
+        const response = await fetch(`http://localhost:3001/v1/musico${genreQuery}`);
         
         if (!response.ok) {
           throw new Error('Failed to fetch musicians');
