@@ -1,4 +1,5 @@
 // Guilherme Padilha - 24005138
+
 'use client';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -11,7 +12,8 @@ import { Rating } from 'primereact/rating'; // Novo
 import { InputTextarea } from 'primereact/inputtextarea'; // Novo
 import Link from 'next/link';
 
-const apiUrl = 'http://localhost:3001'; 
+const apiUrl = 'http://localhost:3001'; // Lembre-se de ajustar se seu proxy estiver na 3001 ou direto no 8080
+
 interface Contrato {
   id: string;
   musico: {
@@ -47,11 +49,11 @@ interface Contrato {
 }
 
 export default function ContratanteHomePage() {
-  const [contratos, setContratos] = useState<Contrato[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [nomeContratante, setNomeContratante] = useState<string>('');
-  const router = useRouter();
-  const [activeIndex, setActiveIndex] = useState(0);
+    const [contratos, setContratos] = useState<Contrato[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [nomeContratante, setNomeContratante] = useState<string>('');
+    const router = useRouter();
+    const [activeIndex, setActiveIndex] = useState(0);
 
     // Estados para o Modal de Avaliação
     const [showAvaliacaoModal, setShowAvaliacaoModal] = useState(false);
@@ -80,7 +82,7 @@ export default function ContratanteHomePage() {
         } catch (error: any) {
             console.error("Error fetching contracts:", error);
         }
-      });
+    };
 
     useEffect(() => {
         const fetchData = async () => {
@@ -221,71 +223,32 @@ export default function ContratanteHomePage() {
                 <ProgressSpinner />
             </div>
         );
-      }
-
-      const fetchedContratos = await response.json();
-      setContratos(fetchedContratos);
-
-    } catch (error: any) {
-      console.error("Error fetching contracts:", error);
-    }
-  };
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const id = localStorage.getItem('soundbridge/id');
-        const nomeArmazenado = localStorage.getItem('soundbridge/nome');
-        const token = localStorage.getItem('soundbridge/token');
-
-        // Se não tiver id ou token no localStorage, força login novamente
-        if (!id || !token) {
-          console.error("Contratante ID or token not found in localStorage. Redirecting to login.");
-          router.push('/Login');
-          return;
-        }
-
-        if (nomeArmazenado) {
-          setNomeContratante(nomeArmazenado);
-        }
-
-        await fetchContracts(token);
-
-      } catch (error) {
-        console.error('Erro ao carregar contratos:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [router]);
-
-  // Chama endpoint de confirmação de pagamento para um contrato específico
-  const handlePagar = async (contratoId: string) => {
-    const token = localStorage.getItem('soundbridge/token');
-    if (!token) {
-      router.push('/Login');
-      return;
     }
 
-    try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-      const response = await fetch(
-        `${apiUrl}/v1/contratos/${contratoId}/confirmar-pagamento`,
-        {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        }
-      );
+    const renderContratoCard = (contrato: Contrato) => (
+        <div
+            key={contrato.id}
+            className="flex items-center gap-6 px-6 py-4 bg-gray-50 rounded-lg border border-gray-200 mb-4"
+        >
+            <div className="flex flex-col items-center gap-1">
+                <Image
+                    src={getStatusIcon(contrato.status)}
+                    alt={contrato.status}
+                    width={24}
+                    height={24}
+                />
+                <Image
+                    src="/icons/contrato.svg"
+                    alt="Contrato"
+                    width={20}
+                    height={20}
+                />
+            </div>
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Falha ao processar pagamento.');
-      }
+            <div className="flex-1">
+                <p className="text-xs text-gray-500 mb-1">Músico</p>
+                <p className="text-sm text-gray-700">{contrato.musico.nome}</p>
+            </div>
 
             <div className="flex-1">
                 <p className="text-xs text-gray-500 mb-1">Data do Evento</p>
@@ -339,9 +302,6 @@ export default function ContratanteHomePage() {
         </div>
     );
 
-  // Converte ISO string em data/hora legível em pt-BR
-  const formatarData = (dataISO: string) => {
-    const data = new Date(dataISO);
     return (
         <div className="min-h-screen bg-white">
             <header className="flex items-center justify-between px-8 py-4 border-b border-gray-200">
