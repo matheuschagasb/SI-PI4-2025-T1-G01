@@ -1,3 +1,4 @@
+// Matheus Chagas - 24015048
 'use client';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -28,6 +29,7 @@ export default function MusicoHomePage() {
     const [nomeMusico, setNomeMusico] = useState<string>('');
     const router = useRouter();
 
+    // Converte o formato vindo da API para o formato usado na tela
     const mapAndSetContracts = (fetchedContratos: any[], musicianId: string) => {
         const currentMusicoNome = localStorage.getItem('soundbridge/nome') || 'Músico';
 
@@ -40,6 +42,7 @@ export default function MusicoHomePage() {
             localApresentacao: contrato.localEvento,
             dataPagamento: contrato.dataPagamento,
             dataServico: contrato.dataEvento,
+            // aqui status 'CONFIRMADO' da API vira booleano contratoAtivo
             contratoAtivo: contrato.status === 'CONFIRMADO',
             valorContrato: contrato.valorTotal,
             horasDuracao: contrato.duracao,
@@ -60,6 +63,7 @@ export default function MusicoHomePage() {
 
             if (!response.ok) {
                 const errorData = await response.json();
+                // erro detalhado caso backend não responda 2xx
                 throw new Error(errorData.message || `Failed to fetch contracts: ${response.status} ${response.statusText}`);
             }
 
@@ -79,6 +83,7 @@ export default function MusicoHomePage() {
                 const nomeArmazenado = localStorage.getItem('soundbridge/nome');
                 const token = localStorage.getItem('soundbridge/token');
                 
+                // Se não tiver id/token, volta para login
                 if (!id || !token) {
                     console.error("Musician ID or token not found in localStorage. Redirecting to login.");
                     router.push('/Login');
@@ -88,6 +93,7 @@ export default function MusicoHomePage() {
                 if (nomeArmazenado) {
                     setNomeMusico(nomeArmazenado);
                 } else {
+                    // Se o nome não estiver em cache, busca do backend e salva no localStorage
                     const responseName = await fetch(`http://localhost:3001/v1/musico/${id}`);
                     if (responseName.ok) {
                         const musicoData = await responseName.json();
@@ -117,6 +123,7 @@ export default function MusicoHomePage() {
         return data.toLocaleDateString('pt-BR');
     };
 
+    // Decide qual ícone mostrar dependendo se o contrato está ativo ou não
     const getStatusIcon = (contrato: Contrato) => {
         if (contrato.contratoAtivo) {
             return '/icons/check-verde.svg';
@@ -136,25 +143,27 @@ export default function MusicoHomePage() {
         <div className="min-h-screen bg-white">
             {/* Header */}
             <header className="flex items-center justify-between px-8 py-4 border-b border-gray-200">
-            <Link href="#" className="text-2xl font-bold text-blue-600 no-underline hover:text-blue-700 transition-colors">
-              SoundBridge
-            </Link>
+                <Link href="#" className="text-2xl font-bold text-blue-600 no-underline hover:text-blue-700 transition-colors">
+                    SoundBridge
+                </Link>
 
-                            <div className="flex items-center gap-4">
-              <span className="font-medium text-gray-700 hidden sm:block"></span>
-              
-              <button className="p-2 text-gray-600 hover:bg-gray-100 rounded-full transition-colors" title="Idioma">
-                <i className="pi pi-globe text-xl"></i>
-              </button>
-              
-              <Link href="/Musico/Editar">
-                <div className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 p-1 pr-2 rounded-full border border-gray-200 transition-all shadow-sm hover:shadow-md">
-                  <i className="pi pi-bars text-lg ml-2 text-gray-600"></i>
-                  <Avatar icon="pi pi-user" shape="circle" className="bg-blue-600 text-white" />
+                <div className="flex items-center gap-4">
+                    <span className="font-medium text-gray-700 hidden sm:block"></span>
+                    
+                    <button
+                        className="p-2 text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
+                        title="Idioma"
+                    >
+                        <i className="pi pi-globe text-xl"></i>
+                    </button>
+                    
+                    <Link href="/Musico/Editar">
+                        <div className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 p-1 pr-2 rounded-full border border-gray-200 transition-all shadow-sm hover:shadow-md">
+                            <i className="pi pi-bars text-lg ml-2 text-gray-600"></i>
+                            <Avatar icon="pi pi-user" shape="circle" className="bg-blue-600 text-white" />
+                        </div>
+                    </Link>
                 </div>
-              </Link>
-            </div>
-            
             </header>
 
             {/* Main Content */}
@@ -185,7 +194,6 @@ export default function MusicoHomePage() {
                                 key={contrato.id}
                                 className="flex items-center gap-6 px-6 py-4 bg-green-50 rounded-lg border border-green-100"
                             >
-
                                 <div className="flex flex-col items-center gap-1">
                                     <Image
                                         src={getStatusIcon(contrato)}
@@ -208,7 +216,9 @@ export default function MusicoHomePage() {
 
                                 <div className="flex-1">
                                     <p className="text-xs text-gray-500 mb-1">Data do pagamento:</p>
-                                    <p className="text-sm text-gray-700">{contrato.dataPagamento ? formatarData(contrato.dataPagamento) : 'N/A'}</p>
+                                    <p className="text-sm text-gray-700">
+                                        {contrato.dataPagamento ? formatarData(contrato.dataPagamento) : 'N/A'}
+                                    </p>
                                 </div>
 
                                 <div className="flex-[2]">

@@ -1,3 +1,4 @@
+// Victor Ramalho - 24007532
 'use client';
 
 import { useState } from 'react';
@@ -27,6 +28,7 @@ export default function Signup() {
     generoMusical: '',
   });
 
+  // Atualiza dinamicamente qualquer campo do formulário pelo nome
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
@@ -39,6 +41,7 @@ export default function Signup() {
       return;
     }
 
+    // Remove tudo que não for número e valida tamanho do telefone
     const cleanedPhoneNumber = formData.telefone.replace(/\D/g, '');
     if (cleanedPhoneNumber.length < 10 || cleanedPhoneNumber.length > 11) {
       alert('Por favor, insira um número de telefone válido (10 ou 11 dígitos com DDD).');
@@ -50,12 +53,15 @@ export default function Signup() {
       return;
     }
 
+    // Monta dinamicamente a URL e o corpo da requisição
+    // dependendo se o usuário é "musico" ou "contratante"
     let url = '';
     let payload: any = {};
 
     if (formData.role === 'musico') {
       url = 'http://localhost:3001/v1/musico';
       payload = {
+        // Para músico, o backend espera o nome artístico no campo "nome"
         nome: formData.nomeArtistico,
         cpf: formData.cpf,
         biografia: formData.biografia,
@@ -77,11 +83,13 @@ export default function Signup() {
     }
 
     try {
+      // Envia os dados para a API REST usando fetch
       const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        // Converte o objeto JS em JSON para o corpo da requisição
         body: JSON.stringify(payload),
       });
 
@@ -89,6 +97,7 @@ export default function Signup() {
         alert('Cadastro realizado com sucesso!');
         router.push('/Login');
       } else {
+        // Tenta extrair mensagem de erro amigável do backend
         const errorData = await response
           .json()
           .catch(() => ({ message: 'Não foi possível ler a resposta do servidor.' }));
@@ -106,7 +115,6 @@ export default function Signup() {
 
   return (
     <div className="flex flex-col justify-center items-center min-h-screen bg-white p-4 relative text-[13px]">
-
       <div className="w-full max-w-md bg-gray-50 rounded-[30px] shadow-sm px-8 py-8 border border-gray-100">
         <h1 className="text-center text-gray-800 mb-1 font-semibold text-[15px]">
           Criar conta
@@ -145,6 +153,7 @@ export default function Signup() {
         <Divider className="my-4" />
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+          {/* Componente que muda os campos exibidos conforme o role selecionado */}
           <Fields mode={formData.role} formData={formData} handleChange={handleChange} />
 
           <Divider className="my-4" />

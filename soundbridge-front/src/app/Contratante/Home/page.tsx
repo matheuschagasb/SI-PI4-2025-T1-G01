@@ -1,13 +1,16 @@
-"use client"
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { ProgressSpinner } from "primereact/progressspinner"
-import { Button } from "primereact/button"
-import Image from "next/image"
-import { Dialog } from "primereact/dialog"
-import { Rating } from "primereact/rating"
-import { InputTextarea } from "primereact/inputtextarea"
-import Link from "next/link"
+// Guilherme Padilha - 24005138
+
+'use client';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { ProgressSpinner } from 'primereact/progressspinner';
+import { Button } from 'primereact/button';
+import Image from 'next/image';
+import { TabView, TabPanel } from 'primereact/tabview';
+import { Dialog } from 'primereact/dialog'; // Novo
+import { Rating } from 'primereact/rating'; // Novo
+import { InputTextarea } from 'primereact/inputtextarea'; // Novo
+import Link from 'next/link';
 
 const apiUrl = "http://localhost:3001"
 
