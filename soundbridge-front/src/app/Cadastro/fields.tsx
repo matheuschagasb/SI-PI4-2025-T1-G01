@@ -1,8 +1,13 @@
+// Thiago Mauri - 24015357
+
+// Importa componentes de input do PrimeReact para campos de texto e dropdown
 import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Dropdown } from 'primereact/dropdown';
 
+// Componente de campos reutilizáveis que varia de acordo com o "mode" (contratante ou musico)
 const Fields = ({ mode, formData, handleChange }) => {
+    // Opções de gêneros musicais para o Dropdown
     const genres = [
         { label: 'Rock', value: 'Rock' },
         { label: 'Pop', value: 'Pop' },
@@ -15,6 +20,7 @@ const Fields = ({ mode, formData, handleChange }) => {
         { label: 'Reggae', value: 'Reggae' },
     ];
 
+    // Lista de estados brasileiros para o Dropdown
     const states = [
         { label: 'Acre', value: 'AC' },
         { label: 'Alagoas', value: 'AL' },
@@ -45,17 +51,23 @@ const Fields = ({ mode, formData, handleChange }) => {
         { label: 'Tocantins', value: 'TO' },
     ];
 
+    // Classe base compartilhada entre todos os inputs (estilização com Tailwind)
     const inputClass =
         'w-full h-10 px-4 border border-gray-200 rounded-[999px] text-[12px] focus:border-blue-400 focus:ring-0';
+
+    // Estilo inline adicional para tirar sombra padrão e alterar background
     const inputStyle = { boxShadow: 'none', backgroundColor: '#fafafa' };
 
     return (
         <>
+            {/* Renderiza campos específicos se o modo for "contratante" */}
             {mode === 'contratante' && (
                 <div className="flex flex-col gap-0">
+                    {/* Campo de nome completo do contratante */}
                     <InputText
                         id="nome"
                         value={formData.nome}
+                        // handleChange recebe o nome do campo e o novo valor
                         onChange={(e) => handleChange('nome', e.target.value)}
                         className={inputClass}
                         placeholder="Nome completo"
@@ -65,9 +77,11 @@ const Fields = ({ mode, formData, handleChange }) => {
                 </div>
             )}
 
+            {/* Renderiza campos específicos se o modo for "musico" */}
             {mode === 'musico' && (
                 <>
                     <div className="flex flex-col gap-2">
+                        {/* Nome artístico do músico */}
                         <InputText
                             id="nomeArtistico"
                             value={formData.nomeArtistico}
@@ -80,6 +94,7 @@ const Fields = ({ mode, formData, handleChange }) => {
                     </div>
 
                     <div className="flex flex-col gap-2">
+                        {/* CPF do músico */}
                         <InputText
                             id="cpf"
                             value={formData.cpf}
@@ -92,6 +107,7 @@ const Fields = ({ mode, formData, handleChange }) => {
                     </div>
 
                     <div className="flex flex-col gap-2">
+                        {/* Biografia do músico (textarea com autoResize) */}
                         <InputTextarea
                             id="biografia"
                             value={formData.biografia}
@@ -106,6 +122,7 @@ const Fields = ({ mode, formData, handleChange }) => {
                     </div>
 
                     <div className="flex flex-col gap-2">
+                        {/* Cidade do músico */}
                         <InputText
                             id="cidade"
                             value={formData.cidade}
@@ -118,9 +135,11 @@ const Fields = ({ mode, formData, handleChange }) => {
                     </div>
 
                     <div className="flex flex-col gap-2">
+                        {/* Dropdown de estado (usa lista 'states' definida acima) */}
                         <Dropdown
                             id="estado"
                             value={formData.estado}
+                            // Em Dropdown do PrimeReact, o valor vem em e.value
                             onChange={(e) => handleChange('estado', e.value)}
                             options={states}
                             placeholder="Estado"
@@ -132,6 +151,7 @@ const Fields = ({ mode, formData, handleChange }) => {
                     </div>
 
                     <div className="flex flex-col gap-2">
+                        {/* Dropdown de gênero musical (usa lista 'genres') */}
                         <Dropdown
                             id="generoMusical"
                             value={formData.generoMusical}
@@ -150,4 +170,5 @@ const Fields = ({ mode, formData, handleChange }) => {
     );
 };
 
+// Exporta o componente para ser utilizado em outros arquivos
 export default Fields;

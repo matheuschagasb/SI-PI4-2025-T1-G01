@@ -1,3 +1,4 @@
+// Marcos Roberto - 24010753
 "use client";
 
 import { useState } from 'react';
@@ -8,6 +9,7 @@ import { useRouter } from 'next/navigation';
 
 const ForgotPassword = () => {
     const [email, setEmail] = useState('');
+    // status controla o fluxo de feedback na tela (idle, carregando, sucesso ou erro)
     const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
     const router = useRouter();
 
@@ -16,11 +18,13 @@ const ForgotPassword = () => {
         setStatus('loading');
 
         try {
+            // Simula envio de e-mail de recuperação (poderia ser chamada real de API)
             await fakeSendResetEmail(email);
             setStatus('success');
         } catch (err) {
             setStatus('error');
         } finally {
+            // Após 3 segundos, limpa a mensagem voltando para o estado neutro
             setTimeout(() => setStatus('idle'), 3000);
         }
     };
@@ -52,6 +56,7 @@ const ForgotPassword = () => {
                         style={inputStyle}
                     />
 
+                    {/* Mensagem de sucesso exibida apenas quando o status for "success" */}
                     {status === 'success' && (
                         <Message
                             severity="success"
@@ -60,6 +65,7 @@ const ForgotPassword = () => {
                         />
                     )}
 
+                    {/* Mensagem de erro exibida apenas quando o status for "error" */}
                     {status === 'error' && (
                         <Message
                             severity="error"
@@ -70,6 +76,7 @@ const ForgotPassword = () => {
 
                     <Button
                         label="Enviar link"
+                        // Ícone muda para spinner enquanto está em "loading"
                         icon={status === 'loading' ? 'pi pi-spin pi-spinner' : 'pi pi-envelope'}
                         iconPos="right"
                         disabled={status === 'loading'}
@@ -97,6 +104,8 @@ const ForgotPassword = () => {
     );
 };
 
+// Função que simula chamada assíncrona de envio de e-mail de reset
+// Resolve se o e-mail tiver "@", rejeita caso contrário
 const fakeSendResetEmail = (email) =>
     new Promise((resolve, reject) => {
         setTimeout(() => {

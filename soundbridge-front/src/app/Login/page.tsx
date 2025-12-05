@@ -1,3 +1,4 @@
+// // Marcos Junior - 24010753
 'use client';
 import { useState } from 'react';
 import { Button } from 'primereact/button';
@@ -9,6 +10,7 @@ import { useRouter } from 'next/navigation';
 export default function LoginPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    // controla se o login será feito como músico ou contratante
     const [role, setRole] = useState<'musico' | 'contratante'>('musico');
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
@@ -20,6 +22,7 @@ export default function LoginPage() {
         setError(null);
 
         try {
+            // chamada à API de autenticação, passando também o "role"
             const response = await fetch('http://localhost:3001/login', {
                 method: 'POST',
                 headers: {
@@ -30,12 +33,15 @@ export default function LoginPage() {
 
             if (response.ok) {
                 const data = await response.json();
-                console.log("DATA login", data)
+                console.log("DATA login", data);
+
+                // salva dados essenciais no localStorage para manter sessão do usuário
                 localStorage.setItem('soundbridge/token', data.token);
                 localStorage.setItem('soundbridge/id', data.id);
                 localStorage.setItem('soundbridge/nome', data.nome);
                 localStorage.setItem('soundbridge/role', role);
 
+                // redireciona para home específica dependendo do tipo de usuário
                 if (role === 'contratante') {
                     router.push('/Home');
                 } else {
@@ -43,11 +49,13 @@ export default function LoginPage() {
                     router.push('/Musico/Home');
                 }
             } else if (response.status === 401) {
+                // erro específico de credenciais inválidas/perfil incorreto
                 setError('Email, senha ou perfil inválidos.');
             } else {
                 setError('Ocorreu um erro. Tente novamente mais tarde.');
             }
         } catch (error) {
+            // erro de rede / servidor inacessível
             setError('Não foi possível conectar ao servidor. Verifique sua conexão.');
             console.error('Login error:', error);
         } finally {
@@ -61,7 +69,6 @@ export default function LoginPage() {
 
     return (
         <div className="flex flex-col justify-center items-center min-h-screen bg-white p-4 relative text-[13px]">
-
             <div className="w-full max-w-md bg-gray-50 rounded-[30px] shadow-sm px-8 py-8 border border-gray-100">
                 <h1 className="text-center text-gray-800 mb-6 font-semibold text-[15px]">
                     Login
@@ -95,7 +102,6 @@ export default function LoginPage() {
                 </div>
 
                 <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-
                     <InputText
                         id="email"
                         value={email}
@@ -125,18 +131,6 @@ export default function LoginPage() {
                         required
                         inputStyle={inputStyle}
                     />
-
-                    {/*
-                    <div className="flex justify-end -mt-1 mb-1">
-                        <Button
-                            label="Esqueceu a senha?"SS
-                            className="p-button-link p-0 text-blue-500 text-[11px]"
-                            type="button"
-                            onClick={() => router.push('/ForgotPassword')}
-                            tabIndex={-1}
-                        />SS
-                    </div>
-                    */}
 
                     {error && (
                         <div className="text-red-500 text-center text-xs mb-2">
