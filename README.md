@@ -6,7 +6,7 @@ SoundBridge é uma plataforma completa projetada para conectar músicos talentos
 
 O projeto é construído sobre uma arquitetura moderna de 3 camadas, garantindo separação de responsabilidades, escalabilidade e manutenibilidade.
 
-`Frontend (Porta 3000)` <-> `Proxy Server (Porta 3001)` <-> `Backend API (Porta 8080)` <-> `Banco de Dados (PostgreSQL)`
+`Frontend (Porta 3000)` <-> `Servidor (Porta 3001)` <-> `Backend API (Porta 8080)` <-> `Banco de Dados (PostgreSQL)`
 
 1.  **Frontend:** A interface do usuário, com a qual músicos e contratantes interagem.
 2.  **Servidor Proxy:** Um intermediário que recebe todas as requisições do frontend e as encaminha para o backend. Ele resolve problemas de CORS e serve como um ponto de entrada único para a API.
