@@ -34,7 +34,7 @@ export const MusicianCard = ({ musician }: MusicianCardProps) => {
             </p>
           </div>
 
-          <div className="flex items-center justify-between mt-4 pt-2 border-t border-gray-100">
+          {/* <div className="flex items-center justify-between mt-4 pt-2 border-t border-gray-100">
             <div className="flex items-center gap-1">
               <i className="pi pi-star-fill text-yellow-500 text-sm"></i>
               <span className="text-gray-700 text-sm font-medium">
@@ -44,7 +44,7 @@ export const MusicianCard = ({ musician }: MusicianCardProps) => {
             <span className="font-bold text-blue-600 text-sm">
               R$ {musician.price} <span className="text-gray-400 font-normal text-xs">/h</span>
             </span>
-          </div>
+          </div> */}
         </div>
       </Card>
     </Link>
