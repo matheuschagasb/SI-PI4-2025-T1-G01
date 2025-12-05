@@ -1,3 +1,7 @@
+/*
+ * Victor Ramalho Borges de Souza – 24007532
+ */
+
 package com.servidor.spring.servidor_spring.infra.security;
 
 import com.auth0.jwt.JWT;
@@ -16,11 +20,13 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.stream.Collectors;
 
+// Serviço responsável por gerar e validar tokens JWT
 @Service
 public class TokenService {
     @Value("${api.security.token.secret}")
     private String secret;
 
+    // Gera um token JWT para o usuário autenticado
     public String gerarToken(UserDetails userDetails) {
         try {
             Algorithm algorithm = Algorithm.HMAC256(secret);
@@ -39,6 +45,7 @@ public class TokenService {
         }
     }
 
+    // Extrai o subject (email) do token JWT
     public String getSubject(String tokenJWT) {
         try {
             Algorithm algorithm = Algorithm.HMAC256(secret);
@@ -52,6 +59,7 @@ public class TokenService {
         }
     }
 
+    // Extrai uma claim específica do token JWT
     public String getClaim(String tokenJWT, String claim) {
         try {
             Algorithm algorithm = Algorithm.HMAC256(secret);
@@ -66,6 +74,7 @@ public class TokenService {
         }
     }
 
+    // Define data de expiração do token (2 horas)
     private Instant dataExpiracao() {
         return LocalDateTime.now().plusHours(2).toInstant(ZoneOffset.of("-03:00"));
     }

@@ -1,7 +1,12 @@
+/*
+ * Guilherme Padilha Freire Alves – 24005138
+ */
+
 package com.servidor.spring.servidor_spring.dto;
 
 import java.util.List;
 
+// DTO para atualização de dados do músico
 public record MusicoUpdate(
         String nome,
         String biografia,

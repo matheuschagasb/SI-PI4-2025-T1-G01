@@ -1,3 +1,7 @@
+/*
+ * Autor: Marcos Roberto Mazzero Junior – 24010753
+ */
+
 package com.servidor.spring.servidor_spring.repository;
 
 import com.servidor.spring.servidor_spring.model.Contrato;
@@ -9,6 +13,7 @@ import org.springframework.data.repository.query.Param;
 import java.time.LocalDateTime;
 import java.util.List;
 
+// Repositório para acesso aos dados de Contrato
 public interface ContratoRepository extends JpaRepository<Contrato, String> {
 
     List<Contrato> findByMusicoIdOrderByDataEventoDesc(String musicoId);
@@ -17,6 +22,7 @@ public interface ContratoRepository extends JpaRepository<Contrato, String> {
 
     boolean existsByMusicoIdAndContratanteIdAndStatusIn(String musicoId, String contratanteId, List<StatusContrato> statuses);
 
+    // Query customizada para verificar conflitos de horário do músico
     @Query(value = "SELECT * FROM contrato c WHERE c.musico_id = :musicoId " +
            "AND c.status = :status " +
            "AND c.data_evento < :fimEvento " +

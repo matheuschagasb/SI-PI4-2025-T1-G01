@@ -1,3 +1,7 @@
+/*
+ * Autor: Matheus Chagas Batista – 24015048
+ */
+
 package com.servidor.spring.servidor_spring.model;
 
 import jakarta.persistence.*;
@@ -9,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 
+// Entidade que representa o contratante no banco de dados
 @Table(name = "contratante")
 @Entity
 @Getter
@@ -30,6 +35,7 @@ public class Contratante implements UserDetails {
     @Column(columnDefinition = "TEXT") // Importante para o Postgres aceitar Base64 grande
     private String fotoPerfil;
 
+    // Métodos do UserDetails para integração com Spring Security
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_CONTRATANTE"));

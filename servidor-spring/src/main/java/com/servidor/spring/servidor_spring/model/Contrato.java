@@ -1,3 +1,7 @@
+/*
+ * Autor: Marcos Roberto Mazzero Junior – 24010753
+ */
+
 package com.servidor.spring.servidor_spring.model;
 
 import jakarta.persistence.*;
@@ -5,6 +9,7 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
+// Entidade que representa um contrato entre músico e contratante
 @Table(name = "contrato")
 @Entity
 @Getter
@@ -18,10 +23,12 @@ public class Contrato {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
+    // Relacionamento com Músico
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "musico_id")
     private Musico musico;
 
+    // Relacionamento com Contratante
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "contratante_id")
     private Contratante contratante;
