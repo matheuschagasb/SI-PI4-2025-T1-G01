@@ -9,7 +9,7 @@ O projeto é construído sobre uma arquitetura moderna de 3 camadas, garantindo 
 `Frontend (Porta 3000)` <-> `Servidor (Porta 3001)` <-> `Backend API (Porta 8080)` <-> `Banco de Dados (PostgreSQL)`
 
 1.  **Frontend:** A interface do usuário, com a qual músicos e contratantes interagem.
-2.  **Servidor Proxy:** Um intermediário que recebe todas as requisições do frontend e as encaminha para o backend. Ele resolve problemas de CORS e serve como um ponto de entrada único para a API.
+2.  **Servidor:** Um intermediário que recebe todas as requisições do frontend e as encaminha para o backend. Ele resolve problemas de CORS e serve como um ponto de entrada único para a API.
 3.  **Backend API:** O cérebro da aplicação, onde toda a lógica de negócios, segurança e comunicação com o banco de dados acontece.
 
 ---
@@ -21,11 +21,11 @@ O projeto é construído sobre uma arquitetura moderna de 3 camadas, garantindo 
 Interface de usuário rica e interativa para a plataforma.
 
 -   **Tecnologia:** Next.js, React, TypeScript.
--   **Responsabilidades:** Renderizar a interface, gerenciar o estado do lado do cliente e enviar requisições HTTP para o Servidor Proxy.
+-   **Responsabilidades:** Renderizar a interface, gerenciar o estado do lado do cliente e enviar requisições HTTP para o Servidor.
 
-### 2. Servidor Proxy (`Servidor/`)
+### 2. Servidor(`Servidor/`)
 
-Um servidor proxy HTTP leve, construído em Java puro, que atua como uma ponte entre o frontend e o backend.
+Um servidor HTTP leve, construído em Java puro, que atua como uma ponte entre o frontend e o backend.
 
 -   **Tecnologia:** Java 11, `HttpServer` nativo, Maven.
 -   **Responsabilidades:**
@@ -56,7 +56,7 @@ Siga os passos abaixo para configurar e executar todo o ambiente de desenvolvime
 
 -   **Java (JDK):** Versão 11 ou superior.
 -   **Node.js e npm:** Para executar o projeto frontend.
--   **Maven:** Para compilar e executar o Servidor Proxy.
+-   **Maven:** Para compilar e executar o Servidor.
 -   **PostgreSQL:** Um servidor de banco de dados rodando localmente.
 
 ### Passo 1: Configurar o Banco de Dados
@@ -75,7 +75,7 @@ cd servidor-spring
 ```
 > O backend estará rodando em `http://localhost:8080`.
 
-### Passo 3: Executar o Servidor Proxy
+### Passo 3: Executar o Servidor
 
 Abra um **novo terminal** e execute os seguintes comandos:
 
@@ -83,7 +83,7 @@ Abra um **novo terminal** e execute os seguintes comandos:
 cd Servidor
 mvn compile exec:java
 ```
-> O proxy estará rodando em `http://localhost:3001`.
+> O Servidor estará rodando em `http://localhost:3001`.
 
 ### Passo 4: Executar o Frontend
 
