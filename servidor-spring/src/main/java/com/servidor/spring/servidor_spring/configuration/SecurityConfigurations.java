@@ -1,3 +1,7 @@
+/*
+ * Matheus Chagas Batista – 24015048
+ */
+
 package com.servidor.spring.servidor_spring.configuration;
 
 import com.servidor.spring.servidor_spring.infra.security.SecurityFilter;
@@ -20,6 +24,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
 
+// Configuração de segurança da aplicação
 @Configuration
 @EnableWebSecurity
 public class SecurityConfigurations {
@@ -27,16 +32,18 @@ public class SecurityConfigurations {
     @Autowired
     private SecurityFilter securityFilter;
 
+    // Configura a cadeia de filtros de segurança
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http.csrf(csrf -> csrf.disable())
+        return http.csrf(csrf -> csrf.disable()) // Desabilita CSRF para API REST
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Sem sessão (stateless)
                 .authorizeHttpRequests(req -> {
+                    // Endpoints públicos (sem autenticação)
                     req.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll();
                     req.requestMatchers(HttpMethod.POST, "/login").permitAll();
 
-                    // ALTERAÇÃO AQUI: Adicionado /** para permitir buscar por ID
+                    // Endpoints de músicos (públicos para consulta e cadastro)
                     req.requestMatchers(HttpMethod.GET, "/v1/musico/**").permitAll();
                     req.requestMatchers(HttpMethod.PUT, "/v1/musico/**").permitAll();
 
@@ -47,7 +54,7 @@ public class SecurityConfigurations {
                     req.requestMatchers(HttpMethod.POST, "/v1/contratos/{id}/confirmar-pagamento").hasRole("CONTRATANTE");
                     req.requestMatchers(HttpMethod.GET, "/v1/contratos").hasRole("MUSICO");
                     req.requestMatchers(HttpMethod.GET, "/v1/contratos/contratante").hasRole("CONTRATANTE");
-                    req.requestMatchers(HttpMethod.POST, "/v1/avaliacoes").hasRole("CONTRATANTE");
+                    req.requestMatchers(HttpMethod.POST, "/v1/avaliacoes").permitAll();
                     req.requestMatchers(HttpMethod.GET, "/v1/avaliacoes/**").permitAll();
                     req.requestMatchers("/hello-world").permitAll();
                     req.anyRequest().authenticated();
@@ -61,11 +68,13 @@ public class SecurityConfigurations {
         return configuration.getAuthenticationManager();
     }
 
+    // Encoder para criptografar senhas
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    // Configuração de CORS para permitir requisições do frontend
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();

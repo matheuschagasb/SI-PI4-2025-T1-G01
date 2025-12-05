@@ -10,6 +10,7 @@ import com.servidor.spring.servidor_spring.repository.ContratoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,42 +27,46 @@ public class AvaliacaoService {
     private ContratanteRepository contratanteRepository;
 
     public Avaliacao avaliarMusico(AvaliacaoRequestDTO dados, String emailContratante) {
-        // 1. Buscar o Contratante logado
-        Contratante contratante = contratanteRepository.findByEmail(emailContratante);
-        if (contratante == null) {
-            throw new ValidationException("Contratante não encontrado.");
-        }
-
-        // 2. Buscar o Contrato
+        // 1. Buscar o contrato
         Contrato contrato = contratoRepository.findById(dados.contratoId())
-                .orElseThrow(() -> new ValidationException("Contrato não encontrado."));
+                .orElseThrow(() -> new ValidationException("Contrato não encontrado"));
 
-        // 3. Validar se o contrato pertence a esse contratante
-        if (!contrato.getContratante().getId().equals(contratante.getId())) {
+        // 2. Validar se o contrato pertence ao contratante logado
+        if (!contrato.getContratante().getEmail().equals(emailContratante)) {
             throw new ValidationException("Este contrato não pertence a você.");
         }
 
-        // 4. Validar Status (Só pode avaliar se estiver CONCLUIDO)
+        // 3. LÓGICA NOVA: Atualizar status automaticamente se a data já passou
         if (contrato.getStatus() != StatusContrato.CONCLUIDO) {
-            throw new ValidationException("Apenas contratos concluídos podem ser avaliados.");
+            // Se a data do evento é ANTERIOR a hoje (ontem ou antes)
+            if (contrato.getDataEvento().isBefore(LocalDateTime.now())) {
+                contrato.setStatus(StatusContrato.CONCLUIDO);
+                contratoRepository.save(contrato); // Salva a atualização no banco
+            } else {
+                // Se é hoje ou futuro, bloqueia
+                throw new ValidationException("O evento ainda não foi concluído. Aguarde a data passar para avaliar.");
+            }
         }
 
-        // 5. Verificar se já existe avaliação para este contrato
+        // 4. Verificar se já existe avaliação para este contrato
         if (avaliacaoRepository.existsByContratoId(contrato.getId())) {
-            throw new ValidationException("Este contrato já foi avaliado.");
+            throw new ValidationException("Você já avaliou este contrato.");
         }
 
-        // 6. Salvar Avaliação
+        // 5. Criar e salvar a avaliação
+        Musico musico = contrato.getMusico();
+        Contratante contratante = contrato.getContratante();
+
         Avaliacao avaliacao = new Avaliacao();
+        avaliacao.setContrato(contrato);
+        avaliacao.setMusico(musico);
+        avaliacao.setContratante(contratante);
         avaliacao.setNota(dados.nota());
         avaliacao.setComentario(dados.comentario());
-        avaliacao.setContratante(contratante);
-        avaliacao.setMusico(contrato.getMusico()); // Pega o músico direto do contrato para garantir consistência
-        avaliacao.setContrato(contrato);
+        avaliacao.setDataAvaliacao(LocalDateTime.now());
 
         return avaliacaoRepository.save(avaliacao);
     }
-
     public List<AvaliacaoResponseDTO> listarAvaliacoesPorMusico(String musicoId) {
         List<Avaliacao> avaliacoes = avaliacaoRepository.findByMusicoId(musicoId);
         return avaliacoes.stream()

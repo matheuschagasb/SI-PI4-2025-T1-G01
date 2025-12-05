@@ -22,7 +22,7 @@ public class AvaliacaoController {
     public ResponseEntity<AvaliacaoResponseDTO> criarAvaliacao(@RequestBody AvaliacaoRequestDTO dados, Authentication auth) {
         String email = auth.getName(); // Pega o email do token JWT
         Avaliacao avaliacao = avaliacaoService.avaliarMusico(dados, email);
-        return ResponseEntity.ok(new AvaliacaoResponseDTO(avaliacao));
+            return ResponseEntity.ok(new AvaliacaoResponseDTO(avaliacao));
     }
     @GetMapping("/musico/{musicoId}")
     public ResponseEntity<List<AvaliacaoResponseDTO>> listarPorMusico(@PathVariable String musicoId) {

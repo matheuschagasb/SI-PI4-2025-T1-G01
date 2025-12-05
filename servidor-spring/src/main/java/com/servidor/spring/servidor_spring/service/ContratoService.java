@@ -1,3 +1,7 @@
+/*
+ * Autor: Matheus Chagas Batista – 24015048
+ */
+
 package com.servidor.spring.servidor_spring.service;
 
 import com.servidor.spring.servidor_spring.dto.ContratoRequestDTO;
@@ -16,6 +20,7 @@ import java.util.List;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
+// Serviço com lógica de negócio para Contrato
 @Service
 public class ContratoService {
 
@@ -28,6 +33,7 @@ public class ContratoService {
     @Autowired
     private ContratanteRepository contratanteRepository;
 
+    // Cria novo contrato com validações de conflito de horário
     public Contrato createContrato(ContratoRequestDTO dados, String emailContratante) {
         Contratante contratante = contratanteRepository.findByEmail(emailContratante);
         if (contratante == null) {

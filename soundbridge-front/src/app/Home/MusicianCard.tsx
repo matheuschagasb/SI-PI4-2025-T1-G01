@@ -1,13 +1,14 @@
+// Victor Ramalho - 24007532
 import { Card } from "primereact/card";
 import Link from "next/link";
 
 interface Musician {
-  id: number;
+  id: string; // Mudei para string para bater com o Home
   name: string;
   genre: string;
   subgenre: string;
   rating: number;
-  price: string;
+  price: string | number; // Aceita os dois
   image: string;
 }
 
@@ -17,6 +18,7 @@ interface MusicianCardProps {
 
 export const MusicianCard = ({ musician }: MusicianCardProps) => {
   return (
+    // Link envolve todo o card para tornar o componente inteiro clicável e navegar para o perfil
     <Link href={`/Perfil/${musician.id}`} className="block">
       <Card className="shadow-md hover:shadow-lg transition-shadow duration-200 rounded-xl overflow-hidden cursor-pointer">
         <img
@@ -32,6 +34,9 @@ export const MusicianCard = ({ musician }: MusicianCardProps) => {
 
           <div className="flex items-center justify-between mt-2">
             <div className="flex items-center gap-1">
+              <i className="pi pi-star text-yellow-500"></i>
+              {/* toFixed(2) garante que a nota seja exibida com 2 casas decimais */}
+              <span className="text-gray-700 text-sm">{musician.rating.toFixed(2)}</span>
             </div>
             <span className="font-medium text-gray-800">
               R$ {musician.price} hora

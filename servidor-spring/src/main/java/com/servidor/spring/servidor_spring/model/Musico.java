@@ -1,3 +1,7 @@
+/*
+ * Autor: Guilherme Padilha Freire Alves – 24005138
+ */
+
 package com.servidor.spring.servidor_spring.model;
 
 import jakarta.persistence.*;
@@ -10,6 +14,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 
+// Entidade que representa o músico no banco de dados
 @Table(name = "musico")
 @Entity
 @Getter
@@ -35,15 +40,17 @@ public class Musico implements UserDetails {
     private String preco;
     private String chavePix;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT") // Suporta imagens em Base64
     private String fotoPerfil;
 
+    // Coleção de fotos da banda armazenadas em tabela separada
     @ElementCollection
     @CollectionTable(name = "musico_fotos", joinColumns = @JoinColumn(name = "musico_id"))
     @Column(name = "foto_banda", columnDefinition = "TEXT")
     private List<String> fotosBanda;
 
 
+    // Métodos do UserDetails para integração com Spring Security
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_MUSICO"));

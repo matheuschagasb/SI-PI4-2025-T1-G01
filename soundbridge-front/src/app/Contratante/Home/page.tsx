@@ -1,3 +1,5 @@
+// Guilherme Padilha - 24005138
+
 'use client';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -5,421 +7,424 @@ import { ProgressSpinner } from 'primereact/progressspinner';
 import { Button } from 'primereact/button';
 import Image from 'next/image';
 import { TabView, TabPanel } from 'primereact/tabview';
-import { Dialog } from 'primereact/dialog';
-import { Rating } from 'primereact/rating';
-import { InputTextarea } from 'primereact/inputtextarea';
+import { Dialog } from 'primereact/dialog'; // Novo
+import { Rating } from 'primereact/rating'; // Novo
+import { InputTextarea } from 'primereact/inputtextarea'; // Novo
 import Link from 'next/link';
 
-const apiUrl = 'http://localhost:3001';
+const apiUrl = "http://localhost:3001"
 
 interface Contrato {
-  id: string;
+  id: string
   musico: {
-    id: string;
-    nome: string;
-    biografia: string;
-    cidade: string;
-    estado: string;
-    generoMusical: string;
-    email: string;
-    telefone: string;
-    fotoPerfil: string;
-    fotosBanda: string[];
-    preco: string;
-    chavePix: string;
-  };
+    id: string
+    nome: string
+    biografia: string
+    cidade: string
+    estado: string
+    generoMusical: string
+    email: string
+    telefone: string
+    fotoPerfil: string
+    fotosBanda: string[]
+    preco: string
+    chavePix: string
+  }
   contratante: {
-    id: string;
-    nome: string;
-    nomeEstabelecimento: string;
-    fotoPerfil: string;
-  };
-  dataEvento: string;
-  duracao: number;
-  valorTotal: number;
-  status: 'PENDENTE' | 'CONFIRMADO' | 'CONCLUIDO';
-  localEvento: string;
-  observacoes: string;
-  dataPagamento: string | null;
-  comprovantePagamentoUrl: string | null;
-  avaliacaoFeita?: boolean; 
+    id: string
+    nome: string
+    nomeEstabelecimento: string
+    fotoPerfil: string
+  }
+  dataEvento: string
+  duracao: number
+  valorTotal: number
+  status: "PENDENTE" | "CONFIRMADO" | "CONCLUIDO"
+  localEvento: string
+  observacoes: string
+  dataPagamento: string | null
+  comprovantePagamentoUrl: string | null
+  avaliacaoFeita?: boolean
 }
 
 export default function ContratanteHomePage() {
-    const [contratos, setContratos] = useState<Contrato[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [nomeContratante, setNomeContratante] = useState<string>('');
-    const router = useRouter();
-    const [activeIndex, setActiveIndex] = useState(0);
+  const [contratos, setContratos] = useState<Contrato[]>([])
+  const [loading, setLoading] = useState(true)
+  const [nomeContratante, setNomeContratante] = useState<string>("")
+  const router = useRouter()
+  const [activeTab, setActiveTab] = useState<"PENDENTE" | "CONFIRMADO" | "CONCLUIDO">("PENDENTE")
 
-    // Estados para o Modal de Avaliação
-    const [showAvaliacaoModal, setShowAvaliacaoModal] = useState(false);
-    const [contratoSelecionado, setContratoSelecionado] = useState<Contrato | null>(null);
-    const [nota, setNota] = useState<number | null>(null);
-    const [comentario, setComentario] = useState('');
-    const [enviandoAvaliacao, setEnviandoAvaliacao] = useState(false);
+  // Estados para o Modal de Avaliação
+  const [showAvaliacaoModal, setShowAvaliacaoModal] = useState(false)
+  const [contratoSelecionado, setContratoSelecionado] = useState<Contrato | null>(null)
+  const [nota, setNota] = useState<number | null>(null)
+  const [comentario, setComentario] = useState("")
+  const [enviandoAvaliacao, setEnviandoAvaliacao] = useState(false)
 
-    const fetchContracts = async (authToken: string) => {
-        try {
-            const response = await fetch(`${apiUrl}/v1/contratos/contratante`, {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${authToken}`
-                }
-            });
+  const fetchContracts = async (authToken: string) => {
+    try {
+      const response = await fetch(`${apiUrl}/v1/contratos/contratante`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      })
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || `Failed to fetch contracts: ${response.status} ${response.statusText}`);
-            }
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.message || `Failed to fetch contracts: ${response.status} ${response.statusText}`)
+      }
 
-            const fetchedContratos = await response.json();
-            setContratos(fetchedContratos);
+      const fetchedContratos = await response.json()
+      setContratos(fetchedContratos)
+    } catch (error: any) {
+      console.error("Error fetching contracts:", error)
+    }
+  }
 
-        } catch (error: any) {
-            console.error("Error fetching contracts:", error);
-        }
-    };
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true)
+      try {
+        const id = localStorage.getItem("soundbridge/id")
+        const nomeArmazenado = localStorage.getItem("soundbridge/nome")
+        const token = localStorage.getItem("soundbridge/token")
 
-    useEffect(() => {
-        const fetchData = async () => {
-            setLoading(true);
-            try {
-                const id = localStorage.getItem('soundbridge/id');
-                const nomeArmazenado = localStorage.getItem('soundbridge/nome');
-                const token = localStorage.getItem('soundbridge/token');
-                
-                if (!id || !token) {
-                    console.error("Contratante ID or token not found in localStorage. Redirecting to login.");
-                    router.push('/Login');
-                    return;
-                }
-
-                if (nomeArmazenado) {
-                    setNomeContratante(nomeArmazenado);
-                }
-
-                await fetchContracts(token);
-                
-            } catch (error) {
-                console.error('Erro ao carregar contratos:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchData();
-    }, [router]);
-
-    const handlePagar = async (contratoId: string) => {
-        const token = localStorage.getItem('soundbridge/token');
-        if (!token) {
-            router.push('/Login');
-            return;
+        if (!id || !token) {
+          console.error("Contratante ID or token not found in localStorage. Redirecting to login.")
+          router.push("/Login")
+          return
         }
 
-        try {
-            const response = await fetch(`${apiUrl}/v1/contratos/${contratoId}/confirmar-pagamento`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Falha ao processar pagamento.');
-            }
-
-            alert('Pagamento confirmado com sucesso!');
-            await fetchContracts(token); 
-        } catch (error: any) {
-            console.error("Payment error:", error);
-            alert(`Erro no pagamento: ${error.message}`);
-        }
-    };
-
-    const abrirModalAvaliacao = (contrato: Contrato) => {
-        setContratoSelecionado(contrato);
-        setNota(0);
-        setComentario('');
-        setShowAvaliacaoModal(true);
-    };
-
-    const handleEnviarAvaliacao = async () => {
-        if (!contratoSelecionado || !nota) {
-            alert("Por favor, selecione uma nota.");
-            return;
+        if (nomeArmazenado) {
+          setNomeContratante(nomeArmazenado)
         }
 
-        const token = localStorage.getItem('soundbridge/token');
-        setEnviandoAvaliacao(true);
-
-        try {
-            const payload = {
-                contratoId: contratoSelecionado.id,
-                musicoId: contratoSelecionado.musico.id,
-                nota: nota,
-                comentario: comentario
-            };
-
-            const response = await fetch(`${apiUrl}/v1/avaliacoes`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(payload)
-            });
-
-            if (!response.ok) {
-                throw new Error('Erro ao salvar avaliação');
-            }
-
-            alert('Avaliação enviada com sucesso!');
-            setShowAvaliacaoModal(false);
-            await fetchContracts(token!); 
-
-        } catch (error) {
-            console.error(error);
-            alert('Erro ao enviar avaliação.');
-        } finally {
-            setEnviandoAvaliacao(false);
-        }
-    };
-
-    const formatarData = (dataISO: string) => {
-        const data = new Date(dataISO);
-        return data.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' às ' + data.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-    };
-
-    // --- NOVA LÓGICA DE VERIFICAÇÃO DE DATA ---
-    const isEventoConcluido = (contrato: Contrato) => {
-        const dataEvento = new Date(contrato.dataEvento);
-        const agora = new Date();
-
-        // Se o status já for CONCLUIDO no banco, retorna true
-        if (contrato.status === 'CONCLUIDO') return true;
-
-        // Se o status for CONFIRMADO e a data já passou, considera concluído
-        if (contrato.status === 'CONFIRMADO' && agora > dataEvento) {
-            return true;
-        }
-
-        return false;
-    };
-
-    const getStatusIcon = (contrato: Contrato) => {
-        if (isEventoConcluido(contrato)) {
-            return '/icons/check-verde.svg';
-        }
-        
-        switch (contrato.status) {
-            case 'CONFIRMADO':
-                return '/icons/check-verde.svg';
-            case 'PENDENTE':
-                return '/icons/pendente.svg';
-            default:
-                return '/icons/pendente.svg';
-        }
-    };
-
-    // --- FILTRO ATUALIZADO ---
-    const filteredContracts = (tabType: 'PENDENTE' | 'CONFIRMADO' | 'CONCLUIDO') => {
-        return contratos.filter(c => {
-            const concluidoPorData = isEventoConcluido(c);
-
-            if (tabType === 'CONCLUIDO') {
-                return concluidoPorData;
-            }
-
-            if (tabType === 'CONFIRMADO') {
-                // Só mostra em confirmado se NÃO estiver concluído por data
-                return c.status === 'CONFIRMADO' && !concluidoPorData;
-            }
-
-            if (tabType === 'PENDENTE') {
-                return c.status === 'PENDENTE';
-            }
-
-            return false;
-        });
+        await fetchContracts(token)
+      } catch (error) {
+        console.error("Erro ao carregar contratos:", error)
+      } finally {
+        setLoading(false)
+      }
     }
 
-    if (loading) {
-        return (
-            <div className="flex justify-center items-center min-h-screen">
-                <ProgressSpinner />
-            </div>
-        );
+    fetchData()
+  }, [router])
+
+  const handlePagar = async (contratoId: string) => {
+    const token = localStorage.getItem("soundbridge/token")
+    if (!token) {
+      router.push("/Login")
+      return
     }
 
-    const renderContratoCard = (contrato: Contrato) => {
-        const concluido = isEventoConcluido(contrato);
+    try {
+      const response = await fetch(`${apiUrl}/v1/contratos/${contratoId}/confirmar-pagamento`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
 
-        return (
-            <div
-                key={contrato.id}
-                className="flex items-center gap-6 px-6 py-4 bg-gray-50 rounded-lg border border-gray-200 mb-4"
-            >
-                <div className="flex flex-col items-center gap-1">
-                    <Image
-                        src={getStatusIcon(contrato)}
-                        alt={contrato.status}
-                        width={24}
-                        height={24}
-                    />
-                    <Image
-                        src="/icons/contrato.svg"
-                        alt="Contrato"
-                        width={20}
-                        height={20}
-                    />
-                </div>
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.message || "Falha ao processar pagamento.")
+      }
 
-                <div className="flex-1">
-                    <p className="text-xs text-gray-500 mb-1">Músico</p>
-                    <p className="text-sm text-gray-700">{contrato.musico.nome}</p>
-                </div>
+      alert("Pagamento confirmado com sucesso!")
+      await fetchContracts(token)
+    } catch (error: any) {
+      console.error("Payment error:", error)
+      alert(`Erro no pagamento: ${error.message}`)
+    }
+  }
 
-                <div className="flex-1">
-                    <p className="text-xs text-gray-500 mb-1">Data do Evento</p>
-                    <p className="text-sm text-gray-700">{formatarData(contrato.dataEvento)}</p>
-                </div>
-                
-                <div className="flex-[2]">
-                    <p className="text-xs text-gray-500 mb-1">Local</p>
-                    <p className="text-sm text-gray-700">{contrato.localEvento}</p>
-                </div>
+  const abrirModalAvaliacao = (contrato: Contrato) => {
+    setContratoSelecionado(contrato)
+    setNota(0)
+    setComentario("")
+    setShowAvaliacaoModal(true)
+  }
 
-                <div className="flex-1">
-                    <p className="text-xs text-gray-500 mb-1">Valor</p>
-                    <p className="text-sm text-gray-700">R$ {contrato.valorTotal.toFixed(2)}</p>
-                </div>
+  const handleEnviarAvaliacao = async () => {
+    if (!contratoSelecionado || !nota) {
+      alert("Por favor, selecione uma nota.")
+      return
+    }
 
-                {/* Botão de Pagar (Apenas Pendente) */}
-                {contrato.status === 'PENDENTE' && (
-                    <Button
-                        label="Pagar"
-                        onClick={() => handlePagar(contrato.id)}
-                        className="p-button-success"
-                        style={{
-                            background: '#28a745',
-                            border: 'none',
-                            borderRadius: '999px',
-                            color: 'white',
-                            fontSize: '14px',
-                            padding: '8px 16px'
-                        }}
-                    />
-                )}
+    const token = localStorage.getItem("soundbridge/token")
+    setEnviandoAvaliacao(true)
 
-                {/* Botão de Avaliar (Se estiver concluído pela lógica de data ou status) */}
-                {concluido && (
-                    <Button
-                        label="Avaliar"
-                        icon="pi pi-star"
-                        onClick={() => abrirModalAvaliacao(contrato)}
-                        className="p-button-warning"
-                        disabled={contrato.avaliacaoFeita} // Desabilita se já avaliou (opcional)
-                        style={{
-                            background: '#f59e0b',
-                            border: 'none',
-                            borderRadius: '999px',
-                            color: 'white',
-                            fontSize: '14px',
-                            padding: '8px 16px',
-                            opacity: contrato.avaliacaoFeita ? 0.6 : 1
-                        }}
-                    />
-                )}
-            </div>
-        );
-    };
+    try {
+      const payload = {
+        contratoId: contratoSelecionado.id,
+        musicoId: contratoSelecionado.musico.id,
+        nota: nota,
+        comentario: comentario,
+      }
+
+      const response = await fetch(`${apiUrl}/v1/avaliacoes`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      })
+
+      if (!response.ok) {
+        throw new Error("Erro ao salvar avaliação")
+      }
+
+      alert("Avaliação enviada com sucesso!")
+      setShowAvaliacaoModal(false)
+      await fetchContracts(token!)
+    } catch (error) {
+      console.error(error)
+      alert("Erro ao enviar avaliação.")
+    } finally {
+      setEnviandoAvaliacao(false)
+    }
+  }
+
+  const formatarData = (dataISO: string) => {
+    const data = new Date(dataISO)
+    return (
+      data.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" }) +
+      " às " +
+      data.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })
+    )
+  }
+
+  const isEventoConcluido = (contrato: Contrato) => {
+    const dataEvento = new Date(contrato.dataEvento)
+    const agora = new Date()
+
+    if (contrato.status === "CONCLUIDO") return true
+
+    if (contrato.status === "CONFIRMADO" && agora > dataEvento) {
+      return true
+    }
+
+    return false
+  }
+
+  const getStatusIcon = (contrato: Contrato) => {
+    if (isEventoConcluido(contrato)) {
+      return "/icons/check-verde.svg"
+    }
+
+    switch (contrato.status) {
+      case "CONFIRMADO":
+        return "/icons/check-verde.svg"
+      case "PENDENTE":
+        return "/icons/pendente.svg"
+      default:
+        return "/icons/pendente.svg"
+    }
+  }
+
+  const filteredContracts = (tabType: "PENDENTE" | "CONFIRMADO" | "CONCLUIDO") => {
+    return contratos.filter((c) => {
+      const concluidoPorData = isEventoConcluido(c)
+
+      if (tabType === "CONCLUIDO") {
+        return concluidoPorData
+      }
+
+      if (tabType === "CONFIRMADO") {
+        return c.status === "CONFIRMADO" && !concluidoPorData
+      }
+
+      if (tabType === "PENDENTE") {
+        return c.status === "PENDENTE"
+      }
+
+      return false
+    })
+  }
+
+  const getContractCount = (tabType: "PENDENTE" | "CONFIRMADO" | "CONCLUIDO") => {
+    return filteredContracts(tabType).length
+  }
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <ProgressSpinner />
+      </div>
+    )
+  }
+
+  const renderContratoCard = (contrato: Contrato) => {
+    const concluido = isEventoConcluido(contrato)
 
     return (
-        <div className="min-h-screen bg-white">
-            <header className="flex items-center justify-between px-8 py-4 border-b border-gray-200">
-            <Link href="#" className="text-2xl font-bold text-blue-600 no-underline hover:text-blue-700 transition-colors">
-              SoundBridge
-            </Link>
-                <div className="flex items-center gap-4">
-                    <span className="text-sm text-gray-700">{nomeContratante}</span>
-                    <button className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-gray-700 font-semibold">
-                        {nomeContratante?.charAt(0) || 'U'}
-                    </button>
-                </div>
-            </header>
-
-            <main className="px-8 py-8">
-                <h2 className="text-3xl font-bold text-gray-900 mb-6">Meus Contratos</h2>
-
-                <TabView activeIndex={activeIndex} onTabChange={(e) => setActiveIndex(e.index)}>
-                    <TabPanel header="Pendentes">
-                        {filteredContracts('PENDENTE').length > 0 ? (
-                           filteredContracts('PENDENTE').map(renderContratoCard)
-                        ) : <p>Nenhum contrato pendente.</p>}
-                    </TabPanel>
-                    <TabPanel header="Confirmados">
-                        {filteredContracts('CONFIRMADO').length > 0 ? (
-                           filteredContracts('CONFIRMADO').map(renderContratoCard)
-                        ) : <p>Nenhum contrato confirmado (futuro).</p>}
-                    </TabPanel>
-                    <TabPanel header="Concluídos">
-                        {filteredContracts('CONCLUIDO').length > 0 ? (
-                           filteredContracts('CONCLUIDO').map(renderContratoCard)
-                        ) : <p>Nenhum contrato concluído.</p>}
-                    </TabPanel>
-                </TabView>
-            </main>
-
-            {/* Modal de Avaliação */}
-            <Dialog 
-                header={`Avaliar ${contratoSelecionado?.musico.nome}`} 
-                visible={showAvaliacaoModal} 
-                style={{ width: '50vw' }} 
-                onHide={() => setShowAvaliacaoModal(false)}
-            >
-                <div className="flex flex-col gap-4 pt-4">
-                    <div className="flex flex-col gap-2">
-                        <label className="font-bold text-gray-700">Nota</label>
-                        <Rating 
-                            value={nota || 0} 
-                            onChange={(e) => setNota(e.value || 0)} 
-                            cancel={false} 
-                            stars={5}
-                        />
-                    </div>
-
-                    <div className="flex flex-col gap-2">
-                        <label className="font-bold text-gray-700">Comentário</label>
-                        <InputTextarea 
-                            value={comentario} 
-                            onChange={(e) => setComentario(e.target.value)} 
-                            rows={5} 
-                            cols={30} 
-                            placeholder="Conte como foi a experiência com o músico..."
-                            className="w-full"
-                        />
-                    </div>
-
-                    <div className="flex justify-end gap-2 mt-4">
-                        <Button 
-                            label="Cancelar" 
-                            icon="pi pi-times" 
-                            onClick={() => setShowAvaliacaoModal(false)} 
-                            className="p-button-text" 
-                        />
-                        <Button 
-                            label="Enviar Avaliação" 
-                            icon="pi pi-check" 
-                            onClick={handleEnviarAvaliacao} 
-                            loading={enviandoAvaliacao}
-                            autoFocus 
-                        />
-                    </div>
-                </div>
-            </Dialog>
+      <div
+        key={contrato.id}
+        className="flex items-center gap-6 px-6 py-4 bg-gray-50 rounded-lg border border-gray-200 mb-4"
+      >
+        <div className="flex flex-col items-center gap-1">
+          <Image src={getStatusIcon(contrato) || "/placeholder.svg"} alt={contrato.status} width={24} height={24} />
+          <Image src="/icons/contrato.svg" alt="Contrato" width={20} height={20} />
         </div>
-    );
+
+        <div className="flex-1">
+          <p className="text-xs text-gray-500 mb-1">Músico</p>
+          <p className="text-sm text-gray-700">{contrato.musico.nome}</p>
+        </div>
+
+        <div className="flex-1">
+          <p className="text-xs text-gray-500 mb-1">Data do Evento</p>
+          <p className="text-sm text-gray-700">{formatarData(contrato.dataEvento)}</p>
+        </div>
+
+        <div className="flex-[2]">
+          <p className="text-xs text-gray-500 mb-1">Local</p>
+          <p className="text-sm text-gray-700">{contrato.localEvento}</p>
+        </div>
+
+        <div className="flex-1">
+          <p className="text-xs text-gray-500 mb-1">Valor</p>
+          <p className="text-sm text-gray-700">R$ {contrato.valorTotal.toFixed(2)}</p>
+        </div>
+
+        {contrato.status === "PENDENTE" && (
+          <Button
+            label="Pagar"
+            onClick={() => handlePagar(contrato.id)}
+            className="p-button-success"
+            style={{
+              background: "#28a745",
+              border: "none",
+              borderRadius: "999px",
+              color: "white",
+              fontSize: "14px",
+              padding: "8px 16px",
+            }}
+          />
+        )}
+
+        {concluido && (
+          <Button
+            label="Avaliar"
+            icon="pi pi-star"
+            onClick={() => abrirModalAvaliacao(contrato)}
+            className="p-button-warning"
+            disabled={contrato.avaliacaoFeita}
+            style={{
+              background: "#f59e0b",
+              border: "none",
+              borderRadius: "999px",
+              color: "white",
+              fontSize: "14px",
+              padding: "8px 16px",
+              opacity: contrato.avaliacaoFeita ? 0.6 : 1,
+            }}
+          />
+        )}
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen bg-white">
+      <header className="flex items-center justify-between px-8 py-4 border-b border-gray-200">
+        <Link href="/Home" className="text-2xl font-bold text-blue-600 no-underline hover:text-blue-700 transition-colors">
+          SoundBridge
+        </Link>
+        <div className="flex items-center gap-4">
+          <span className="text-sm text-gray-700">{nomeContratante}</span>
+          <button className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-gray-700 font-semibold">
+            {nomeContratante?.charAt(0) || "U"}
+          </button>
+        </div>
+      </header>
+
+      <main className="px-8 py-8">
+        <h2 className="text-3xl font-bold text-gray-900 mb-8">Meus Contratos</h2>
+
+        <div className="flex gap-2 mb-8 border-b border-gray-200">
+          {(["PENDENTE", "CONFIRMADO", "CONCLUIDO"] as const).map((tabType) => (
+            <button
+              key={tabType}
+              onClick={() => setActiveTab(tabType)}
+              className={`px-6 py-3 font-medium text-sm transition-all relative flex items-center gap-2 ${
+                activeTab === tabType ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-600 hover:text-gray-900"
+              }`}
+            >
+              <span>
+                {tabType === "PENDENTE" && "Pendentes"}
+                {tabType === "CONFIRMADO" && "Confirmados"}
+                {tabType === "CONCLUIDO" && "Concluídos"}
+              </span>
+              <span
+                className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold ${
+                  activeTab === tabType ? "bg-blue-100 text-blue-700" : "bg-gray-200 text-gray-700"
+                }`}
+              >
+                {getContractCount(tabType)}
+              </span>
+            </button>
+          ))}
+        </div>
+
+        <div className="mt-6">
+          {filteredContracts(activeTab).length > 0 ? (
+            filteredContracts(activeTab).map(renderContratoCard)
+          ) : (
+            <div className="text-center py-12">
+              <p className="text-gray-500 text-base">
+                {activeTab === "PENDENTE" && "Nenhum contrato pendente."}
+                {activeTab === "CONFIRMADO" && "Nenhum contrato confirmado (futuro)."}
+                {activeTab === "CONCLUIDO" && "Nenhum contrato concluído."}
+              </p>
+            </div>
+          )}
+        </div>
+      </main>
+
+      <Dialog
+        header={`Avaliar ${contratoSelecionado?.musico.nome}`}
+        visible={showAvaliacaoModal}
+        style={{ width: "50vw" }}
+        onHide={() => setShowAvaliacaoModal(false)}
+      >
+        <div className="flex flex-col gap-4 pt-4">
+          <div className="flex flex-col gap-2">
+            <label className="font-bold text-gray-700">Nota</label>
+            <Rating value={nota || 0} onChange={(e) => setNota(e.value || 0)} cancel={false} stars={5} />
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <label className="font-bold text-gray-700">Comentário</label>
+            <InputTextarea
+              value={comentario}
+              onChange={(e) => setComentario(e.target.value)}
+              rows={5}
+              cols={30}
+              placeholder="Conte como foi a experiência com o músico..."
+              className="w-full"
+            />
+          </div>
+
+          <div className="flex justify-end gap-2 mt-4">
+            <Button
+              label="Cancelar"
+              icon="pi pi-times"
+              onClick={() => setShowAvaliacaoModal(false)}
+              className="p-button-text"
+            />
+            <Button
+              label="Enviar Avaliação"
+              icon="pi pi-check"
+              onClick={handleEnviarAvaliacao}
+              loading={enviandoAvaliacao}
+              autoFocus
+            />
+          </div>
+        </div>
+      </Dialog>
+    </div>
+  )
 }
