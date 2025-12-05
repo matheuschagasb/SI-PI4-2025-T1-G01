@@ -1,3 +1,4 @@
+// Marcos Roberto - 24010753
 'use client';
 import { Avatar } from 'primereact/avatar';
 import { Button } from 'primereact/button';
@@ -25,6 +26,7 @@ interface Musician {
 
 export default function MusicoEditarPage() {
     const [musicianData, setMusicianData] = useState<Musician | null>(null);
+    // Guarda uma cópia original para poder restaurar ao cancelar edição
     const [originalMusicianData, setOriginalMusicianData] = useState<Musician | null>(null);
     const [editing, setEditing] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -38,21 +40,25 @@ export default function MusicoEditarPage() {
             if (!response.ok) {
                 throw new Error(`Failed to fetch musician data. Status: ${response.status}`);
             }
-            
+
+            // Lê a resposta como texto para conseguir tratar erros de JSON inválido
             const responseText = await response.text();
             try {
                 const data = JSON.parse(responseText);
 
+                // Converte base64 "cru" em data URL para exibir no <img>/<Avatar>
                 if (data.fotoPerfil && !data.fotoPerfil.startsWith('data:')) {
                     data.fotoPerfil = `data:image/jpeg;base64,${data.fotoPerfil}`;
                 }
                 if (data.fotosBanda && Array.isArray(data.fotosBanda)) {
-                    data.fotosBanda = data.fotosBanda.map((photo: string) => {
-                        if (photo && !photo.startsWith('data:')) {
-                            return `data:image/jpeg;base64,${photo}`;
-                        }
-                        return photo;
-                    }).filter(Boolean);
+                    data.fotosBanda = data.fotosBanda
+                        .map((photo: string) => {
+                            if (photo && !photo.startsWith('data:')) {
+                                return `data:image/jpeg;base64,${photo}`;
+                            }
+                            return photo;
+                        })
+                        .filter(Boolean);
                 }
 
                 setMusicianData(data);
@@ -77,7 +83,10 @@ export default function MusicoEditarPage() {
             const reader = new FileReader();
             reader.onload = (readerEvent) => {
                 const base64String = readerEvent.target?.result as string;
-                setMusicianData((prevData) => (prevData ? { ...prevData, fotoPerfil: base64String } : null));
+                // Atualiza apenas o campo fotoPerfil sem perder o resto dos dados
+                setMusicianData((prevData) =>
+                    prevData ? { ...prevData, fotoPerfil: base64String } : null
+                );
             };
             reader.readAsDataURL(file);
         }
@@ -86,6 +95,7 @@ export default function MusicoEditarPage() {
     const handleBandPhotosChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const files = event.target.files;
         if (files) {
+            // Converte todos os arquivos selecionados em base64 (data URLs) de forma assíncrona
             const filePromises = Array.from(files).map(file => {
                 return new Promise<string>((resolve, reject) => {
                     const reader = new FileReader();
@@ -120,7 +130,9 @@ export default function MusicoEditarPage() {
     };
 
     const handleChange = (field: keyof Musician, value: any) => {
-        setMusicianData((prevData) => (prevData ? { ...prevData, [field]: value } : null));
+        setMusicianData((prevData) =>
+            prevData ? { ...prevData, [field]: value } : null
+        );
     };
 
     const handleEdit = () => {
@@ -128,6 +140,7 @@ export default function MusicoEditarPage() {
     };
 
     const handleCancel = () => {
+        // Restaura o estado original e sai do modo edição
         setMusicianData(originalMusicianData);
         setEditing(false);
     };
@@ -135,14 +148,16 @@ export default function MusicoEditarPage() {
     const handleSave = async () => {
         if (!musicianData) return;
 
-        const dataToSend = { ...musicianData };
+        // Cria uma cópia para poder ajustar apenas o formato enviado à API
+        const dataToSend: any = { ...musicianData };
 
+        // Remove o prefixo "data:image..." para enviar apenas o base64 puro à API
         if (dataToSend.fotoPerfil && dataToSend.fotoPerfil.startsWith('data:image')) {
             dataToSend.fotoPerfil = dataToSend.fotoPerfil.split(',')[1];
         }
 
         if (dataToSend.fotosBanda) {
-            dataToSend.fotosBanda = dataToSend.fotosBanda.map(photo => {
+            dataToSend.fotosBanda = dataToSend.fotosBanda.map((photo: string) => {
                 if (photo.startsWith('data:image')) {
                     return photo.split(',')[1];
                 }
@@ -167,8 +182,8 @@ export default function MusicoEditarPage() {
             setOriginalMusicianData(updatedData);
             setMusicianData(updatedData);
             setEditing(false);
-            
-            // Atualizar nome no localStorage
+
+            // Atualiza o nome salvo na sessão (ex.: header, avatar, etc.)
             localStorage.setItem('soundbridge/nome', updatedData.nome);
         } catch (error) {
             console.error("Error saving data:", error);
@@ -207,7 +222,7 @@ export default function MusicoEditarPage() {
             </div>
         );
     }
-    
+
     if (!musicianData) {
         return <div className="flex justify-center items-center min-h-screen">Error: Musician not found.</div>
     }
@@ -227,7 +242,10 @@ export default function MusicoEditarPage() {
                             />
                             {editing && (
                                 <>
-                                    <label htmlFor="profile-image-upload" className="absolute bottom-0 right-0 cursor-pointer bg-gray-200 rounded-full p-2 hover:bg-gray-300">
+                                    <label
+                                        htmlFor="profile-image-upload"
+                                        className="absolute bottom-0 right-0 cursor-pointer bg-gray-200 rounded-full p-2 hover:bg-gray-300"
+                                    >
                                         <i className="pi pi-pencil text-sm"></i>
                                         <input
                                             id="profile-image-upload"
@@ -297,7 +315,8 @@ export default function MusicoEditarPage() {
                             onChange={(e) => handleChange('nome', e.target.value)} 
                             disabled={!editing} 
                             className={inputClass} 
-                            style={!editing ? disabledInputStyle : inputStyle} />
+                            style={!editing ? disabledInputStyle : inputStyle}
+                        />
                     </div>
 
                     <div className="flex flex-col gap-2">
@@ -311,7 +330,8 @@ export default function MusicoEditarPage() {
                             disabled={!editing} 
                             className={inputClass} 
                             panelClassName="text-[12px]" 
-                            style={!editing ? disabledInputStyle : inputStyle} />
+                            style={!editing ? disabledInputStyle : inputStyle}
+                        />
                     </div>
                     
                     <div className="flex flex-col gap-2 md:col-span-2">
@@ -320,9 +340,12 @@ export default function MusicoEditarPage() {
                             id="biografia" 
                             value={musicianData.biografia} 
                             onChange={(e) => handleChange('biografia', e.target.value)} 
-                            rows={4} autoResize disabled={!editing} 
+                            rows={4}
+                            autoResize
+                            disabled={!editing} 
                             className="w-full px-4 border border-gray-200 rounded-[20px] text-[12px] focus:border-blue-400 focus:ring-0" 
-                            style={!editing ? disabledInputStyle : inputStyle} />
+                            style={!editing ? disabledInputStyle : inputStyle}
+                        />
                     </div>
 
                     <div className="flex flex-col gap-2">
@@ -332,9 +355,12 @@ export default function MusicoEditarPage() {
                             value={musicianData.generoMusical} 
                             options={genres} 
                             onChange={(e) => handleChange('generoMusical', e.value)} 
-                            placeholder="Selecione seu estilo" disabled={!editing} 
-                            className={inputClass} panelClassName="text-[12px]" 
-                            style={!editing ? disabledInputStyle : inputStyle} />
+                            placeholder="Selecione seu estilo"
+                            disabled={!editing} 
+                            className={inputClass}
+                            panelClassName="text-[12px]" 
+                            style={!editing ? disabledInputStyle : inputStyle}
+                        />
                     </div>
 
                     <div className="flex flex-col gap-2">
@@ -361,7 +387,8 @@ export default function MusicoEditarPage() {
                                     onChange={(e) => handleChange('email', e.target.value)} 
                                     disabled={!editing} 
                                     className={inputClass} 
-                                    style={!editing ? disabledInputStyle : inputStyle} />
+                                    style={!editing ? disabledInputStyle : inputStyle}
+                                />
                             </div>
                             <div className="flex flex-col gap-2">
                                 <label htmlFor="chavePix">Chave PIX</label>
@@ -371,16 +398,22 @@ export default function MusicoEditarPage() {
                                     onChange={(e) => handleChange('telefone', e.target.value)} 
                                     disabled={!editing} 
                                     className={inputClass} 
-                                    style={!editing ? disabledInputStyle : inputStyle} />
+                                    style={!editing ? disabledInputStyle : inputStyle}
+                                />
                             </div>
                         </div>
                     </div>
+
                     <div className="md:col-span-2 mt-4">
                         <h2 className="text-lg font-semibold mb-4 border-t pt-4">Fotos da Banda</h2>
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                             {musicianData.fotosBanda?.map((photo, index) => (
                                 <div key={index} className="relative group">
-                                    <img src={photo} alt={`Foto da banda ${index + 1}`} className="w-full h-40 object-cover rounded-lg" />
+                                    <img
+                                        src={photo}
+                                        alt={`Foto da banda ${index + 1}`}
+                                        className="w-full h-40 object-cover rounded-lg"
+                                    />
                                     {editing && (
                                         <Button 
                                             icon="pi pi-times"
@@ -394,7 +427,10 @@ export default function MusicoEditarPage() {
                                 </div>
                             ))}
                             {editing && (
-                                <label htmlFor="band-photos-upload" className="cursor-pointer flex flex-col items-center justify-center w-full h-40 border-2 border-dashed rounded-lg text-gray-400 hover:bg-gray-50 hover:text-gray-500">
+                                <label
+                                    htmlFor="band-photos-upload"
+                                    className="cursor-pointer flex flex-col items-center justify-center w-full h-40 border-2 border-dashed rounded-lg text-gray-400 hover:bg-gray-50 hover:text-gray-500"
+                                >
                                     <i className="pi pi-plus text-2xl"></i>
                                     <span>Adicionar Fotos</span>
                                     <input
