@@ -1,3 +1,4 @@
+// Guilherme Padilha - 24005138
 'use client';
 import { useState, useEffect } from 'react';
 import { Calendar } from 'primereact/calendar';
@@ -23,19 +24,19 @@ interface AgendaMusicoProps {
 export default function AgendaMusico({ musicoId, isEditing }: AgendaMusicoProps) {
     const [blockedDates, setBlockedDates] = useState<Date[]>([]);
 
-    // Busca datas ao carregar
+    // Carrega datas bloqueadas ao iniciar
     useEffect(() => {
         if (musicoId) {
             fetchBlockedDates();
         }
     }, [musicoId]);
 
+    // Busca datas bloqueadas da API
     const fetchBlockedDates = async () => {
         try {
             const response = await fetch(`http://localhost:3001/v1/agenda/musico/${musicoId}`);
             if (response.ok) {
                 const datesStrings: string[] = await response.json();
-                // Adiciona T12:00:00 para garantir o fuso horário correto no visual
                 const dates = datesStrings.map(dateStr => new Date(dateStr + 'T12:00:00'));
                 setBlockedDates(dates);
             }
@@ -44,6 +45,7 @@ export default function AgendaMusico({ musicoId, isEditing }: AgendaMusicoProps)
         }
     };
 
+    // Bloqueia ou desbloqueia data selecionada
     const handleDateSelect = async (e: any) => {
         if (!isEditing) return;
 
@@ -51,19 +53,18 @@ export default function AgendaMusico({ musicoId, isEditing }: AgendaMusicoProps)
         const dateStr = selectedDate.toISOString().split('T')[0];
         const token = localStorage.getItem('soundbridge/token');
 
-        // Verifica se já está bloqueado
         const isBlocked = blockedDates.some(d => d.toISOString().split('T')[0] === dateStr);
 
         try {
             if (isBlocked) {
-                // Desbloquear
+                // Remove bloqueio
                 await fetch(`http://localhost:3001/v1/agenda/desbloquear/${dateStr}`, {
                     method: 'DELETE',
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 setBlockedDates(prev => prev.filter(d => d.toISOString().split('T')[0] !== dateStr));
             } else {
-                // Bloquear
+                // Bloqueia data
                 await fetch(`http://localhost:3001/v1/agenda/bloquear`, {
                     method: 'POST',
                     headers: { 
@@ -79,6 +80,7 @@ export default function AgendaMusico({ musicoId, isEditing }: AgendaMusicoProps)
         }
     };
 
+    // Renderiza estilo visual das datas bloqueadas
     const dateTemplate = (dateMeta: any) => {
         const date = new Date(dateMeta.year, dateMeta.month, dateMeta.day);
         const dateStr = date.toISOString().split('T')[0];
