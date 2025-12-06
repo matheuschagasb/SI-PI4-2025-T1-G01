@@ -7,6 +7,7 @@ import { Dropdown } from 'primereact/dropdown';
 import { useState, useEffect } from 'react';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { useRouter } from 'next/navigation';
+import AgendaMusico from '../../AgendaMusico'; 
 
 interface Musician {
     id: string;
@@ -349,7 +350,13 @@ export default function MusicoEditarPage() {
                             placeholder="Ex: 150.00"
                         />
                     </div>
-
+                    <div className="md:col-span-2 mt-4">
+                        <h2 className="text-lg font-semibold mb-4 border-t pt-4">Minha Disponibilidade</h2>
+                        <AgendaMusico 
+                            musicoId={musicianData.id} 
+                            isEditing={editing} 
+                        />
+                    </div>
                     <div className="md:col-span-2 mt-4">
                         <h2 className="text-lg font-semibold mb-4 border-t pt-4">Dados da Conta</h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
