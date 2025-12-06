@@ -13,6 +13,19 @@ import { Toast } from "primereact/toast"
 import { Avatar } from "primereact/avatar"
 import { Tag } from "primereact/tag"
 import Link from "next/link"
+import { addLocale } from 'primereact/api';
+
+// Configuração PT-BR para o calendário
+addLocale('pt-BR', {
+    firstDayOfWeek: 0,
+    dayNames: ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'],
+    dayNamesShort: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'],
+    dayNamesMin: ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'],
+    monthNames: ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'],
+    monthNamesShort: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+    today: 'Hoje',
+    clear: 'Limpar'
+});
 
 type Musico = {
   id: string
@@ -54,6 +67,9 @@ export default function Perfil() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  // Estado para datas bloqueadas
+  const [blockedDates, setBlockedDates] = useState<Date[]>([])
+
   const [dataReserva, setDataReserva] = useState<Date | null>(null)
   const [horaReserva, setHoraReserva] = useState<Date | null>(null)
   const [duracao, setDuracao] = useState<number | null>(null)
@@ -63,6 +79,7 @@ export default function Perfil() {
   const toast = useRef<Toast>(null)
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"
 
+  // Busca dados do músico
   useEffect(() => {
     async function carregarMusico() {
       try {
@@ -114,8 +131,9 @@ export default function Perfil() {
     }
 
     carregarMusico()
-  }, [id])
+  }, [id, apiUrl])
 
+  // Busca avaliações
   useEffect(() => {
     async function carregarAvaliacoes() {
       try {
@@ -131,7 +149,29 @@ export default function Perfil() {
     if (id) {
       carregarAvaliacoes()
     }
-  }, [id])
+  }, [id, apiUrl])
+
+  // --- NOVO: Busca datas bloqueadas ---
+  useEffect(() => {
+    async function carregarAgenda() {
+      try {
+        const response = await fetch(`${apiUrl}/v1/agenda/musico/${id}`)
+        if (response.ok) {
+          const datesStrings: string[] = await response.json()
+          // Converte strings 'YYYY-MM-DD' para objetos Date
+          // Adiciona T12:00:00 para evitar problemas de fuso horário
+          const dates = datesStrings.map(dateStr => new Date(dateStr + 'T12:00:00'))
+          setBlockedDates(dates)
+        }
+      } catch (error) {
+        console.error("Erro ao buscar agenda", error)
+      }
+    }
+    if (id) {
+      carregarAgenda()
+    }
+  }, [id, apiUrl])
+  // ------------------------------------
 
   const handleReservar = async () => {
     if (!musico) return
@@ -220,67 +260,60 @@ export default function Perfil() {
   return (
     <div className="min-h-screen bg-white">
       <Toast ref={toast} />
- <header className="flex items-center justify-between px-8 py-4 border-b border-gray-200">
-            <Link href="/Home" className="text-2xl font-bold text-blue-600 no-underline hover:text-blue-700 transition-colors">
-              SoundBridge
-            </Link>
+      <header className="flex items-center justify-between px-8 py-4 border-b border-gray-200">
+        <Link href="/Home" className="text-2xl font-bold text-blue-600 no-underline hover:text-blue-700 transition-colors">
+          SoundBridge
+        </Link>
 
-                            <div className="flex items-center gap-4">
-              <span className="font-medium text-gray-700 hidden sm:block"></span>
-              
-              <button className="p-2 text-gray-600 hover:bg-gray-100 rounded-full transition-colors" title="Idioma">
-                <i className="pi pi-globe text-xl"></i>
-              </button>
-              
-              <Link href="/Contratante">
-                <div className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 p-1 pr-2 rounded-full border border-gray-200 transition-all shadow-sm hover:shadow-md">
-                  <i className="pi pi-bars text-lg ml-2 text-gray-600"></i>
-                  <Avatar icon="pi pi-user" shape="circle" className="bg-blue-600 text-white" />
-                </div>
-              </Link>
+        <div className="flex items-center gap-4">
+          <span className="font-medium text-gray-700 hidden sm:block"></span>
+          
+          <button className="p-2 text-gray-600 hover:bg-gray-100 rounded-full transition-colors" title="Idioma">
+            <i className="pi pi-globe text-xl"></i>
+          </button>
+          
+          <Link href="/Contratante">
+            <div className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 p-1 pr-2 rounded-full border border-gray-200 transition-all shadow-sm hover:shadow-md">
+              <i className="pi pi-bars text-lg ml-2 text-gray-600"></i>
+              <Avatar icon="pi pi-user" shape="circle" className="bg-blue-600 text-white" />
             </div>
-            
-            </header>
-      {/* Header Simples */}
-<div className=" border-gray-200">
-    <div className="max-w-6xl mx-auto px-4 md:px-8 py-6">
-        {/* Título */}
-        <h1 className="text-3xl font-bold text-gray-900">{musico.nome}</h1>
-        
-        {/* Linha de detalhes (Avaliação, Tags, Local) */}
-        <div className="flex flex-wrap items-center gap-3 text-slate-600 mt-2">
-            
-            {/* Avaliação */}
-            <div className="flex items-center gap-1">
-                <i className="pi pi-star-fill text-yellow-500"></i>
-                <span className="font-semibold text-gray-900">{mediaNotas.toFixed(1)}</span>
-                <span className="text-gray-500">({avaliacoes.length} avaliações)</span>
-            </div>
-            
-            <span className="text-slate-300">•</span>
-            
-            {/* Tags */}
-            <div className="flex flex-wrap gap-2">
-                {musico.categorias.map((c, i) => (
-                    <Tag key={i} value={c} className="bg-blue-50 text-blue-700 border-0 px-2 py-1" />
-                ))}
-            </div>
-            
-            <span className="text-slate-300">•</span>
-            
-            {/* Local */}
-            <span className="flex items-center gap-2 text-sm">
-                <i className="pi pi-map-marker text-slate-500" />
-                {musico.local}
-            </span>
+          </Link>
         </div>
-    </div>
-</div>
+      </header>
 
-      {/* Galeria de Fotos - Grid Layout Simples */}
+      {/* Header Simples */}
+      <div className=" border-gray-200">
+        <div className="max-w-6xl mx-auto px-4 md:px-8 py-6">
+          <h1 className="text-3xl font-bold text-gray-900">{musico.nome}</h1>
+          
+          <div className="flex flex-wrap items-center gap-3 text-slate-600 mt-2">
+            <div className="flex items-center gap-1">
+              <i className="pi pi-star-fill text-yellow-500"></i>
+              <span className="font-semibold text-gray-900">{mediaNotas.toFixed(1)}</span>
+              <span className="text-gray-500">({avaliacoes.length} avaliações)</span>
+            </div>
+            
+            <span className="text-slate-300">•</span>
+            
+            <div className="flex flex-wrap gap-2">
+              {musico.categorias.map((c, i) => (
+                <Tag key={i} value={c} className="bg-blue-50 text-blue-700 border-0 px-2 py-1" />
+              ))}
+            </div>
+            
+            <span className="text-slate-300">•</span>
+            
+            <span className="flex items-center gap-2 text-sm">
+              <i className="pi pi-map-marker text-slate-500" />
+              {musico.local}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Galeria de Fotos */}
       <div className="max-w-6xl mx-auto px-4 md:px-8 py-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 h-96">
-          {/* Foto Principal - Grande */}
           <div className="md:col-span-2 md:row-span-2 rounded-lg overflow-hidden bg-gray-100 border border-gray-200">
             <img
               src={musico.fotos[0] || "/placeholder.svg?height=400&width=600&query=musician"}
@@ -289,7 +322,6 @@ export default function Perfil() {
             />
           </div>
 
-          {/* Fotos Menores */}
           {[1, 2, 3, 4].map((idx) => (
             <div key={idx} className="rounded-lg overflow-hidden bg-gray-100 border border-gray-200">
               <img
@@ -307,13 +339,11 @@ export default function Perfil() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Coluna Esquerda */}
           <div className="lg:col-span-2 flex flex-col gap-8">
-            {/* Sobre o Músico */}
             <div className="border border-gray-200 rounded-lg p-8 bg-white">
               <h2 className="text-2xl font-bold text-gray-900 mb-4">Sobre o Artista</h2>
               <p className="text-gray-600 leading-relaxed whitespace-pre-line">{musico.descricao}</p>
             </div>
 
-            {/* Avaliações */}
             <div className="border border-gray-200 rounded-lg p-8 bg-white">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl font-bold text-gray-900">
@@ -387,7 +417,16 @@ export default function Perfil() {
                       showIcon
                       className="w-full text-sm"
                       placeholder="Selecione a data"
+                      locale="pt-BR"
+                      minDate={new Date()} // Não permite datas passadas
+                      disabledDates={blockedDates} // <--- AQUI ESTÁ A MÁGICA
                     />
+                    {/* Legenda simples */}
+                    {blockedDates.length > 0 && (
+                        <small className="text-gray-400 text-xs mt-1 block">
+                            Datas em cinza estão indisponíveis.
+                        </small>
+                    )}
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">

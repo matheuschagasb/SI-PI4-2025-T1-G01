@@ -56,6 +56,10 @@ public class SecurityConfigurations {
                     req.requestMatchers(HttpMethod.GET, "/v1/contratos/contratante").hasRole("CONTRATANTE");
                     req.requestMatchers(HttpMethod.POST, "/v1/avaliacoes").permitAll();
                     req.requestMatchers(HttpMethod.GET, "/v1/avaliacoes/**").permitAll();
+
+                    req.requestMatchers(HttpMethod.GET, "/v1/agenda/**").permitAll();
+                    req.requestMatchers(HttpMethod.POST, "/v1/agenda/bloquear").authenticated(); 
+                    req.requestMatchers(HttpMethod.DELETE, "/v1/agenda/desbloquear/**").authenticated(); 
                     req.requestMatchers("/hello-world").permitAll();
                     req.anyRequest().authenticated();
                 })
