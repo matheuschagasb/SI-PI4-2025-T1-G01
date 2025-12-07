@@ -1,3 +1,5 @@
+// Guilherme Padilha - 24005138
+
 package com.servidor.spring.servidor_spring.controller;
 
 import com.servidor.spring.servidor_spring.dto.AvaliacaoRequestDTO;
@@ -24,6 +26,7 @@ public class AvaliacaoController {
         Avaliacao avaliacao = avaliacaoService.avaliarMusico(dados, email);
             return ResponseEntity.ok(new AvaliacaoResponseDTO(avaliacao));
     }
+        // Retorna os dados do musico de acordo com o ID do musico
     @GetMapping("/musico/{musicoId}")
     public ResponseEntity<List<AvaliacaoResponseDTO>> listarPorMusico(@PathVariable String musicoId) {
         List<AvaliacaoResponseDTO> avaliacoes = avaliacaoService.listarAvaliacoesPorMusico(musicoId);
