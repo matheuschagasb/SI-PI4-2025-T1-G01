@@ -100,3 +100,10 @@ npm run dev
 
 Abra seu navegador e acesse **`http://localhost:3000`**. Agora você pode interagir com a aplicação completa.
 
+## Colaboradores
+
+1. Guilherme Padilha Freire Alves
+2. Marcos Roberto Mazzero Junior
+3. Matheus Chagas Batista
+4. Thiago Mauri Gonzalez
+5. Victor Ramalho Borges de Souza
